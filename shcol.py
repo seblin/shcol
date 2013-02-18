@@ -5,7 +5,7 @@ from itertools import count
 from math import ceil
 
 try:
-    range = xrange
+    _range = xrange
 except NameError:
     pass
 
@@ -27,7 +27,7 @@ def get_line_properties(items, spacing, max_line_width):
     num_items = len(item_widths)
     for chunk_size in count(1):
         column_widths = [max(item_widths[i : i + chunk_size])
-                         for i in range(0, num_items, chunk_size)]
+                         for i in _range(0, num_items, chunk_size)]
         line_width = sum(column_widths) + (len(column_widths) - 1) * spacing
         if line_width <= max_line_width:
             break
@@ -42,7 +42,7 @@ class Formatter(object):
     def line_strings(self):
         num_lines = int(ceil(len(self.items) / self.num_columns))
         template = self.get_line_template()
-        for i in range(num_lines):
+        for i in _range(num_lines):
             line_items = tuple(self.items[i::num_lines])
             try:
                 yield template % line_items
