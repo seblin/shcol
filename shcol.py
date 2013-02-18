@@ -7,7 +7,7 @@ from math import ceil
 try:
     _range = xrange
 except NameError:
-    pass
+    _range = range
 
 LineProperties = namedtuple('LineProperties', 'column_widths, spacing')
 
