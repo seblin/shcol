@@ -62,17 +62,17 @@ class Formatter(object):
     def num_columns(self):
         return len(self.line_properties.column_widths)
 
-    def get_line_template(self, num_items=-1, allow_exceeding=True):
-        if num_items < 0 or num_items > self.num_columns:
-            num_items = self.num_columns
-        if num_items == 0:
+    def get_line_template(self, num_specs=-1):
+        if num_specs < 0:
+            num_specs = self.num_columns
+        if num_specs == 0:
             return ''
-        if num_items == 1 and allow_exceeding:
+        if num_specs == 1:
             return '%s'
         column_widths = self.line_properties.column_widths
         specs = ['%%-%d.%ds' % (width, width)
-                 for width in column_widths[:num_items - 1]]
-        specs.append('%%.%ds' % column_widths[-1])
+                 for width in column_widths[:num_specs - 1]]
+        specs.append('%%.%ds' % column_widths[num_specs - 1])
         return (self.line_properties.spacing * ' ').join(specs)
 
 
