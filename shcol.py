@@ -22,6 +22,8 @@ def get_line_properties(items, spacing, max_line_width):
             msg = 'spacing and max_line_width must be non-negative integers'
             raise ValueError(msg)
     item_widths = [len(item) for item in items]
+    if not item_widths:
+        return LineProperties([], spacing)
     if max(item_widths) >= max_line_width:
         return LineProperties([max_line_width], spacing)
     num_items = len(item_widths)
@@ -40,7 +42,11 @@ class Formatter(object):
 
     @property
     def line_strings(self):
-        num_lines = int(ceil(len(self.items) / self.num_columns))
+        num_columns = self.num_columns
+        if num_columns == 0:
+            yield ''
+            return
+        num_lines = int(ceil(len(self.items) / num_columns))
         template = self.get_line_template()
         for i in _range(num_lines):
             line_items = tuple(self.items[i::num_lines])
