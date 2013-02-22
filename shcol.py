@@ -36,7 +36,7 @@ class LinePropertyBuilder(object):
     def get_column_widths(self):
         if not self.item_widths:
             return []
-        if max(self.item_widths) > self.max_line_width:
+        if any(width > self.max_line_width for width in self.item_widths):
             return [self.max_line_width]
         num_items = len(self.item_widths)
         for chunk_size in count(1):
