@@ -12,28 +12,45 @@ except NameError:
 LineProperties = namedtuple('LineProperties', 'column_widths, spacing')
 
 def columnize(items, spacing=2, max_line_width=80):
-    line_properties = get_line_properties(items, spacing, max_line_width)
+    line_properties = LinePropertyBuilder(
+                        items, spacing, max_line_width).get_properties()
     formatter = Formatter(line_properties, items)
     return '\n'.join(formatter.line_strings)
 
-def get_line_properties(items, spacing, max_line_width):
-    for value in (spacing, max_line_width):
-        if not isinstance(value, int) or value < 0:
-            msg = 'spacing and max_line_width must be non-negative integers'
-            raise ValueError(msg)
-    item_widths = [len(item) for item in items]
-    if not item_widths:
-        return LineProperties([], spacing)
-    if max(item_widths) >= max_line_width:
-        return LineProperties([max_line_width], spacing)
-    num_items = len(item_widths)
-    for chunk_size in count(1):
-        column_widths = [max(item_widths[i : i + chunk_size])
-                         for i in _range(0, num_items, chunk_size)]
-        line_width = sum(column_widths) + (len(column_widths) - 1) * spacing
-        if line_width <= max_line_width:
-            break
-    return LineProperties(column_widths, spacing)
+class LinePropertyBuilder(object):
+    def __init__(self, items, spacing, max_line_width):
+        self._check_args(spacing, max_line_width)
+        self.item_widths = [len(item) for item in items]
+        self.spacing = spacing
+        self.max_line_width = max_line_width
+
+    def _check_args(self, spacing, max_line_width):
+        for arg in (spacing, max_line_width):
+            if not isinstance(arg, int) or arg < 0:
+                msg = 'spacing and max_line_width must be non-negative integers'
+                raise ValueError(msg)
+
+    def get_properties(self):
+        return LineProperties(self.get_column_widths(), self.spacing)
+
+    def get_column_widths(self):
+        if not self.item_widths:
+            return []
+        if max(self.item_widths) > self.max_line_width:
+            return [self.max_line_width]
+        num_items = len(self.item_widths)
+        for chunk_size in count(1):
+            column_widths = [self.get_max_width(i, i + chunk_size)
+                             for i in _range(0, num_items, chunk_size)]
+            total_spacing = (len(column_widths) - 1) * self.spacing
+            line_width = sum(column_widths) + total_spacing
+            if line_width <= self.max_line_width:
+                break
+        return column_widths
+
+    def get_max_width(self, start, stop):
+        return max(self.item_widths[start:stop])
+
 
 class Formatter(object):
     def __init__(self, line_properties, items=[]):
