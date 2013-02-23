@@ -19,21 +19,15 @@ def columnize(items, spacing=2, max_line_width=80):
 
 class LinePropertyBuilder(object):
     def __init__(self, items, spacing, max_line_width):
-        self._check_args(spacing, max_line_width)
         self.item_widths = [len(item) for item in items]
         self.spacing = spacing
         self.max_line_width = max_line_width
-
-    def _check_args(self, spacing, max_line_width):
-        for arg in (spacing, max_line_width):
-            if not isinstance(arg, int) or arg < 0:
-                msg = 'spacing and max_line_width must be non-negative integers'
-                raise ValueError(msg)
 
     def get_properties(self):
         return LineProperties(self.get_column_widths(), self.spacing)
 
     def get_column_widths(self):
+        self._check_values()
         if not self.item_widths:
             return []
         if any(width > self.max_line_width for width in self.item_widths):
@@ -47,6 +41,12 @@ class LinePropertyBuilder(object):
             if line_width <= self.max_line_width:
                 break
         return column_widths
+
+    def _check_values(self):
+        for value in (self.spacing, self.max_line_width):
+            if not isinstance(value, int) or value < 0:
+                msg = 'spacing and max_line_width must be non-negative integers'
+                raise ValueError(msg)
 
     def get_max_width(self, start, stop):
         return max(self.item_widths[start:stop])
