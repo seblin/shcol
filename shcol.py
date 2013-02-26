@@ -32,15 +32,7 @@ class LinePropertyBuilder(object):
             return []
         if any(width > self.max_line_width for width in self.item_widths):
             return [self.max_line_width]
-        num_items = len(self.item_widths)
-        for chunk_size in count(1):
-            column_widths = [self.get_max_width(i, i + chunk_size)
-                             for i in _range(0, num_items, chunk_size)]
-            total_spacing = (len(column_widths) - 1) * self.spacing
-            line_width = sum(column_widths) + total_spacing
-            if line_width <= self.max_line_width:
-                break
-        return column_widths
+        return self._calculate_column_widths()
 
     def _check_values(self):
         for value in (self.spacing, self.max_line_width):
@@ -48,8 +40,19 @@ class LinePropertyBuilder(object):
                 msg = 'spacing and max_line_width must be non-negative integers'
                 raise ValueError(msg)
 
-    def get_max_width(self, start, stop):
-        return max(self.item_widths[start:stop])
+    def _calculate_column_widths(self):
+        num_items = len(self.item_widths)
+        for chunk_size in count(1):
+            column_widths = []
+            line_width = -self.spacing
+            for i in _range(0, num_items, chunk_size):
+                column_width = max(self.item_widths[i : i + chunk_size])
+                line_width += column_width + self.spacing
+                if line_width > self.max_line_width:
+                    break
+                column_widths.append(column_width)
+            else:
+                return column_widths
 
 
 class Formatter(object):
