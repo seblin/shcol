@@ -18,7 +18,7 @@ def columnize(items, spacing=2, max_line_width=80):
     return '\n'.join(formatter.line_strings)
 
 class LinePropertyBuilder(object):
-    def __init__(self, items, spacing, max_line_width):
+    def __init__(self, items, spacing=2, max_line_width=80):
         self.item_widths = [len(item) for item in items]
         self.spacing = spacing
         self.max_line_width = max_line_width
@@ -70,8 +70,8 @@ class Formatter(object):
             try:
                 yield template % line_items
             except TypeError:
-                # raised if last line contains too few items for line template
-                # -> re-generate template for real number of items
+                # number of specs != len(line_items)
+                # -> re-generate template
                 template = self.get_line_template(len(line_items))
                 yield template % line_items
 
