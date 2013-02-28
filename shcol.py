@@ -1,15 +1,15 @@
-from __future__ import division, print_function
+from __future__ import print_function
 
 from collections import namedtuple
 from itertools import count
-from math import ceil
 
 try:
     _range = xrange
 except NameError:
     _range = range
 
-LineProperties = namedtuple('LineProperties', 'column_widths, spacing')
+LineProperties = namedtuple(
+                   'LineProperties', 'column_widths, spacing, num_lines')
 
 def columnize(items, spacing=2, max_line_width=80):
     line_properties = LinePropertyBuilder(
@@ -24,15 +24,16 @@ class LinePropertyBuilder(object):
         self.max_line_width = max_line_width
 
     def get_properties(self):
-        return LineProperties(self.get_column_widths(), self.spacing)
+        column_widths, num_lines = self._calculate_columns()
+        return LineProperties(column_widths, self.spacing, num_lines)
 
-    def get_column_widths(self):
+    def _calculate_columns(self):
         self._check_values()
         if not self.item_widths:
-            return []
+            return [], 0
         if any(width > self.max_line_width for width in self.item_widths):
-            return [self.max_line_width]
-        return self._calculate_column_widths()
+            return [self.max_line_width], len(self.item_widths)
+        return self._find_positionings()
 
     def _check_values(self):
         for value in (self.spacing, self.max_line_width):
@@ -40,7 +41,7 @@ class LinePropertyBuilder(object):
                 msg = 'spacing and max_line_width must be non-negative integers'
                 raise ValueError(msg)
 
-    def _calculate_column_widths(self):
+    def _find_positionings(self):
         num_items = len(self.item_widths)
         for chunk_size in count(1):
             column_widths = []
@@ -52,7 +53,7 @@ class LinePropertyBuilder(object):
                     break
                 column_widths.append(column_width)
             else:
-                return column_widths
+                return column_widths, chunk_size
 
 
 class Formatter(object):
@@ -62,14 +63,10 @@ class Formatter(object):
 
     @property
     def line_strings(self):
-        num_columns = self.num_columns
-        if num_columns == 0:
-            yield ''
-            return
-        num_lines = int(ceil(len(self.items) / num_columns))
+        chunk_size = self.line_properties.num_lines
         template = self.get_line_template()
-        for i in _range(num_lines):
-            line_items = tuple(self.items[i::num_lines])
+        for i in _range(chunk_size):
+            line_items = tuple(self.items[i::chunk_size])
             try:
                 yield template % line_items
             except TypeError:
