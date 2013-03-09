@@ -14,8 +14,8 @@ LineProperties = namedtuple(
 def columnize(items, spacing=2, max_line_width=80):
     line_properties = LinePropertyBuilder(
                         spacing, max_line_width).get_properties(items)
-    formatter = Formatter(line_properties, items)
-    return '\n'.join(formatter.line_strings)
+    line_strings = Formatter(line_properties).get_line_strings(items)
+    return '\n'.join(line_strings)
 
 
 class LinePropertyBuilder(object):
@@ -56,16 +56,14 @@ class LinePropertyBuilder(object):
 
 
 class Formatter(object):
-    def __init__(self, line_properties, items=[]):
+    def __init__(self, line_properties):
         self.line_properties = line_properties
-        self.items = items
 
-    @property
-    def line_strings(self):
+    def get_line_strings(self, items):
         chunk_size = self.line_properties.num_lines
         template = self.get_line_template()
         for i in _range(chunk_size):
-            line_items = tuple(self.items[i::chunk_size])
+            line_items = tuple(items[i::chunk_size])
             try:
                 yield template % line_items
             except TypeError:
@@ -101,4 +99,3 @@ def test(items=None, spacing=2, max_line_width=80, sort_items=True):
     if sort_items:
         items = sorted(items, key=str.lower)
     print(columnize(items, spacing, max_line_width))
-
