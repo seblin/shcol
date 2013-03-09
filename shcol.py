@@ -64,10 +64,10 @@ class Formatter(object):
         self.linesep = linesep
 
     def format(self, items):
-        line_strings = self.get_line_strings(items)
+        line_strings = self.iter_line_strings(items)
         return self.linesep.join(line_strings)
 
-    def get_line_strings(self, items):
+    def iter_line_strings(self, items):
         properties = self.property_builder.get_properties(items)
         column_widths = properties.column_widths
         chunk_size = properties.num_lines
