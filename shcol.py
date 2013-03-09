@@ -32,7 +32,7 @@ class LinePropertyBuilder(object):
         elif any(width > self.max_line_width for width in item_widths):
             column_widths, num_lines = [self.max_line_width], len(item_widths)
         else:
-            column_widths, num_lines = self._calculate_columns(item_widths)
+            column_widths, num_lines = self.calculate_columns(item_widths)
         return LineProperties(column_widths, self.spacing, num_lines)
 
     def _check_values(self):
@@ -41,7 +41,7 @@ class LinePropertyBuilder(object):
                 msg = 'spacing and max_line_width must be non-negative integers'
                 raise ValueError(msg)
 
-    def _calculate_columns(self, item_widths):
+    def calculate_columns(self, item_widths):
         num_items = len(item_widths)
         for chunk_size in count(1):
             column_widths = []
