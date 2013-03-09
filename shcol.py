@@ -12,10 +12,9 @@ LineProperties = namedtuple(
                    'LineProperties', 'column_widths, spacing, num_lines')
 
 def columnize(items, spacing=2, max_line_width=80):
-    line_properties = LinePropertyBuilder(
-                        spacing, max_line_width).get_properties(items)
-    line_strings = Formatter(line_properties).get_line_strings(items)
-    return '\n'.join(line_strings)
+    property_builder = LinePropertyBuilder(spacing, max_line_width)
+    formatter = Formatter(property_builder)
+    return '\n'.join(formatter.get_line_strings(items))
 
 
 class LinePropertyBuilder(object):
@@ -56,13 +55,16 @@ class LinePropertyBuilder(object):
 
 
 class Formatter(object):
-    def __init__(self, line_properties, allow_exceeding=True):
-        self.line_properties = line_properties
+    def __init__(self, property_builder=LinePropertyBuilder(),
+                       allow_exceeding=True):
+        self.property_builder = property_builder
         self.allow_exceeding = allow_exceeding
 
     def get_line_strings(self, items):
-        chunk_size = self.line_properties.num_lines
-        template = self.get_line_template()
+        properties = self.property_builder.get_properties(items)
+        column_widths = properties.column_widths
+        chunk_size = properties.num_lines
+        template = self.get_line_template(column_widths)
         for i in _range(chunk_size):
             line_items = tuple(items[i::chunk_size])
             try:
@@ -70,28 +72,18 @@ class Formatter(object):
             except TypeError:
                 # number of specs != len(line_items)
                 # -> re-generate template
-                template = self.get_line_template(len(line_items))
+                line_size = len(line_items)
+                template = self.get_line_template(column_widths[:line_size])
                 yield template % line_items
 
-    @property
-    def num_columns(self):
-        return len(self.line_properties.column_widths)
-
-    def get_line_template(self, num_specs=-1):
-        if num_specs > self.num_columns:
-            msg = 'not enough column widths to fill requested number of specs'
-            raise ValueError(msg)
-        if num_specs < 0:
-            num_specs = self.num_columns
-        if num_specs == 0:
+    def get_line_template(self, column_widths):
+        if not column_widths:
             return ''
-        if num_specs == 1 and self.allow_exceeding:
+        if len(column_widths) == 1 and self.allow_exceeding:
             return '%s'
-        column_widths = self.line_properties.column_widths
-        specs = ['%%-%d.%ds' % (width, width)
-                 for width in column_widths[:num_specs - 1]]
-        specs.append('%%.%ds' % column_widths[num_specs - 1])
-        return (self.line_properties.spacing * ' ').join(specs)
+        specs = ['%%-%d.%ds' % (width, width) for width in column_widths[:-1]]
+        specs.append('%%.%ds' % column_widths[-1])
+        return (self.property_builder.spacing * ' ').join(specs)
 
 
 def test(items=None, spacing=2, max_line_width=80, sort_items=True):
