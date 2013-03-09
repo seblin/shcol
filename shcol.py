@@ -14,12 +14,12 @@ LineProperties = namedtuple(
 
 def columnize(items, spacing=2, max_line_width=80,
                      allow_exceeding=True, linesep=os.linesep):
-    property_builder = LinePropertyBuilder(spacing, max_line_width)
-    formatter = Formatter(property_builder, allow_exceeding, linesep)
+    column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
+    formatter = Formatter(column_width_calculator, allow_exceeding, linesep)
     return formatter.format(items)
 
 
-class LinePropertyBuilder(object):
+class ColumnWidthCalculator(object):
     def __init__(self, spacing=2, max_line_width=80):
         self.spacing = spacing
         self.max_line_width = max_line_width
@@ -57,9 +57,9 @@ class LinePropertyBuilder(object):
 
 
 class Formatter(object):
-    def __init__(self, property_builder=LinePropertyBuilder(),
+    def __init__(self, column_width_calculator=ColumnWidthCalculator(),
                        allow_exceeding=True, linesep=os.linesep):
-        self.property_builder = property_builder
+        self.column_width_calculator = column_width_calculator
         self.allow_exceeding = allow_exceeding
         self.linesep = linesep
 
@@ -68,7 +68,7 @@ class Formatter(object):
         return self.linesep.join(line_strings)
 
     def iter_line_strings(self, items):
-        properties = self.property_builder.get_properties(items)
+        properties = self.column_width_calculator.get_properties(items)
         column_widths = properties.column_widths
         chunk_size = properties.num_lines
         template = self.get_line_template(column_widths)
@@ -90,7 +90,7 @@ class Formatter(object):
             return '%s'
         specs = ['%%-%d.%ds' % (width, width) for width in column_widths[:-1]]
         specs.append('%%.%ds' % column_widths[-1])
-        return (self.property_builder.spacing * ' ').join(specs)
+        return (self.column_width_calculator.spacing * ' ').join(specs)
 
 
 def test(items=None, spacing=2, max_line_width=80, sort_items=True):
