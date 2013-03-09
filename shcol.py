@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from collections import namedtuple
 from itertools import count
+import os
 
 try:
     _range = xrange
@@ -11,10 +12,11 @@ except NameError:
 LineProperties = namedtuple(
                    'LineProperties', 'column_widths, spacing, num_lines')
 
-def columnize(items, spacing=2, max_line_width=80):
+def columnize(items, spacing=2, max_line_width=80,
+                     allow_exceeding=True, linesep=os.linesep):
     property_builder = LinePropertyBuilder(spacing, max_line_width)
-    formatter = Formatter(property_builder)
-    return '\n'.join(formatter.get_line_strings(items))
+    formatter = Formatter(property_builder, allow_exceeding, linesep)
+    return formatter.format(items)
 
 
 class LinePropertyBuilder(object):
@@ -56,9 +58,14 @@ class LinePropertyBuilder(object):
 
 class Formatter(object):
     def __init__(self, property_builder=LinePropertyBuilder(),
-                       allow_exceeding=True):
+                       allow_exceeding=True, linesep=os.linesep):
         self.property_builder = property_builder
         self.allow_exceeding = allow_exceeding
+        self.linesep = linesep
+
+    def format(self, items):
+        line_strings = self.get_line_strings(items)
+        return self.linesep.join(line_strings)
 
     def get_line_strings(self, items):
         properties = self.property_builder.get_properties(items)
