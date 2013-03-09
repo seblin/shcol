@@ -79,8 +79,8 @@ class Formatter(object):
             except TypeError:
                 # number of specs != len(line_items)
                 # -> re-generate template
-                line_size = len(line_items)
-                template = self.get_line_template(column_widths[:line_size])
+                num_columns = len(line_items)
+                template = self.get_line_template(column_widths[:num_columns])
                 yield template % line_items
 
     def get_line_template(self, column_widths):
