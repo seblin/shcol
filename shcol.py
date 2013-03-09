@@ -56,8 +56,9 @@ class LinePropertyBuilder(object):
 
 
 class Formatter(object):
-    def __init__(self, line_properties):
+    def __init__(self, line_properties, allow_exceeding=True):
         self.line_properties = line_properties
+        self.allow_exceeding = allow_exceeding
 
     def get_line_strings(self, items):
         chunk_size = self.line_properties.num_lines
@@ -76,7 +77,7 @@ class Formatter(object):
     def num_columns(self):
         return len(self.line_properties.column_widths)
 
-    def get_line_template(self, num_specs=-1, allow_exceeding=True):
+    def get_line_template(self, num_specs=-1):
         if num_specs > self.num_columns:
             msg = 'not enough column widths to fill requested number of specs'
             raise ValueError(msg)
@@ -84,7 +85,7 @@ class Formatter(object):
             num_specs = self.num_columns
         if num_specs == 0:
             return ''
-        if num_specs == 1 and allow_exceeding:
+        if num_specs == 1 and self.allow_exceeding:
             return '%s'
         column_widths = self.line_properties.column_widths
         specs = ['%%-%d.%ds' % (width, width)
