@@ -68,10 +68,9 @@ class Formatter(object):
         return self.linesep.join(line_strings)
 
     def iter_line_strings(self, items):
-        properties = self.column_width_calculator.get_properties(items)
-        column_widths = properties.column_widths
-        chunk_size = properties.num_lines
-        template = self.get_line_template(column_widths)
+        props = self.column_width_calculator.get_properties(items)
+        chunk_size = props.num_lines
+        template = self.get_line_template(props.column_widths, props.spacing)
         for i in _range(chunk_size):
             line_items = tuple(items[i::chunk_size])
             try:
@@ -80,17 +79,18 @@ class Formatter(object):
                 # number of specs != len(line_items)
                 # -> re-generate template
                 num_columns = len(line_items)
-                template = self.get_line_template(column_widths[:num_columns])
+                column_widths = props.column_widths[:num_columns]
+                template = self.get_line_template(column_widths, props.spacing)
                 yield template % line_items
 
-    def get_line_template(self, column_widths):
+    def get_line_template(self, column_widths, spacing):
         if not column_widths:
             return ''
         if len(column_widths) == 1 and self.allow_exceeding:
             return '%s'
         specs = ['%%-%d.%ds' % (width, width) for width in column_widths[:-1]]
         specs.append('%%.%ds' % column_widths[-1])
-        return (self.column_width_calculator.spacing * ' ').join(specs)
+        return (spacing * ' ').join(specs)
 
 
 def test(items=None, spacing=2, max_line_width=80, sort_items=True):
