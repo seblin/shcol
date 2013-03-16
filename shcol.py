@@ -13,7 +13,7 @@ LineProperties = namedtuple(
                    'LineProperties', 'column_widths, spacing, num_lines')
 
 def columnize(items, spacing=2, max_line_width=80,
-                     allow_exceeding=True, linesep=os.linesep):
+              allow_exceeding=True, linesep=os.linesep):
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
     formatter = Formatter(column_width_calculator, allow_exceeding, linesep)
     return formatter.format(items)
@@ -58,7 +58,7 @@ class ColumnWidthCalculator(object):
 
 class Formatter(object):
     def __init__(self, column_width_calculator=None,
-                       allow_exceeding=True, linesep=os.linesep):
+                 allow_exceeding=True, linesep=os.linesep):
         if column_width_calculator is None:
             column_width_calculator = ColumnWidthCalculator()
         self.column_width_calculator = column_width_calculator
