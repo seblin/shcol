@@ -57,8 +57,10 @@ class ColumnWidthCalculator(object):
 
 
 class Formatter(object):
-    def __init__(self, column_width_calculator=ColumnWidthCalculator(),
+    def __init__(self, column_width_calculator=None,
                        allow_exceeding=True, linesep=os.linesep):
+        if column_width_calculator is None:
+            column_width_calculator = ColumnWidthCalculator()
         self.column_width_calculator = column_width_calculator
         self.allow_exceeding = allow_exceeding
         self.linesep = linesep
