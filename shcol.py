@@ -12,10 +12,9 @@ except NameError:
 LineProperties = namedtuple(
                    'LineProperties', 'column_widths, spacing, num_lines')
 
-def columnize(items, spacing=2, max_line_width=80,
-              allow_exceeding=True, linesep=os.linesep):
+def columnize(items, spacing=2, max_line_width=80):
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
-    formatter = Formatter(column_width_calculator, allow_exceeding, linesep)
+    formatter = Formatter(column_width_calculator)
     return formatter.format(items)
 
 
