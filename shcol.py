@@ -13,6 +13,12 @@ LineProperties = namedtuple(
                    'LineProperties', 'column_widths, spacing, num_lines')
 
 def columnize(items, spacing=2, max_line_width=80):
+    """
+    Return a string containing `items` placed in columns. The number of 
+    whitespace characters between two columns is defined by `spacing`. 
+    `max_line_width` defines the maximal amount of characters that may be 
+    consumed per line (e.g. the current width of the terminal window).
+    """
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
     formatter = Formatter(column_width_calculator)
     return formatter.format(items)
