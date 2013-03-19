@@ -85,7 +85,7 @@ class Formatter(object):
                 template = self.get_line_template(column_widths, props.spacing)
                 yield template % line_items
 
-    def get_line_template(self, column_widths, spacing):
+    def get_line_template(self, column_widths, spacing=2):
         if not column_widths:
             return ''
         if len(column_widths) == 1 and self.allow_exceeding:
