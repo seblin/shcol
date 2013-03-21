@@ -88,10 +88,9 @@ class Formatter(object):
 
     def iter_line_strings(self, items):
         props = self.column_width_calculator.get_properties(items)
-        chunk_size = props.num_lines
         template = self.get_line_template(props.column_widths, props.spacing)
-        for i in _range(chunk_size):
-            line_items = tuple(items[i::chunk_size])
+        for i in _range(props.num_lines):
+            line_items = tuple(items[i::props.num_lines])
             try:
                 yield template % line_items
             except TypeError:
