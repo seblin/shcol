@@ -20,8 +20,7 @@ def columnize(items, spacing=2, max_line_width=80):
     consumed per line (e.g. the current width of the terminal window).
     """
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
-    formatter = Formatter(column_width_calculator)
-    return formatter.format(items)
+    return Formatter(column_width_calculator).format(items)
 
 
 class ColumnWidthCalculator(object):
