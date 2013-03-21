@@ -24,11 +24,24 @@ def columnize(items, spacing=2, max_line_width=80):
 
 
 class ColumnWidthCalculator(object):
+    """
+    A class to calculate the width of each column for a given list of items.
+    """
     def __init__(self, spacing=2, max_line_width=80):
+        """
+        Initialize the calculator. `spacing` defines the number of whitespace
+        characters between two columns. `max_line_width` is the maximal amount
+        of characters that a line may consume.
+        """
         self.spacing = spacing
         self.max_line_width = max_line_width
 
     def get_properties(self, items):
+        """
+        Return a namedtuple containing suitable properties that may be used to 
+        format `items` as a columnized string. The members of the tuple are:
+        `column_widths`, `spacing`, `num_lines`.
+        """
         self._check_values()
         item_widths = [len(item) for item in items]
         if not item_widths:
