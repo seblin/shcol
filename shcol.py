@@ -68,7 +68,7 @@ class ColumnWidthCalculator(object):
         using that information to do columnized formatting. 
 
         Note that calculation takes respect to the `spacing` attribute of this
-        function's instance. Though, a particular column width information does 
+        method's instance. Though, a particular column width information does 
         *not* include spacing.
         """
         num_items = len(item_widths)
