@@ -1,3 +1,8 @@
+# Copyright (c) 2013, Sebastian Linke.
+
+# Released under the New BSD license 
+# (see LICENSE file for details).
+
 from __future__ import print_function
 
 from collections import namedtuple
