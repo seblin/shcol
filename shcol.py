@@ -59,6 +59,18 @@ class ColumnWidthCalculator(object):
                 raise ValueError(msg)
 
     def calculate_columns(self, item_widths):
+        """
+        Calculate column widths based on `item_widths`, where `item_widths` is
+        expected to be a list (or speaking more general: a container) whose
+        elements represent the length of each corresponding string. The result 
+        is returned as a tuple consisting of two elements: A list of calculated
+        column widths and the number of lines needed to display all items when
+        using that information to do columnized formatting. 
+
+        Note that calculation takes respect to the `spacing` attribute of this
+        function's instance. Though, a particular column width information does 
+        *not* include spacing.
+        """
         num_items = len(item_widths)
         for chunk_size in count(1):
             column_widths = []
