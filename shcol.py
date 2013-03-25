@@ -75,6 +75,12 @@ class ColumnWidthCalculator(object):
         Note that calculation takes respect to the `spacing` attribute of this
         method's instance. Though, a particular column width information does 
         *not* include spacing.
+
+        The goal of this implementation is to find a configuration suitable for 
+        formatting that consumes as few lines as possible. This may mean that 
+        the resulting last column might hold a significant lower amount of 
+        items compared to the preceding ones. Obviously, a class reimplementing 
+        this method may apply a different behavior to that calculation.
         """
         num_items = len(item_widths)
         for chunk_size in count(1):
