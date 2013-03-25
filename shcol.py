@@ -80,7 +80,7 @@ class ColumnWidthCalculator(object):
         formatting that consumes as few lines as possible. This may mean that 
         the resulting last column might hold a significant lower amount of 
         items compared to the preceding ones. Obviously, a class reimplementing 
-        this method may apply a different behavior to that calculation.
+        this method may apply a different strategy for that calculation.
         """
         num_items = len(item_widths)
         for chunk_size in count(1):
