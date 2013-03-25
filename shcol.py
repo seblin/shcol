@@ -90,9 +90,13 @@ class ColumnWidthCalculator(object):
                 column_width = max(item_widths[i : i + chunk_size])
                 line_width += column_width + self.spacing
                 if line_width > self.max_line_width:
+                    # bail out early and perform next iteration of outer loop
+                    # (improves speed when dealing with large amount of items)
                     break
                 column_widths.append(column_width)
             else:
+                # current chunk size made all items pass without exceedance 
+                # of `.max_line_width` -> return result as we are done here
                 return column_widths, chunk_size
 
 
