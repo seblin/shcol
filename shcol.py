@@ -123,8 +123,7 @@ class Formatter(object):
             except TypeError:
                 # number of specs != len(line_items)
                 # -> re-generate template
-                num_columns = len(line_items)
-                column_widths = props.column_widths[:num_columns]
+                column_widths = props.column_widths[:len(line_items)]
                 template = self.get_line_template(column_widths, props.spacing)
                 yield template % line_items
 
