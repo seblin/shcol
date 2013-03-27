@@ -52,6 +52,7 @@ class ColumnWidthCalculator(object):
         if not item_widths:
             column_widths, num_lines = [], 0
         elif any(width >= self.max_line_width for width in item_widths):
+            # use only one column
             column_widths, num_lines = [self.max_line_width], len(item_widths)
         else:
             column_widths, num_lines = self.calculate_columns(item_widths)
