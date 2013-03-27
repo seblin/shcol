@@ -83,11 +83,11 @@ class ColumnWidthCalculator(object):
         method may apply a different strategy for that calculation.
         """
         num_items = len(item_widths)
-        for chunk_size in count(1):
+        for line_size in count(1):
             column_widths = []
             line_width = -self.spacing
-            for i in _range(0, num_items, chunk_size):
-                column_width = max(item_widths[i : i + chunk_size])
+            for i in _range(0, num_items, line_size):
+                column_width = max(item_widths[i : i + line_size])
                 line_width += column_width + self.spacing
                 if line_width > self.max_line_width:
                     # abort as early as possible and jump to next iteration 
@@ -96,9 +96,9 @@ class ColumnWidthCalculator(object):
                     break
                 column_widths.append(column_width)
             else:
-                # current chunk size made all items pass without exceedance 
+                # current line size made all items pass without exceedance 
                 # of `.max_line_width` -> return result as we are done here
-                return column_widths, chunk_size
+                return column_widths, line_size
 
 
 class Formatter(object):
