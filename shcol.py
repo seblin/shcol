@@ -112,10 +112,10 @@ class Formatter(object):
         self.linesep = linesep
 
     def format(self, items):
-        line_strings = self.iter_line_strings(items)
-        return self.linesep.join(line_strings)
+        lines = self.iter_lines(items)
+        return self.linesep.join(lines)
 
-    def iter_line_strings(self, items):
+    def iter_lines(self, items):
         props = self.column_width_calculator.get_properties(items)
         template = self.get_line_template(props.column_widths, props.spacing)
         for i in _range(props.num_lines):
