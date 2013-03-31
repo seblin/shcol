@@ -30,7 +30,8 @@ def columnize(items, spacing=2, max_line_width=80):
 
 class ColumnWidthCalculator(object):
     """
-    A class to calculate the width of each column for a given list of items.
+    A class to calculate the width of each column for a given list of items
+    in order to do columnized formatting.
     """
     def __init__(self, spacing=2, max_line_width=80):
         """
@@ -103,8 +104,28 @@ class ColumnWidthCalculator(object):
 
 
 class Formatter(object):
+    """
+    A class to do columnized formatting on a given list of items.
+    """
     def __init__(self, column_width_calculator=None,
                  allow_exceeding=True, linesep=os.linesep):
+        """
+        Initialize the formatter. 
+
+        `column_width_calculator` will be used to determine the width of each 
+        column when columnized string formatting is done. It should be a class 
+        instance that implements a `.get_properties()` method in the same way 
+        as `ColumnWidthCalculator` does. An instance of that class (using its 
+        default values) is automatically created if `None` is passed instead.
+
+        `allow_exceeding` defines whether lines *with only one item* may exceed 
+        the column width returned by the calculator. This actually means just 
+        to put an item below each other and not doing any further formatting on 
+        these lines. If a line contains more than one item then its items will 
+        always be truncated once their column's width is exceeded.
+
+        `linesep` defines the string used to start a new line.
+        """
         if column_width_calculator is None:
             column_width_calculator = ColumnWidthCalculator()
         self.column_width_calculator = column_width_calculator
@@ -112,6 +133,9 @@ class Formatter(object):
         self.linesep = linesep
 
     def format(self, items):
+        """
+        Return a columnized string based on `items`.
+        """
         lines = self.iter_lines(items)
         return self.linesep.join(lines)
 
