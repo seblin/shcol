@@ -140,11 +140,15 @@ class Formatter(object):
         return self.linesep.join(lines)
 
     def iter_lines(self, items):
+        """
+        Return columnized lines for `items` yielded by an iterator.
+        """
         props = self.column_width_calculator.get_properties(items)
         template = self.get_line_template(props.column_widths, props.spacing)
         for i in _range(props.num_lines):
             line_items = tuple(items[i::props.num_lines])
             try:
+                # use "cached" template
                 yield template % line_items
             except TypeError:
                 # number of specs != len(line_items)
