@@ -124,7 +124,7 @@ class Formatter(object):
         these lines. If a line contains more than one item then its items will 
         always be truncated once their column's width is exceeded.
 
-        `linesep` defines the string used to start a new line.
+        `linesep` defines the character(s) used to start a new line.
         """
         if column_width_calculator is None:
             column_width_calculator = ColumnWidthCalculator()
@@ -141,7 +141,8 @@ class Formatter(object):
 
     def iter_lines(self, items):
         """
-        Return columnized lines for `items` yielded by an iterator.
+        Return columnized lines for `items` yielded by an iterator. Lines will
+        *not* contain the newline character at their end.
         """
         props = self.column_width_calculator.get_properties(items)
         template = self.get_line_template(props.column_widths, props.spacing)
