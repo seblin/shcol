@@ -19,10 +19,16 @@ LineProperties = namedtuple(
 
 def columnize(items, spacing=2, max_line_width=80):
     """
-    Return a string containing `items` placed in columns. The number of 
-    whitespace characters between two columns is defined by `spacing`. 
-    `max_line_width` defines the maximal amount of characters that may be 
-    consumed per line (e.g. the current width of the terminal window).
+    Return a multi-columned string based on `items`. The number of space 
+    characters between two columns is defined by `spacing`. `max_line_width`
+    defines the maximal amount of characters that a line may consume.
+
+    Note that users don't need to define particular column widths, since the
+    underlying algorithm will find an "ideal" configuration on its own. When
+    doing this, it guarantees to keep `items` in their original order.
+
+    `items` may be any kind of iterable that provides at least access via 
+    indices. Even though, it will propably be a list most of the time.
     """
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
     return Formatter(column_width_calculator).format(items)
@@ -174,3 +180,4 @@ def test(items=None, spacing=2, max_line_width=80, sort_items=True):
     if sort_items:
         items = sorted(items, key=str.lower)
     print(columnize(items, spacing, max_line_width))
+
