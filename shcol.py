@@ -36,30 +36,30 @@ def columnize(items, spacing=2, max_line_width=80):
 
 class ColumnWidthCalculator(object):
     """
-    A class to calculate the width of each column for a given list of items
-    in order to do columnized formatting.
+    A class with capabilities to calculate the widths for an unknown number
+    of columns based on a given list of items.
     """
     def __init__(self, spacing=2, max_line_width=80):
         """
-        Initialize the calculator. `spacing` defines the number of whitespace
-        characters between two columns. `max_line_width` is the maximal amount
-        of characters that a line may consume.
+        Initialize the calculator. `spacing` defines the number of spaces 
+        between two columns. `max_line_width` is the maximal amount of 
+        characters that a line may consume.
         """
         self.spacing = spacing
         self.max_line_width = max_line_width
 
     def get_properties(self, items):
         """
-        Return a namedtuple containing suitable properties that may be used to 
-        format `items` as a columnized string. The members of the tuple are:
-        `column_widths`, `spacing`, `num_lines`.
+        Return a namedtuple containing suitable properties that may be used 
+        to format `items` as a columnized string. The members of the tuple 
+        are: `column_widths`, `spacing`, `num_lines`.
         """
         self._check_values()
         item_widths = [len(item) for item in items]
         if not item_widths:
             column_widths, num_lines = [], 0
         elif any(width >= self.max_line_width for width in item_widths):
-            # use only one column
+            # use only one column for all items
             column_widths, num_lines = [self.max_line_width], len(item_widths)
         else:
             column_widths, num_lines = self.calculate_columns(item_widths)
@@ -73,22 +73,23 @@ class ColumnWidthCalculator(object):
 
     def calculate_columns(self, item_widths):
         """
-        Calculate column widths based on `item_widths`, where `item_widths` is
-        expected to be a list (or speaking more general: a container) whose
-        elements represent the length of each corresponding string. The result 
-        is returned as a tuple consisting of two elements: A list of calculated
-        column widths and the number of lines needed to display all items when
-        using that information to do columnized formatting. 
+        Calculate column widths based on `item_widths`, where `item_widths` 
+        is expected to be a list of integers representing the length of each 
+        corresponding string. The result is returned as a tuple consisting of 
+        two elements: A list of calculated column widths and the number of 
+        lines needed to display all items when using that information to do 
+        columnized formatting.
 
-        Note that calculation takes respect to the `spacing` attribute of this
-        method's instance. Though, a particular column width information does 
-        *not* include spacing.
+        Note that this instance's `.max_line_width` and `.spacing` attributes 
+        are taken into account when calculation is done. However, the column
+        widths of the resulting tuple will *not* include that spacing.
 
-        The goal of this implementation is to find a configuration suitable for 
-        formatting that consumes as few lines as possible. This may mean that 
-        the resulting last column might hold a significant lower amount of 
-        items compared to the preceding ones. Subclasses reimplementing this 
-        method may apply a different strategy for that calculation.
+        The goal of this implementation is to find a configuration suitable 
+        for formatting that consumes as few lines as possible. It does not
+        care about balanced column heights. This strategy might result in a
+        configuration where the last column would hold a significant lower 
+        amount of items compared to the preceding ones. Subclasses are free
+        to change that behavior by reimplementing this method.
         """
         num_items = len(item_widths)
         for num_lines in count(1):
@@ -99,8 +100,8 @@ class ColumnWidthCalculator(object):
                 line_width += column_width + self.spacing
                 if line_width > self.max_line_width:
                     # abort as early as possible and jump to next iteration 
-                    # of outer loop (improves performance which is especially 
-                    # notable when dealing with large amount of items)
+                    # of outer loop (results in notable speed-ups when dealing
+                    # with large amount of items)
                     break
                 column_widths.append(column_width)
             else:
@@ -180,4 +181,3 @@ def test(items=None, spacing=2, max_line_width=80, sort_items=True):
     if sort_items:
         items = sorted(items, key=str.lower)
     print(columnize(items, spacing, max_line_width))
-
