@@ -153,18 +153,18 @@ class Formatter(object):
         *not* contain any newline characters at their end.
         """
         props = self.column_width_calculator.get_properties(items)
-        template = self.get_line_template(props.column_widths, props.spacing)
+        get_template = self.get_line_template  # short alias
+        cached_template = get_template(props.column_widths, props.spacing)
         for i in _range(props.num_lines):
             line_items = tuple(items[i::props.num_lines])
             try:
-                # use "cached" template
-                yield template % line_items
+                yield cached_template % line_items
             except TypeError:
                 # number of specs != len(line_items)
                 # -> re-generate template
                 column_widths = props.column_widths[:len(line_items)]
-                template = self.get_line_template(column_widths, props.spacing)
-                yield template % line_items
+                cached_template = get_template(column_widths, props.spacing)
+                yield cached_template % line_items
 
     def get_line_template(self, column_widths, spacing=2):
         if not column_widths:
