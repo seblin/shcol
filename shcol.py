@@ -150,7 +150,7 @@ class Formatter(object):
     def iter_lines(self, items):
         """
         Return columnized lines for `items` yielded by an iterator. Lines will
-        *not* contain the newline character at their end.
+        *not* contain any newline characters at their end.
         """
         props = self.column_width_calculator.get_properties(items)
         template = self.get_line_template(props.column_widths, props.spacing)
