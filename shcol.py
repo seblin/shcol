@@ -26,9 +26,6 @@ def columnize(items, spacing=2, max_line_width=80):
     Note that users don't need to define particular column widths, since the
     underlying algorithm will find an "ideal" configuration on its own. When
     doing this, it guarantees to keep `items` in their original order.
-
-    `items` may be any kind of iterable that provides at least access via 
-    indices. Even though, it will probably be a list most of the time.
     """
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
     return Formatter(column_width_calculator).format(items)
