@@ -28,7 +28,7 @@ def columnize(items, spacing=2, max_line_width=80):
     doing this, it guarantees to keep `items` in their original order.
 
     `items` may be any kind of iterable that provides at least access via 
-    indices. Even though, it will propably be a list most of the time.
+    indices. Even though, it will probably be a list most of the time.
     """
     column_width_calculator = ColumnWidthCalculator(spacing, max_line_width)
     return Formatter(column_width_calculator).format(items)
@@ -125,11 +125,15 @@ class Formatter(object):
         as `ColumnWidthCalculator` does. An instance of that class (using its 
         default values) is automatically created if `None` is passed instead.
 
-        `allow_exceeding` defines whether lines *with only one item* may exceed 
-        the column width returned by the calculator. This actually means just 
-        to put an item below each other and not doing any further formatting on 
-        these lines. If a line contains more than one item then its items will 
-        always be truncated once their column's width is exceeded.
+        `allow_exceeding` should be a boolean value defining whether a line
+        that contains *only one item* may exceed the column width returned by 
+        the calculator. This is meant to be used when the calculator's maximal
+        line width equals to the terminal's line width. An item would then
+        allowed to be wrapped over two (or more) lines by the terminal in cases 
+        where it is the only item in the current line *and* has a width wider 
+        than the given maximum. Note that lines containing more than one item 
+        are not affected by this option, as the formatter will just truncate
+        them at their end once they exceed the allowed width.
 
         `linesep` defines the character(s) used to start a new line.
         """
