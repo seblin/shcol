@@ -186,6 +186,8 @@ class Formatter(object):
         Specifiers are generated in a form such that any string exceeding its
         column's width will be truncated when applied via string formatting. 
         This truncation will be made to the right end of the affected string.
+        If a string is shorter than its column's width then the rest of the
+        column will be filled with spaces.
         """
         if not column_widths:
             return ''
