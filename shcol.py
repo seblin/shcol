@@ -167,6 +167,26 @@ class Formatter(object):
                 yield cached_template % line_items
 
     def get_line_template(self, column_widths, spacing=2):
+        """
+        Return a string meant to be used as a formatting template for *one* 
+        line of columnized output. The template will be suitable for old-style
+        string formatting ('%s' % my_string). 
+
+        `column_widths` is expected to be a list of integers representing the 
+        width of each column (with the idea in mind that the template will be
+        re-used for many lines). This information is used to generate according 
+        format specifiers. In the resulting template the specifiers are joined 
+        by using a separator with a `spacing` number of space characters.
+
+        If this instance's `.allow_exceeding` attribute is set to `True` (or
+        to be more exact: something that evaluates to `True`) then the last 
+        (right-most) specifier will always be `'%s'`. If `column_widths` is 
+        empty then the resulting template will be just an empty string.
+
+        Specifiers are generated in a form such that any string exceeding its
+        column's width will be truncated when applied via string formatting. 
+        This truncation will be made to the right end of the affected string.
+        """
         if not column_widths:
             return ''
         if len(column_widths) == 1 and self.allow_exceeding:
