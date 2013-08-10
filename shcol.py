@@ -71,23 +71,21 @@ class ColumnWidthCalculator(object):
         Note that this instance's `.max_line_width` and `.spacing` attributes 
         are taken into account when calculation is done. However, the column
         widths of the resulting tuple will *not* include that spacing.
-
-        The goal of this implementation is to find a configuration suitable 
-        for formatting that consumes as few lines as possible. It does not
-        care about balanced column heights. This strategy might result in a
-        configuration where the last column would hold a significant lower 
-        amount of items compared to the preceding ones. Subclasses are free
-        to change that behavior by reimplementing this method.
         """
         num_items = len(item_widths)
-        for num_lines in range(1, num_items + 1):
+        possible_columns = self.max_line_width // self.spacing
+        max_used_columns = min(num_items, possible_columns)
+        for num_columns in range(max_used_columns, 0, -1):
+            num_lines, remaining = divmod(num_items, num_columns)
+            if remaining:
+                num_lines += 1
             column_widths = [
                 max(item_widths[i : i + num_lines])
                 for i in range(0, num_items, num_lines)
             ]
             if self.fits_in_line(column_widths):
                 break
-        return column_widths, num_lines
+        return column_widths, num_lines        
 
     def fits_in_line(self, column_widths):
         """
@@ -103,8 +101,10 @@ class Formatter(object):
     """
     A class to do columnized formatting on a given list of strings.
     """
-    def __init__(self, column_width_calculator=None,
-                 allow_exceeding=True, linesep=os.linesep):
+    def __init__(
+        self, column_width_calculator=None,
+        allow_exceeding=True, linesep=os.linesep
+    ):
         """
         Initialize the formatter. 
 
