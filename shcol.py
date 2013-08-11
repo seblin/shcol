@@ -134,13 +134,18 @@ class Formatter(object):
         self.allow_exceeding = allow_exceeding
         self.linesep = linesep
 
-    def format(self, items):
+    def format(self, items, encoding='utf-8'):
         """
-        Return a columnized string based on `items`. Lines are joined by using
-        this instance's `.linesep` attribute.
+        Return a columnized string based on `items`. Note that any item that 
+        is a byte string will be converted to unicode using the codec name
+        specified by `encoding`.
         """
-        lines = self.iter_lines(items)
-        return self.linesep.join(lines)
+        items = [self._decode(item, encoding) for item in items]
+        return self.linesep.join(self.iter_lines(items))
+
+    @staticmethod
+    def _decode(item, encoding):
+        return item.decode(encoding) if isinstance(item, bytes) else item
 
     def iter_lines(self, items):
         """
@@ -171,7 +176,7 @@ class Formatter(object):
         width of each column (with the idea in mind that the template will be
         re-used for many lines). This information is used to generate according 
         format specifiers. In the resulting template the specifiers are joined 
-        by using a separator with a `spacing` number of space characters.
+        by using a separator with a `spacing` number of blank characters.
 
         If this instance's `.allow_exceeding` attribute is set to `True` (or
         to be more exact: something that evaluates to `True`) then the last 
