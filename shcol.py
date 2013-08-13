@@ -52,7 +52,7 @@ class ColumnWidthCalculator(object):
     """
     def __init__(self, spacing=2, max_line_width=80):
         """
-        Initialize the calculator. `spacing` defines the number of spaces 
+        Initialize the calculator. `spacing` defines the number of blanks 
         between two columns. `max_line_width` is the maximal amount of 
         characters that a line may consume.
         """
@@ -194,16 +194,11 @@ class Formatter(object):
         format specifiers. In the resulting template the specifiers are joined 
         by using a separator with a `spacing` number of blank characters.
 
-        If this instance's `.allow_exceeding` attribute is set to `True` (or
-        to be more exact: something that evaluates to `True`) then the last 
-        (right-most) specifier will always be `'%s'`. If `column_widths` is 
-        empty then the resulting template will be just an empty string.
-
         Specifiers are generated in a form such that any string exceeding its
         column's width will be truncated when applied via string formatting. 
         This truncation will be made to the right end of the affected string.
         If a string is shorter than its column's width then the rest of the
-        column will be filled with blank characters.
+        column in that line will be filled with blank characters.
         """
         if not column_widths:
             return ''
