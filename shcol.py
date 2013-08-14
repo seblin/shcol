@@ -21,8 +21,13 @@ def columnize(items, spacing=2, max_line_width=80, sort_items=False):
 
     `max_line_width` defines the maximum amount of characters per line.
 
-    If `sort_items` is `True`, then a sorted version of `items` is used to
-    generate the columnized output.
+    If `sort_items` is `True`, then a locale-aware sorted version of `items`
+    is used to generate the columnized output.
+
+    Note that enabling `sort_items` may temporary change the interpreter's
+    global locale configuration and thus is not thread-safe (which might be
+    relevant in some cases). Leave this option disabled (the default) if you
+    want to avoid this.
     """
     if sort_items:
         sortkey = functools.cmp_to_key(locale.strcoll)
