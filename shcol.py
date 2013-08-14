@@ -8,6 +8,8 @@ import functools
 import locale
 import os
 
+__all__ = ['columnize', 'ColumnWidthCalculator', 'Formatter', 'LineProperties']
+
 LineProperties = collections.namedtuple(
     'LineProperties', 'column_widths, spacing, num_lines'
 )
