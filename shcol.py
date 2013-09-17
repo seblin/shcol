@@ -78,13 +78,7 @@ class ColumnWidthCalculator(object):
         `column_widths`, `spacing`, `num_lines`.
         """
         item_widths = [len(item) for item in items]
-        if not item_widths:
-            column_widths, num_lines = [], 0
-        elif any(width >= self.max_line_width for width in item_widths):
-            # use only one column for all items
-            column_widths, num_lines = [self.max_line_width], len(item_widths)
-        else:
-            column_widths, num_lines = self.calculate_columns(item_widths)
+        column_widths, num_lines = self.calculate_columns(item_widths)
         return LineProperties(column_widths, self.spacing, num_lines)
 
     def calculate_columns(self, item_widths):
@@ -102,10 +96,11 @@ class ColumnWidthCalculator(object):
         However, the column widths of the resulting tuple will *not*
         include that spacing.
         """
+        max_columns = self.calculate_max_columns(item_widths)
+        if max_columns == 0:
+            return [], 0
         num_items = len(item_widths)
-        possible_columns = self.max_line_width // self.spacing
-        max_used_columns = min(num_items, possible_columns)
-        for num_columns in range(max_used_columns, 0, -1):
+        for num_columns in range(max_columns, 0, -1):
             num_lines, remaining = divmod(num_items, num_columns)
             if remaining:
                 num_lines += 1
@@ -114,8 +109,29 @@ class ColumnWidthCalculator(object):
                 for i in range(0, num_items, num_lines)
             ]
             if self.fits_in_line(column_widths):
-                break
-        return column_widths, num_lines        
+                return column_widths, num_lines
+        return [self.max_line_width], len(item_widths)
+
+    def calculate_max_columns(self, item_widths):
+        """
+        Return the number of columns that is guaranteed not
+        to be exceeded when `item_widths` are columnized.
+
+        This is meant to be used as an initial value on which
+        the real calculation of resulting column widths may
+        be based on. Using this value can save a remarkable
+        number of iterations depending on the how the column
+        width calculation is implemented.
+        """
+        if not item_widths:
+            return 0
+        smallest_item, widest_item = min(item_widths), max(item_widths)
+        if widest_item >= self.max_line_width:
+            return 1
+        remaining_width = self.max_line_width - widest_item
+        min_width = smallest_item + self.spacing
+        possible_columns = 1 + remaining_width // min_width
+        return min(len(item_widths), possible_columns)
 
     def fits_in_line(self, column_widths):
         """
