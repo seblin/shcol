@@ -1,5 +1,5 @@
 shcol - A shell columnizer
-==========================
+--------------------------
 
 ``shcol`` generates columnized output for given string items.
 
