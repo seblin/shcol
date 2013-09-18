@@ -3,6 +3,7 @@
 # Released under the Simplified BSD license 
 # (see LICENSE file for details).
 
+from __future__ import unicode_literals
 import collections
 import functools
 import locale
@@ -193,6 +194,8 @@ class Formatter(object):
         any item that is a byte string will be converted to
         unicode using the codec name specified by `encoding`.
         """
+        if not items:
+            return ''
         items = [self._decode(item, encoding) for item in items]
         return self.linesep.join(self.iter_lines(items))
 
