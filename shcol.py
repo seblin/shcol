@@ -154,6 +154,10 @@ class ColumnWidthCalculator(object):
             num_lines, remaining = divmod(num_items, num_columns)
             if remaining:
                 num_lines += 1
+            if not self.fits_in_line(item_widths[::num_lines]):
+                # give up early if first items
+                # of columns do not fit in line
+                continue
             column_widths = [
                 max(item_widths[i : i + num_lines])
                 for i in range(0, num_items, num_lines)
@@ -179,7 +183,7 @@ class ColumnWidthCalculator(object):
         if widest_item >= self.max_line_width:
             return 1
         remaining_width = self.max_line_width - widest_item
-        min_width = smallest_item + self.spacing
+        min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
         return min(len(item_widths), possible_columns)
 
