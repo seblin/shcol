@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 
 import shcol
@@ -22,7 +24,7 @@ class TestColumnize(unittest.TestCase):
             )
 
     def test_max_line_width(self):
-        x, y, z = 30 * 'x', 10 * 'y', 15 * 'z'
+        x, y, z = 30 * 'x', 10 * 'y', 15 * 'ä'
         items = [x, y, z]
         self.assertEqual(
             self._columnize(items), self._join([x, y, z])
@@ -40,7 +42,45 @@ class TestColumnize(unittest.TestCase):
         self.assertEqual(
             self._columnize(items, sort_items=True), self._join(sorted(items))
         )
-        
+
+
+class TestColumnWidthCalculator(unittest.TestCase):
+    def setUp(self):
+        self.calculator = shcol.ColumnWidthCalculator()
+        self.expected_results = [
+            ([], ([], 0)),
+            ([''], ([0], 1)),
+            ([' '], ([1], 1)),
+            (['foo', 'bar', 'baz'], ([3, 3, 3], 1)),
+            ([30 * 'x', 10 * 'y', 15 * 'ä'], ([30, 10, 15], 1)),
+        ]
+
+    def _make_line_properties(self, item_widths, num_lines, spacing=2):
+        return shcol.LineProperties(item_widths, spacing, num_lines)
+
+    def test_get_properties(self):
+        for items, props in self.expected_results:
+            self.assertEqual(
+                self.calculator.get_properties(items),
+                self._make_line_properties(*props)
+            )
+        self.calculator.max_line_width = 45
+        self.assertEqual(
+            self.calculator.get_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
+            self._make_line_properties([30], 3)
+        )
+
+    def test_calculate_columns(self):
+        for items, result in self.expected_results:
+            item_widths = [len(item) for item in items]
+            self.assertEqual(
+                self.calculator.calculate_columns(item_widths), result
+            )
+        self.calculator.max_line_width = 45
+        self.assertEqual(
+            self.calculator.calculate_columns([30, 10, 15]), ([30], 3)
+        )
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
