@@ -81,6 +81,20 @@ class TestColumnWidthCalculator(unittest.TestCase):
             self.calculator.calculate_columns([30, 10, 15]), ([30], 3)
         )
 
+    def _fits(self, item_widths):
+        return self.calculator.fits_in_line(item_widths)
+
+    def test_fits_in_line(self):
+        for item_widths in ([], [0], [1], [11, 20, 10, 13], [0, 78], [80]):
+            self.assertTrue(self._fits(item_widths))
+        for item_widths in ([77, 2], [70, 12], [1, 0, 78], [0, 79], [81]):
+            self.assertFalse(self._fits(item_widths))
+        self.calculator.spacing = 1
+        self.assertTrue(self._fits([77, 2]))
+        self.assertFalse(self._fits([77, 3]))
+        self.calculator.max_line_width = 79
+        self.assertFalse(self._fits([77, 2]))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
