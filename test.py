@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import shcol
 import unittest
 
-class TestColumnize(unittest.TestCase):
+class ColumnizeTest(unittest.TestCase):
     def _columnize(self, *args, **kwargs):
         return shcol.columnize(*args, **kwargs)
 
@@ -44,7 +44,7 @@ class TestColumnize(unittest.TestCase):
         )
 
 
-class TestColumnWidthCalculator(unittest.TestCase):
+class ColumnWidthCalculatorTest(unittest.TestCase):
     def setUp(self):
         self.calculator = shcol.ColumnWidthCalculator()
         self.expected_results = [
@@ -94,6 +94,31 @@ class TestColumnWidthCalculator(unittest.TestCase):
         self.assertFalse(self._fits([77, 3]))
         self.calculator.max_line_width = 79
         self.assertFalse(self._fits([77, 2]))
+
+
+class FormatterTest(unittest.TestCase):
+    def setUp(self):
+        self.formatter = shcol.Formatter()
+
+    def _join(self, items):
+        return '  '.join(items)
+
+    def test_format(self):
+        for items in (
+            [], ['spam', 'ham', 'egg'], ['späm', 'häm', 'ägg']
+        ):
+            self.assertEqual(self.formatter.format(items), self._join(items))
+
+    def _get_lines(self, items):
+        return list(self.formatter.iter_lines(items))
+
+    def test_iter_lines(self):
+        items = ['foo', 'bar', 'baz']
+        lines = self._get_lines(items)
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(lines[0], self._join(items))
+        self.formatter.column_width_calculator.max_line_width = 3
+        self.assertEqual(self._get_lines(items), items)
 
 
 if __name__ == '__main__':
