@@ -7,40 +7,37 @@ import shcol
 import unittest
 
 class ColumnizeTest(unittest.TestCase):
-    def _columnize(self, *args, **kwargs):
-        return shcol.columnize(*args, **kwargs)
-
     def _join(self, items, spacing=2):
         return (spacing * ' ').join(items)
 
     def test_no_items(self):
-        self.assertEqual(self._columnize([]), '')
+        self.assertEqual(shcol.columnize([]), '')
 
     def test_spacing(self):
         items = ['foo', 'bar', 'baz']
         for i in range(3):
             self.assertEqual(
-                self._columnize(items, spacing=i), self._join(items, i)
+                shcol.columnize(items, spacing=i), self._join(items, i)
             )
 
     def test_max_line_width(self):
-        x, y, z = 30 * 'x', 10 * 'y', 15 * 'ä'
-        items = [x, y, z]
+        x, y, ae = 30 * 'x', 10 * 'y', 15 * 'ä'
+        items = [x, y, ae]
         self.assertEqual(
-            self._columnize(items), self._join([x, y, z])
+            shcol.columnize(items), self._join([x, y, ae])
         )
         self.assertEqual(
-            self._columnize(items, max_line_width=50),
-            '%s\n%s' % (self._join([x, z]), y)
+            shcol.columnize(items, max_line_width=50),
+            '%s\n%s' % (self._join([x, ae]), y)
         )
         self.assertEqual(
-            self._columnize(items, max_line_width=45), '\n'.join([x, y, z])
+            shcol.columnize(items, max_line_width=45), '\n'.join([x, y, ae])
         )
 
     def test_sort_items(self):
         items = ['spam', 'ham', 'egg', 'foo', 'bar', 'baz']
         self.assertEqual(
-            self._columnize(items, sort_items=True), self._join(sorted(items))
+            shcol.columnize(items, sort_items=True), self._join(sorted(items))
         )
 
 
@@ -119,6 +116,16 @@ class FormatterTest(unittest.TestCase):
         self.assertEqual(lines[0], self._join(items))
         self.formatter.column_width_calculator.max_line_width = 3
         self.assertEqual(self._get_lines(items), items)
+
+    def test_get_line_template(self):
+        get_template = self.formatter.get_line_template
+        self.assertEqual(get_template([]), '')
+        self.assertEqual(get_template([42]), '%s')
+        self.formatter.allow_exceeding = False
+        self.assertEqual(get_template([42]), '%.42s')
+        self.assertEqual(get_template([]), '')
+        self.formatter.allow_exceeding = True
+        self.assertEqual(get_template([42, 13]), '%-42.42s  %.13s')
 
 
 if __name__ == '__main__':
