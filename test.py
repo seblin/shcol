@@ -78,6 +78,17 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.calculator.calculate_columns([30, 10, 15]), ([30], 3)
         )
 
+    def test_calculate_max_columns(self):
+        expected_results = [
+            ([], 0), ([0], 1), ([1], 1), ([81], 1), ([81, 2], 1),
+            ([20, 19, 18], 3), ([70] + [0] * 100, 6), ([70] + [1] * 100, 4),
+            ([70, 1, 2, 3], 4)
+        ]
+        for item_widths, result in expected_results:
+            self.assertEqual(
+                self.calculator.calculate_max_columns(item_widths), result
+            )
+
     def _fits(self, item_widths):
         return self.calculator.fits_in_line(item_widths)
 
