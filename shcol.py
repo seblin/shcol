@@ -177,15 +177,16 @@ class ColumnWidthCalculator(object):
         number of iterations depending on the how the column
         width calculation is implemented.
         """
-        if not item_widths:
-            return 0
+        num_items = len(item_widths)
+        if num_items <= 1:
+            return num_items
         smallest_item, widest_item = min(item_widths), max(item_widths)
         if widest_item >= self.max_line_width:
             return 1
         remaining_width = self.max_line_width - widest_item
         min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
-        return min(len(item_widths), possible_columns)
+        return min(num_items, possible_columns)
 
     def fits_in_line(self, column_widths):
         """
