@@ -80,7 +80,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
 
     def test_calculate_max_columns(self):
         expected_results = [
-            ([], 0), ([0], 1), ([1], 1), ([81], 1), ([81, 2], 1),
+            ([], 0), ([0], 1), ([1], 1), ([81], 1), ([81, 2], 1), ([79, 2], 1),
             ([20, 19, 18], 3), ([70] + [0] * 100, 6), ([70] + [1] * 100, 4),
             ([70, 1, 2, 3], 4)
         ]
