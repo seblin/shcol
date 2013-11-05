@@ -123,10 +123,15 @@ class FormatterTest(unittest.TestCase):
     def test_iter_lines(self):
         items = ['foo', 'bar', 'baz']
         lines = self._get_lines(items)
-        self.assertEqual(len(lines), 1)
         self.assertEqual(lines, [self._join(items)])
         self.formatter.column_width_calculator.max_line_width = 3
         self.assertEqual(self._get_lines(items), items)
+        self.formatter.column_width_calculator.max_line_width = 50
+        items = [60 * 'ä', 40 * 'ö']
+        self.assertEqual(self._get_lines(items), items)
+        self.formatter.allow_exceeding = False
+        expected = [items[0][:50], items[1]]
+        self.assertEqual(self._get_lines(items), expected)
 
     def test_get_line_template(self):
         get_template = self.formatter.get_line_template
