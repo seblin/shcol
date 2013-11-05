@@ -50,7 +50,7 @@ currently able to do for you.
 from __future__ import unicode_literals
 
 __author__ = 'Sebastian Linke'
-__version__ = '0.1-dev'
+__version__ = '0.1'
 __license__ = 'Simplified BSD'
 
 import collections
