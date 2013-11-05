@@ -46,3 +46,8 @@ etc     lib               mnt           run     sys        vmlinuz
 ``shcol`` has its focus on speed, features and usability, though it is in an
 early development state. See the source code for details on what ``shcol`` is
 currently able to do for you.
+
+How to install
+--------------
+
+The preferred way is to use the simple command: ``pip install shcol``.
