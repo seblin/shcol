@@ -135,14 +135,18 @@ class FormatterTest(unittest.TestCase):
 
     def test_get_line_template(self):
         get_template = self.formatter.get_line_template
-        self.assertEqual(get_template([]), '')
-        self.assertEqual(get_template([42]), '%s')
+        expected_results = [
+            ([], ''), ([0], '%s'), ([42], '%s'), ([42, 13], '%-42.42s  %.13s')
+        ]
+        for item_widths, result in expected_results:
+            self.assertEqual(get_template(item_widths), result)
         self.formatter.allow_exceeding = False
-        self.assertEqual(get_template([42]), '%.42s')
-        self.assertEqual(get_template([42, 13]), '%-42.42s  %.13s')
-        self.assertEqual(get_template([]), '')
-        self.formatter.allow_exceeding = True
-        self.assertEqual(get_template([42, 13]), '%-42.42s  %.13s')
+        expected_results = [
+            ([], ''), ([0], '%.0s'), ([42], '%.42s'),
+            ([42, 13], '%-42.42s  %.13s')
+        ]
+        for item_widths, result in expected_results:
+            self.assertEqual(get_template(item_widths), result)
 
 
 if __name__ == '__main__':
