@@ -134,6 +134,7 @@ class FormatterTest(unittest.TestCase):
         self.assertEqual(get_template([42]), '%s')
         self.formatter.allow_exceeding = False
         self.assertEqual(get_template([42]), '%.42s')
+        self.assertEqual(get_template([42, 13]), '%-42.42s  %.13s')
         self.assertEqual(get_template([]), '')
         self.formatter.allow_exceeding = True
         self.assertEqual(get_template([42, 13]), '%-42.42s  %.13s')
