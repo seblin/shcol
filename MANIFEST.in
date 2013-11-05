@@ -1,0 +1,5 @@
+include shcol.py
+include setup.py
+include test.py
+include README.md
+include LICENSE
