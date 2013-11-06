@@ -4,6 +4,7 @@ shcol - A shell columnizer
 ``shcol`` generates columnized output for given string items.
 
 Example:
+
 ```python
 >>> import shcol
 >>> items = dir(shcol)
@@ -15,6 +16,7 @@ _DefaultLocale         __file__      columnize    unicode_literals
 ```
 
 The same will work for file listings:
+
 ```python
 >>> import os
 >>> print shcol.columnize(os.listdir('/'))
@@ -24,6 +26,7 @@ home     boot  srv             var    lost+found  vmlinuz     opt   mnt
 ```
 
 For convenience ``shcol`` can sort the output for you:
+
 ```python
 >>> print shcol.columnize(os.listdir('/'), sort_items=True)
 bin   etc         initrd.img.old  lost+found  opt   run      srv  usr
@@ -32,6 +35,7 @@ dev   initrd.img  lib64           mnt         root  selinux  tmp  vmlinuz
 ```
 
 It even handles input containing non-ascii strings correctly:
+
 ```python
 >>> home_path = os.path.expanduser('~')
 >>> print shcol.columnize(os.listdir(home_path), sort_items=True)
@@ -70,6 +74,7 @@ That result should be pretty equivalent to what a call to ``ls -A ~`` on your
 command-line would give you.
 
 Additionally, you are free to change the spacing between columns:
+
 ```python
 >>> print shcol.columnize(os.listdir('/'), spacing=4, sort_items=True)
 bin     home              lib64         opt     sbin       tmp
@@ -79,6 +84,7 @@ etc     lib               mnt           run     sys        vmlinuz
 ```
 
 ...or to change the line width:
+
 ```python
 >>> print shcol.columnize(os.listdir('/'), max_line_width=50, sort_items=True)
 bin   initrd.img      media  run      tmp
@@ -87,7 +93,8 @@ dev   lib             opt    selinux  var
 etc   lib64           proc   srv      vmlinuz
 home  lost+found      root   sys
 ```
-(Note that future versions of ``shcol`` will try to use an appropiate line
+
+(Note that future versions of ``shcol`` will try to use an appropriate line
 width on their own.)
 
 ``shcol`` has its focus on speed, features and usability, though it is in an
