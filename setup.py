@@ -10,7 +10,7 @@ setup(
     author=shcol.__author__,
     author_email='Seb_Linke@arcor.de',
     url='https://github.com/seblin/shcol',
-    py_modules=['shcol'],
+    packages=['shcol'],
     license=shcol.__license__,
     platforms = 'any',
     classifiers=[

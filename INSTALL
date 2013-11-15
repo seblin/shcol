@@ -1,5 +1,0 @@
-If you already downloaded `shcol` as a tarball then you should just run
-``python setup.py install``.
-
-If you read this at the `github`-repo then the preferred way is to use
-``pip install shcol``.
