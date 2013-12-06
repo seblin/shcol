@@ -1,12 +1,15 @@
 from __future__ import print_function
+
+import argparse
 import shcol
-import sys
 
 __all__ = ['main']
 
-def main():
-    print('shcol: Command-line parsing not yet implemented', file=sys.stderr)
+def main(cmd_args):
+    parser = argparse.ArgumentParser(
+        description='Generate columnized output for given string items.'
+    )
+    parser.add_argument('items', nargs='+', help='an item to columnize')
+    args = parser.parse_args(cmd_args[1:])
 
-
-if __name__ == '__main__':
-    main()
+    print(shcol.columnize(args.items))
