@@ -1,14 +1,4 @@
 #!/usr/bin/env python
-import os
-import sys
+import shcol
 
-def _import_shcol():
-    parent = os.path.join(os.path.dirname(__file__), os.pardir)
-    if os.path.isdir(os.path.join(parent, 'shcol')):
-        sys.path.insert(0, os.path.abspath(parent))
-    return __import__('shcol')
-
-
-if __name__ == '__main__':
-    shcol = _import_shcol()
-    shcol.main()
+shcol.main()
