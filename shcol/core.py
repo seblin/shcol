@@ -17,7 +17,7 @@ def columnize(items, spacing=2, max_line_width=80, sort_items=False):
     `spacing` defines the number of blank characters between
     two columns.
 
-    `max_line_width` defines the maximum amount of characters
+    `max_line_width` defines the maximal amount of characters
     per line.
 
     If `sort_items` is `True`, then a locale-aware sorted version
