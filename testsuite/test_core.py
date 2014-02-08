@@ -147,7 +147,3 @@ class FormatterTest(unittest.TestCase):
         ]
         for item_widths, result in expected_results:
             self.assertEqual(get_template(item_widths), result)
-
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)

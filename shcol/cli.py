@@ -19,7 +19,6 @@ def main(cmd_args):
         '-w', '--width', metavar='N', type=int, default=80,
         help='maximal amount of characters per line'
     )
-    
     args = parser.parse_args(cmd_args[1:])
 
     print(shcol.columnize(args.items, args.spacing, args.width))

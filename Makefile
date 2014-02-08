@@ -1,11 +1,11 @@
 .PHONY: install clean test
 
 install:
-	python setup.py install
+	/usr/bin/env python setup.py install
 
 clean:
 	rm -rf build/ dist/ MANIFEST
 	find . -name '*.pyc' -exec rm -f {} +
 
 test:
-	python test/test_core.py
+	nosetests --verbosity=2

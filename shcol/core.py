@@ -96,9 +96,7 @@ class ColumnWidthCalculator(object):
             return [], 0
         num_items = len(item_widths)
         for num_columns in range(max_columns, 0, -1):
-            num_lines, remaining = divmod(num_items, num_columns)
-            if remaining:
-                num_lines += 1
+            num_lines = num_items // num_columns + bool(num_items % num_columns)
             if not self.fits_in_line(item_widths[::num_lines]):
                 # give up early if first items
                 # of columns do not fit in line
