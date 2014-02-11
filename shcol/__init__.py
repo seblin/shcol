@@ -93,6 +93,7 @@ width on their own.)
 early development state. See the source code for details on what ``shcol`` is
 currently able to do for you.
 """
+
 __author__ = 'Sebastian Linke'
 __version__ = '0.2-dev'
 __license__ = 'Simplified BSD'
