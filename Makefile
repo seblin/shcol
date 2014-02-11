@@ -1,7 +1,7 @@
 .PHONY: install clean test
 
 install:
-	/usr/bin/env python setup.py install
+	python setup.py install
 
 clean:
 	rm -rf build/ dist/ MANIFEST
