@@ -29,6 +29,9 @@ def show_files(path='.', hide_dotted=False):
     Columnize filenames according to given `path` and print them
     to stdout.
 
+    `hide_dotted` defines whether to exclude filenames starting
+    with a ".".
+
     Note that this function does shell-like expansion of symbols
     such as "*", "?" or even "~" (user's home).
     """
