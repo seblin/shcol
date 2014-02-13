@@ -1,5 +1,5 @@
 include shcol/*.py
-include test/*.py
+include testsuite/*.py
 include bin/*
 include setup.py
 include README.md

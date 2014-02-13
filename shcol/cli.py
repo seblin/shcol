@@ -20,8 +20,7 @@ def main(cmd_args):
         help='maximal amount of characters per line (default: 80)'
     )
     parser.add_argument(
-        '-S', '--sort', dest='sorting', help='sort the items',
-        action='store_const', const=True, default=False
+        '-S', '--sort', help='sort the items',
+        action='store_true', default=False
     )
-    args = parser.parse_args(cmd_args[1:])
-    print(shcol.columnize(args.items, args.spacing, args.width, args.sorting))
+    print(shcol.columnize(args.items, args.spacing, args.width, args.sort))
