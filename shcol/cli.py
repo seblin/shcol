@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import argparse
 import shcol
+import sys
 
 __all__ = ['main']
 
@@ -10,7 +11,9 @@ def main(cmd_args):
         description='Generate columnized output for given string items.',
         version='shcol {}'.format(shcol.__version__)
     )
-    parser.add_argument('items', nargs='+', help='the items to columnize')
+    parser.add_argument(
+        'items', nargs='*', metavar='item', help='an item to columnize'
+    )
     parser.add_argument(
         '-s', '--spacing', metavar='N', type=int, default=2,
         help='number of blanks between two columns (default: 2)'
@@ -20,7 +23,9 @@ def main(cmd_args):
         help='maximal amount of characters per line (default: 80)'
     )
     parser.add_argument(
-        '-S', '--sort', help='sort the items',
-        action='store_true', default=False
+        '-S', '--sort', action='store_true', default=False,
+        help='sort the items'
     )
-    print(shcol.columnize(args.items, args.spacing, args.width, args.sort))
+    args = parser.parse_args(cmd_args[1:])
+    items = args.items or [line.rstrip('\n') for line in sys.stdin]
+    print(shcol.columnize(items, args.spacing, args.width, args.sort))
