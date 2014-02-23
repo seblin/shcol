@@ -11,9 +11,11 @@ def main(cmd_args):
         description='Generate columnized output for given string items.',
         version='shcol {}'.format(shcol.__version__)
     )
-    parser.add_argument(
-        'items', nargs='*', metavar='item', help='an item to columnize'
+    item_help = (
+        'an item to columnize\n'
+        '(read from stdin if item arguments are not present)'
     )
+    parser.add_argument('items', nargs='*', metavar='item', help=item_help)
     parser.add_argument(
         '-s', '--spacing', metavar='N', type=int, default=2,
         help='number of blanks between two columns (default: 2)'
