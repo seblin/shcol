@@ -53,8 +53,11 @@ class ArgumentParser(argparse.ArgumentParser):
             try:
                 args.items = self._read_lines(sys.stdin, args.column_index)
             except IndexError:
-                msg = 'unable to fetch data for column at index {}'
-                self._fail(msg.format(args.column_index))
+                msg = '{}: error: unable to fetch data for column at index {}'
+                sys.exit(msg.format(self.prog, args.column_index))
+            except KeyboardInterrupt:
+                msg = '\r{}: aborted by user (keyboard interrupt)'
+                sys.exit(msg.format(self.prog))
         return args
 
     def _read_lines(self, stream, column_index=None):
@@ -62,12 +65,6 @@ class ArgumentParser(argparse.ArgumentParser):
         if column_index is not None:
             lines = (line.split()[column_index] for line in lines)
         return list(lines)
-
-    def _fail(self, msg, exit_code=1):
-        error_msg = '{}: error: {}'.format(self.prog, msg)
-        print(error_msg, file=sys.stderr)
-        sys.exit(exit_code)
-
 
 def main(cmd_args=None):
     args = ArgumentParser('shcol', shcol.__version__).parse_args()
