@@ -1,16 +1,25 @@
 from __future__ import print_function
-from .core import columnize
+
 import glob
 import os
 
-__all__ = ['show_attrs', 'show_files']
+from .core import columnize
+
+__all__ = ['print_columnized', 'show_attrs', 'show_files']
+
+def print_columnized(items, *args, **kwargs):
+    """
+    Shortcut to show the columnized `items` on standard output.
+    Takes the same arguments as `columnize()`.
+    """
+    print(columnize(items, *args, **kwargs))
 
 def show_attrs(obj):
     """
     Similar to the `dir()`-builtin but sort the resulting names
     and print them columnized to stdout.
     """
-    print(columnize(dir(obj), sort_items=True))
+    print_columnized(dir(obj), sort_items=True)
 
 def _get_files(path, hide_dotted):
     path = os.path.expanduser(os.path.expandvars(path))
@@ -36,4 +45,4 @@ def show_files(path='.', hide_dotted=False):
     such as "*", "?" or even "~" (user's home).
     """
     filenames = _get_files(path, hide_dotted)
-    print(columnize(filenames, sort_items=True))
+    print_columnized(filenames, sort_items=True)

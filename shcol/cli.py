@@ -1,8 +1,10 @@
 from __future__ import print_function
 
 import argparse
-import shcol
 import sys
+
+from . import __version__
+from .highlevel import print_columnized
 
 __all__ = ['main']
 
@@ -67,5 +69,5 @@ class ArgumentParser(argparse.ArgumentParser):
         return list(lines)
 
 def main(cmd_args=None):
-    args = ArgumentParser('shcol', shcol.__version__).parse_args()
-    print(shcol.columnize(args.items, args.spacing, args.width, args.sort))
+    args = ArgumentParser('shcol', __version__).parse_args()
+    print_columnized(args.items, args.spacing, args.width, args.sort)
