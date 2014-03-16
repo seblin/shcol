@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from distutils.core import setup
+import os
 import shcol
 
 setup(
@@ -11,7 +12,7 @@ setup(
     author_email='Seb_Linke@arcor.de',
     url='https://github.com/seblin/shcol',
     packages=['shcol'],
-    scripts=['bin/shcol'],
+    scripts=[os.path.join('bin', 'shcol')],
     license=shcol.__license__,
     platforms = 'any',
     classifiers=[

@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import argparse
 import sys
 
@@ -28,8 +26,8 @@ class ArgumentParser(argparse.ArgumentParser):
             help='number of blanks between two columns (default: 2)'
         )
         self.add_argument(
-            '-w', '--width', metavar='N', type=self.num, default=80,
-            help='maximal amount of characters per line (default: 80)'
+            '-w', '--width', metavar='N', type=self.num,
+            help='maximal amount of characters per line'
         )
         self.add_argument(
             '-S', '--sort', action='store_true', default=False,
