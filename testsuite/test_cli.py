@@ -29,12 +29,19 @@ class ArgumentParserTest(unittest.TestCase):
             result = self._get_stderr_output(['shcol', option])
             self.assertEqual(result, expected)
 
-    def test_spacing(self):
-        invalid_spacings = ['-42', '-1', '1.0', 'x']
-        for spacing in invalid_spacings:
-            error = self._get_stderr_output(['shcol', '--spacing', spacing])
+    def _test_num_option(self, long_option, short_option):
+        option_name = long_option.lstrip('-')
+        for value in ('0', '2', '80', '100'):
+            args = self.parser.parse_args(['shcol', long_option, value])
+            self.assertEqual(getattr(args, option_name), int(value))
+        for invalid in ('-42', '-1', '1.0', 'x'):
+            error = self._get_stderr_output(['shcol', long_option, invalid])
             self.assertTrue(error)
-        valid_spacings = ['0', '2', '100']
-        for spacing in valid_spacings:
-            args = self.parser.parse_args(['shcol', '--spacing', spacing])
-            self.assertEqual(args.spacing, int(spacing))
+        args = self.parser.parse_args(['shcol', short_option, '2'])
+        self.assertEqual(getattr(args, option_name), 2)
+
+    def test_spacing(self):
+        self._test_num_option('--spacing', '-s')
+
+    def test_line_width(self):
+        self._test_num_option('--width', '-w')

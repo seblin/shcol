@@ -44,8 +44,8 @@ elif platform.system() == 'Windows':
 
 else:
     try:
-        import termios
         import fcntl
+        import termios
     except ImportError:
         pass
 
