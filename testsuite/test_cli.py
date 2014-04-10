@@ -50,3 +50,9 @@ class ArgumentParserTest(unittest.TestCase):
         items = ['spam', 'ham', 'egg']
         args = self.parser.parse_args(items)
         self.assertEqual(args.items, items)
+
+    def test_sort(self):
+        args = ['shcol', 'spam']
+        self.assertFalse(self.parser.parse_args(args).sort)
+        args.append('--sort')
+        self.assertTrue(self.parser.parse_args(args).sort)
