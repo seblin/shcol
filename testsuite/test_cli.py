@@ -25,7 +25,7 @@ class ArgumentParserTest(unittest.TestCase):
 
     def test_version(self):
         expected = '{} {}'.format('shcol', shcol.__version__)
-        for option in ('-v', '--version'):
+        for option in ('--version', '-v'):
             result = self._get_stderr_output(['shcol', option])
             self.assertEqual(result, expected)
 
@@ -36,7 +36,7 @@ class ArgumentParserTest(unittest.TestCase):
             self.assertEqual(getattr(args, option_name), int(value))
         for invalid in ('-42', '-1', '1.0', 'x'):
             error = self._get_stderr_output(['shcol', long_option, invalid])
-            self.assertTrue(error)
+            self.assertIn('invalid num value', error)
         args = self.parser.parse_args(['shcol', short_option, '2'])
         self.assertEqual(getattr(args, option_name), 2)
 
@@ -45,3 +45,8 @@ class ArgumentParserTest(unittest.TestCase):
 
     def test_line_width(self):
         self._test_num_option('--width', '-w')
+
+    def test_items(self):
+        items = ['spam', 'ham', 'egg']
+        args = self.parser.parse_args(items)
+        self.assertEqual(args.items, items)

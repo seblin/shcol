@@ -13,9 +13,9 @@ class ArgumentParser(argparse.ArgumentParser):
         argparse.ArgumentParser.__init__(
             self, prog=prog_name, description=description
         )
-        self._add_arguments()
+        self.init_arguments()
 
-    def _add_arguments(self):
+    def init_arguments(self):
         item_help = (
             'an item to columnize\n'
             '(read from stdin if item arguments are not present)'
@@ -44,14 +44,14 @@ class ArgumentParser(argparse.ArgumentParser):
     def num(self, s):
         number = int(s)
         if number < 0:
-            raise argparse.ArgumentError('number must be non-negative')
+            raise ValueError('number must be non-negative')
         return number
 
     def parse_args(self, args=None, namespace=None):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
             try:
-                args.items = self._read_lines(sys.stdin, args.column_index)
+                args.items = self.read_lines(sys.stdin, args.column_index)
             except IndexError:
                 msg = '{}: error: unable to fetch data for column at index {}'
                 sys.exit(msg.format(self.prog, args.column_index))
@@ -60,7 +60,7 @@ class ArgumentParser(argparse.ArgumentParser):
                 sys.exit(msg.format(self.prog))
         return args
 
-    def _read_lines(self, stream, column_index=None):
+    def read_lines(self, stream, column_index=None):
         lines = (line.rstrip('\n') for line in stream)
         if column_index is not None:
             lines = (line.split()[column_index] for line in lines)
