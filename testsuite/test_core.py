@@ -6,10 +6,7 @@ import shcol
 import sys
 import unittest
 
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from _helpers import StringIO
 
 class ColumnizeTest(unittest.TestCase):
     def _join(self, items, spacing=2):

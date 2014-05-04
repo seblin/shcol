@@ -98,6 +98,6 @@ __author__ = 'Sebastian Linke'
 __version__ = '0.2-dev'
 __license__ = 'Simplified BSD'
 
-from .cli import *
+from . import cli
 from .core import *
 from .highlevel import *
