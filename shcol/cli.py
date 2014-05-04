@@ -55,9 +55,6 @@ class ArgumentParser(argparse.ArgumentParser):
             except IndexError:
                 msg = '{}: error: unable to fetch data for column at index {}'
                 sys.exit(msg.format(self.prog, args.column_index))
-            except KeyboardInterrupt:
-                msg = '\r{}: aborted by user (keyboard interrupt)'
-                sys.exit(msg.format(self.prog))
         return args
 
     def read_lines(self, stream, column_index=None):
