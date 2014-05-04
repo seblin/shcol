@@ -68,6 +68,11 @@ class ArgumentParserTest(unittest.TestCase):
         args = self.parser.parse_args(items)
         self.assertEqual(args.items, items)
 
+    def test_default_params(self):
+        args = self.parser.parse_args(['spam'])
+        self.assertEqual(args.spacing, 2)
+        self.assertEqual(args.width, None)
+
     def test_no_item_args(self):
         with CapturedStream('stdin') as instream:
             args = self.parser.parse_args([])

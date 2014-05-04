@@ -11,4 +11,4 @@ clean:
 	find . -name '*.pyc' -exec rm -f {} +
 
 test:
-	$(NOSETESTS) --verbosity=2
+	$(NOSETESTS) 
