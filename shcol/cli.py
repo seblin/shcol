@@ -53,8 +53,11 @@ class ArgumentParser(argparse.ArgumentParser):
             try:
                 args.items = self.read_lines(sys.stdin, args.column_index)
             except IndexError:
-                msg = '{}: error: unable to fetch data for column at index {}'
-                sys.exit(msg.format(self.prog, args.column_index))
+                msg = '{}: error: no data to fetch for column at index {}\n'
+                sys.stderr.write(msg.format(self.prog, args.column_index))
+                sys.exit(1)
+            except KeyboardInterrupt:
+                sys.exit(1)
         return args
 
     def read_lines(self, stream, column_index=None):

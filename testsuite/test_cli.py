@@ -57,10 +57,10 @@ class ArgumentParserTest(unittest.TestCase):
         error = self._get_stderr_output([short_option, '-1'] + list(cmd_args))
         self.assertIn('invalid num value', error)
 
-    def test_spacing(self):
+    def test_spacing_option(self):
         self._test_num_option('--spacing', '-s', 'foo')
 
-    def test_line_width(self):
+    def test_line_width_option(self):
         self._test_num_option('--width', '-w', 'foo')
 
     def test_item_args(self):
@@ -77,15 +77,18 @@ class ArgumentParserTest(unittest.TestCase):
             args = self.parser.parse_args([])
             self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
 
-    def test_column(self):
+    def test_column_option(self):
         self._test_num_option_invalid('-c', '--column')
         with CapturedStream('stdin') as instream:
             instream.write('xxx spam\nzzz ham\n~~~ eggs')
             instream.seek(0)
             args = self.parser.parse_args(['-c' '1'])
             self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
+            instream.seek(0)
+            error = self._get_stderr_output(['-c', '42'])
+            self.assertIn('no data to fetch', error)
 
-    def test_sort(self):
+    def test_sort_option(self):
         args = self.parser.parse_args(['spam'])
         self.assertFalse(args.sort)
         args = self.parser.parse_args(['--sort', 'spam'])
