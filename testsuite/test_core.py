@@ -3,7 +3,13 @@
 from __future__ import unicode_literals
 
 import shcol
+import sys
 import unittest
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 class ColumnizeTest(unittest.TestCase):
     def _join(self, items, spacing=2):
@@ -101,6 +107,30 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         self.assertFalse(self._fits([77, 3]))
         self.calculator.max_line_width = 79
         self.assertFalse(self._fits([77, 2]))
+
+    def test_for_stream(self):
+        outstream = sys.__stdout__
+        expected = shcol._termwidth.get_terminal_width(outstream.fileno())
+        calc = shcol.ColumnWidthCalculator.for_stream(outstream)
+        self.assertEqual(calc.max_line_width, expected)
+        self.assertEqual(calc.spacing, 2)
+        calc = shcol.ColumnWidthCalculator.for_stream(outstream, spacing=5)
+        self.assertEqual(calc.max_line_width, expected)
+        self.assertEqual(calc.spacing, 5)
+        calc = shcol.ColumnWidthCalculator.for_stream(
+            outstream, default_width=70
+        )
+        self.assertEqual(calc.max_line_width, expected)
+        self.assertEqual(calc.spacing, 2)
+        outstream = StringIO()
+        calc = shcol.ColumnWidthCalculator.for_stream(outstream)
+        self.assertEqual(calc.max_line_width, 80)
+        self.assertEqual(calc.spacing, 2)
+        calc = shcol.ColumnWidthCalculator.for_stream(
+            outstream, default_width=70
+        )
+        self.assertEqual(calc.max_line_width, 70)
+        self.assertEqual(calc.spacing, 2)
 
 
 class FormatterTest(unittest.TestCase):

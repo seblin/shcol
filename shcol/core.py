@@ -150,13 +150,10 @@ class ColumnWidthCalculator(object):
 
     @classmethod
     def for_stream(cls, stream, spacing=2, default_width=80):
-        stream_fd = stream.fileno()
-        width = None
-        if os.isatty(stream_fd):
-            width = _termwidth.get_terminal_width(stream_fd)
-        if width is None:
-            width = default_width
-        return cls(spacing, width)
+        if not hasattr(stream, 'fileno') or not os.isatty(stream.fileno()):
+            return cls(spacing, default_width)
+        width = _termwidth.get_terminal_width(stream.fileno())
+        return cls(spacing, default_width if width is None else width)
 
 
 class Formatter(object):
