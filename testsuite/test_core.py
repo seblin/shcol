@@ -105,29 +105,14 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         self.calculator.max_line_width = 79
         self.assertFalse(self._fits([77, 2]))
 
-    def test_for_stream(self):
-        outstream = sys.__stdout__
-        expected = shcol._termwidth.get_terminal_width(outstream.fileno())
-        calc = shcol.ColumnWidthCalculator.for_stream(outstream)
+    def test_for_terminal(self):
+        expected = shcol._termwidth.get_terminal_width(sys.__stdout__.fileno())
+        calc = shcol.ColumnWidthCalculator.for_terminal()
         self.assertEqual(calc.max_line_width, expected)
         self.assertEqual(calc.spacing, 2)
-        calc = shcol.ColumnWidthCalculator.for_stream(outstream, spacing=5)
+        calc = shcol.ColumnWidthCalculator.for_terminal(spacing=5)
         self.assertEqual(calc.max_line_width, expected)
         self.assertEqual(calc.spacing, 5)
-        calc = shcol.ColumnWidthCalculator.for_stream(
-            outstream, default_width=70
-        )
-        self.assertEqual(calc.max_line_width, expected)
-        self.assertEqual(calc.spacing, 2)
-        outstream = StringIO()
-        calc = shcol.ColumnWidthCalculator.for_stream(outstream)
-        self.assertEqual(calc.max_line_width, 80)
-        self.assertEqual(calc.spacing, 2)
-        calc = shcol.ColumnWidthCalculator.for_stream(
-            outstream, default_width=70
-        )
-        self.assertEqual(calc.max_line_width, 70)
-        self.assertEqual(calc.spacing, 2)
 
 
 class FormatterTest(unittest.TestCase):

@@ -3,24 +3,25 @@ import shcol
 
 from _helpers import CapturedStream
 
-class PrintColumnizedTest(unittest.TestCase):
-    def _get_result(self, items):
+class PrintTestBase(unittest.TestCase):
+    def get_result(self, func, *args, **kwargs):
         with CapturedStream('stdout') as outstream:
-            shcol.print_columnized(items)
+            func(*args, **kwargs)
             return outstream.getvalue()
-        
+
+class PrintColumnizedTest(PrintTestBase):
     def test_items(self):
         items = ['spam', 'ham', 'eggs']
         expected = '  '.join(items) + '\n'
-        self.assertEqual(self._get_result(items), expected)
+        result = self.get_result(shcol.print_columnized, items)
+        self.assertEqual(result, expected)
 
     def test_no_items(self):
-        self.assertEqual(self._get_result([]), '\n')
+        result = self.get_result(shcol.print_columnized, [])
+        self.assertEqual(result, '\n')
 
-class PrintAttrsTest(unittest.TestCase):
+class PrintAttrsTest(PrintTestBase):
     def test_print_attrs(self):
         expected = shcol.columnize(dir(shcol), sort_items=True) + '\n'
-        with CapturedStream('stdout') as outstream:
-            shcol.print_attrs(shcol)
-            result = outstream.getvalue()
-            self.assertEqual(result, expected)
+        result = self.get_result(shcol.print_attrs, shcol)
+        self.assertEqual(result, expected)

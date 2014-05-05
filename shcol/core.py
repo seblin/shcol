@@ -36,7 +36,7 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
         with _DefaultLocale(locale.LC_COLLATE):
             items = sorted(items, key=sortkey)
     if max_line_width is None:
-        calculator = ColumnWidthCalculator.for_stream(sys.__stdout__, spacing)
+        calculator = ColumnWidthCalculator.for_terminal(spacing=spacing)
     else:
         calculator = ColumnWidthCalculator(spacing, max_line_width)
     return Formatter(calculator).format(items)
@@ -149,11 +149,24 @@ class ColumnWidthCalculator(object):
         return total <= self.max_line_width
 
     @classmethod
-    def for_stream(cls, stream, spacing=2, default_width=80):
-        if not hasattr(stream, 'fileno') or not os.isatty(stream.fileno()):
-            return cls(spacing, default_width)
+    def for_terminal(cls, stream=None, spacing=2):
+        """
+        Return a new `ColumnWidthCalculator` based on given `stream`
+        where `stream` must be a file-object connected to a terminal.
+        If `stream` is `None` then `sys.__stdout__` is used instead.
+
+        `spacing` defines the number of blanks between two columns
+        and is used by the resulting calculator.
+
+        The calculator's line width will equal to the line width of
+        the given terminal-stream. But note that the calculator's line
+        width is *not* updated if subsequent changes of the terminal
+        size occur after initialization of the calculator.
+        """
+        if stream is None:
+            stream = sys.__stdout__
         width = _termwidth.get_terminal_width(stream.fileno())
-        return cls(spacing, default_width if width is None else width)
+        return cls(spacing, width)
 
 
 class Formatter(object):
