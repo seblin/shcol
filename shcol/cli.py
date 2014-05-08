@@ -27,7 +27,8 @@ class ArgumentParser(argparse.ArgumentParser):
         )
         self.add_argument(
             '-w', '--width', metavar='N', type=self.num,
-            help='maximal amount of characters per line'
+            help='maximal amount of characters per line '
+                 '(use terminal width by default)'
         )
         self.add_argument(
             '-S', '--sort', action='store_true', default=False,
