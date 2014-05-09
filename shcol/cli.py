@@ -54,11 +54,10 @@ class ArgumentParser(argparse.ArgumentParser):
             try:
                 args.items = self.read_lines(sys.stdin, args.column_index)
             except IndexError:
-                msg = '{}: error: no data to fetch for column at index {}\n'
-                sys.stderr.write(msg.format(self.prog, args.column_index))
-                sys.exit(1)
+                msg = '{}: error: failed to fetch data for column at index {}'
+                _exit_with_failure(msg.format(self.prog, args.column_index))
             except KeyboardInterrupt:
-                sys.exit(1)
+                _exit_with_failure()
         return args
 
     def read_lines(self, stream, column_index=None):
@@ -67,6 +66,15 @@ class ArgumentParser(argparse.ArgumentParser):
             lines = (line.split()[column_index] for line in lines)
         return list(lines)
 
-def main(cmd_args=None):
-    args = ArgumentParser('shcol', __version__).parse_args()
-    print_columnized(args.items, args.spacing, args.width, args.sort)
+def _exit_with_failure(msg=None):
+    if msg is not None:
+        sys.stderr.write(msg + '\n')
+    sys.exit(1)
+
+def main(cmd_args=None, prog_name='shcol'):
+    args = ArgumentParser(prog_name, __version__).parse_args()
+    try:
+        print_columnized(args.items, args.spacing, args.width, args.sort)
+    except UnicodeEncodeError:
+        msg = '{}: error: this input could not be encoded'
+        _exit_with_failure(msg.format(prog_name))

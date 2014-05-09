@@ -75,7 +75,7 @@ class ArgumentParserTest(unittest.TestCase):
             self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
             instream.seek(0)
             error = self._get_stderr_output(['-c', '42'])
-            self.assertIn('no data to fetch', error)
+            self.assertIn('failed to fetch data', error)
 
     def test_sort_option(self):
         args = self.parser.parse_args(['spam'])

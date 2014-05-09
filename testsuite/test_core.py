@@ -37,10 +37,11 @@ class ColumnizeTest(unittest.TestCase):
         )
 
     def test_sort_items(self):
-        items = ['spam', 'ham', 'egg', 'foo', 'bar', 'baz']
-        self.assertEqual(
-            shcol.columnize(items, sort_items=True), self._join(sorted(items))
-        )
+        # TODO: Test for more languages (currently only german Umlauts)
+        items = ['spam', 'ham', 'äggs', 'fü', 'bar', 'baz']
+        result = shcol.columnize(items, sort_items=True)
+        expected = self._join(shcol.core._sorted(items))
+        self.assertEqual(result, expected)
 
 
 class ColumnWidthCalculatorTest(unittest.TestCase):

@@ -32,9 +32,7 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
     this option disabled (the default) if you want to avoid this.
     """
     if sort_items:
-        sortkey = functools.cmp_to_key(locale.strcoll)
-        with _DefaultLocale(locale.LC_COLLATE):
-            items = sorted(items, key=sortkey)
+        items = _sorted(items)
     if max_line_width is None:
         calculator = ColumnWidthCalculator.for_terminal(spacing=spacing)
     else:
@@ -42,17 +40,28 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
     return Formatter(calculator).format(items)
 
 
+def _sorted(items):
+    sortkey = functools.cmp_to_key(locale.strcoll)
+    with _DefaultLocale(locale.LC_COLLATE):
+        return sorted(items, key=sortkey)
+
+
 class _DefaultLocale(object):
     def __init__(self, category):
         self.category = category
-        self.old_locale = locale.getlocale(category)
-        self.default_locale = locale.getdefaultlocale()
+        self.old_locale = None
 
     def __enter__(self):
-        locale.setlocale(self.category, self.default_locale)
+        self.old_locale = locale.getlocale(self.category)
+        try:
+            locale.setlocale(self.category, '')
+        except locale.Error:
+            pass
 
     def __exit__(self, *unused):
-        locale.setlocale(self.category, self.old_locale)
+        if self.old_locale is not None:
+            locale.setlocale(self.category, self.old_locale)
+        self.old_locale = None
 
 
 class ColumnWidthCalculator(object):
