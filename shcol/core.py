@@ -47,16 +47,18 @@ def _sorted(items):
 
 
 class _DefaultLocale(object):
-    def __init__(self, category):
+    def __init__(self, category, fail_on_locale_error=False):
         self.category = category
+        self.fail_on_locale_error = fail_on_locale_error
         self.old_locale = None
 
     def __enter__(self):
         self.old_locale = locale.getlocale(self.category)
         try:
             locale.setlocale(self.category, '')
-        except locale.Error:
-            pass
+        except locale.Error as err:
+            if self.fail_on_locale_error:
+                raise err
 
     def __exit__(self, *unused):
         if self.old_locale is not None:
@@ -128,8 +130,9 @@ class ColumnWidthCalculator(object):
         """
         Return the number of columns that is guaranteed not
         to be exceeded when `item_widths` are columnized.
+        Return `0` if `item_widths` is empty.
 
-        This is meant to be used as an initial value on which
+        This is meant to be used as an upper bound on which
         the real calculation of resulting column widths may
         be based on. Using this value can save a remarkable
         number of iterations depending on the way how column
