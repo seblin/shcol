@@ -34,7 +34,10 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
     if sort_items:
         items = _sorted(items)
     if max_line_width is None:
-        calculator = ColumnWidthCalculator.for_terminal(spacing=spacing)
+        try:
+            calculator = ColumnWidthCalculator.for_terminal(spacing)
+        except (IOError, OSError):
+            calculator = ColumnWidthCalculator(spacing)
     else:
         calculator = ColumnWidthCalculator(spacing, max_line_width)
     return Formatter(calculator).format(items)
@@ -161,7 +164,7 @@ class ColumnWidthCalculator(object):
         return total <= self.max_line_width
 
     @classmethod
-    def for_terminal(cls, stream=None, spacing=2):
+    def for_terminal(cls, spacing=2, stream=None):
         """
         Return a new `ColumnWidthCalculator` based on given `stream`
         where `stream` must be a file-object connected to a terminal.

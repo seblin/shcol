@@ -59,7 +59,7 @@ else:
 
     def get_terminal_width(fd):
         if not 'termios' in sys.modules or not hasattr(termios, 'TIOCGWINSZ'):
-            raise IOError('unsupported platform')
+            raise OSError('unsupported platform')
         result = fcntl.ioctl(
             fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
         )

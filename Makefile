@@ -1,18 +1,18 @@
-PYTHON=python
-NOSETESTS=nosetests
+PY=python
+NOSE=nosetests
 
 .PHONY: install clean test test_verbose
 
 install:
-	$(PYTHON) setup.py install
+	$(PY) setup.py install
 
 clean:
 	rm -rf build/ dist/ MANIFEST
 	find . -name '*.pyc' -exec rm -f {} +
 
 test:
-	$(NOSETESTS)
+	$(NOSE)
 
 test_verbose:
-	$(NOSETESTS) --verbosity=2
+	$(NOSE) --verbosity=2
 
