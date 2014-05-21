@@ -9,37 +9,43 @@ import unittest
 from _helpers import StringIO
 
 class ColumnizeTest(unittest.TestCase):
-    def _join(self, items, spacing=2):
+
+    @staticmethod
+    def _columnize(items, spacing=2, max_line_width=80, sort_items=False):
+        return shcol.columnize(items, spacing, max_line_width, sort_items)
+
+    @staticmethod
+    def _join(items, spacing=2):
         return (spacing * ' ').join(items)
 
     def test_no_items(self):
-        self.assertEqual(shcol.columnize([]), '')
+        self.assertEqual(self._columnize([]), '')
 
     def test_spacing(self):
         items = ['foo', 'bar', 'baz']
         for i in range(3):
             self.assertEqual(
-                shcol.columnize(items, spacing=i), self._join(items, i)
+                self._columnize(items, spacing=i), self._join(items, i)
             )
 
     def test_max_line_width(self):
         x, y, ae = 30 * 'x', 10 * 'y', 15 * 'ä'
         items = [x, y, ae]
         self.assertEqual(
-            shcol.columnize(items), self._join([x, y, ae])
+            self._columnize(items), self._join([x, y, ae])
         )
         self.assertEqual(
-            shcol.columnize(items, max_line_width=50),
+            self._columnize(items, max_line_width=50),
             '%s\n%s' % (self._join([x, ae]), y)
         )
         self.assertEqual(
-            shcol.columnize(items, max_line_width=45), '\n'.join([x, y, ae])
+            self._columnize(items, max_line_width=45), '\n'.join([x, y, ae])
         )
 
     def test_sort_items(self):
         # TODO: Test for more languages (currently only german Umlauts)
         items = ['spam', 'ham', 'äggs', 'fü', 'bar', 'baz']
-        result = shcol.columnize(items, sort_items=True)
+        result = self._columnize(items, sort_items=True)
         expected = self._join(shcol.core._sorted(items))
         self.assertEqual(result, expected)
 
