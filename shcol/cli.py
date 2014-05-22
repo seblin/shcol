@@ -10,8 +10,7 @@ class ArgumentParser(argparse.ArgumentParser):
     def __init__(self, prog_name, version):
         self._version_string = '{} {}'.format(prog_name, version)
         argparse.ArgumentParser.__init__(
-            self, prog=prog_name,
-            formatter_class=argparse.RawDescriptionHelpFormatter,
+            self, prog=prog_name, formatter_class=argparse.RawTextHelpFormatter,
             description='Generate columnized output for given string items.\n\n'
             'Examples:\n'
             'shcol -S foo bar baz\n'
@@ -77,8 +76,8 @@ def _exit_with_failure(msg=None):
         sys.stderr.write(msg + '\n')
     sys.exit(1)
 
-def main(cmd_args=None, prog_name='shcol'):
-    args = ArgumentParser(prog_name, __version__).parse_args()
+def main(cmd_args=None, prog_name='shcol', version=__version__):
+    args = ArgumentParser(prog_name, version).parse_args()
     try:
         print_columnized(args.items, args.spacing, args.width, args.sort)
     except UnicodeEncodeError:
