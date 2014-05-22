@@ -9,25 +9,30 @@ __all__ = ['main']
 class ArgumentParser(argparse.ArgumentParser):
     def __init__(self, prog_name, version):
         self._version_string = '{} {}'.format(prog_name, version)
-        description = 'Generate columnized output for given string items.'
         argparse.ArgumentParser.__init__(
-            self, prog=prog_name, description=description
+            self, prog=prog_name,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            description='Generate columnized output for given string items.\n\n'
+            'Examples:\n'
+            'shcol -S foo bar baz\n'
+            'dpkg --get-selections \'python3*\' | shcol -c0 -s4\n'
+            
         )
         self.init_arguments()
 
     def init_arguments(self):
-        item_help = (
-            'an item to columnize\n'
-            '(read from stdin if item arguments are not present)'
+        self.add_argument(
+            'items', nargs='*', metavar='item',
+            help='an item to columnize\n'
+                 '(read from stdin if item arguments are not present)'
         )
-        self.add_argument('items', nargs='*', metavar='item', help=item_help)
         self.add_argument(
             '-s', '--spacing', metavar='N', type=self.num, default=2,
             help='number of blanks between two columns (default: 2)'
         )
         self.add_argument(
             '-w', '--width', metavar='N', type=self.num,
-            help='maximal amount of characters per line '
+            help='maximal amount of characters per line\n'
                  '(use terminal width by default)'
         )
         self.add_argument(
@@ -36,7 +41,8 @@ class ArgumentParser(argparse.ArgumentParser):
         )
         self.add_argument(
             '-c', '--column', metavar='N', type=self.num, dest='column_index',
-            help='select a specific column via its index'
+            help='choose a specific column per line via an index value\n'
+                 '(indices start at 0, column seperator is whitespace)'
         )
         self.add_argument(
             '-v', '--version', action='version', version=self._version_string
