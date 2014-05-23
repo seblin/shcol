@@ -14,8 +14,7 @@ class ArgumentParser(argparse.ArgumentParser):
             description='Generate columnized output for given string items.\n\n'
             'Examples:\n'
             'shcol -S foo bar baz\n'
-            'dpkg --get-selections \'python3*\' | shcol -c0 -s4\n'
-            
+            'dpkg --get-selections \'python3*\' | shcol -c0 -s4'
         )
         self.init_arguments()
 

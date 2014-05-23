@@ -5,7 +5,9 @@ import os
 
 from .core import columnize
 
-__all__ = ['print_columnized', 'print_attrs', 'print_files']
+__all__ = [
+    'print_columnized', 'print_columnized_mapping', 'print_attrs', 'print_files'
+]
 
 def print_columnized(items, *args, **kwargs):
     """
@@ -13,6 +15,9 @@ def print_columnized(items, *args, **kwargs):
     Takes the same arguments as `columnize()`.
     """
     print(columnize(items, *args, **kwargs))
+
+def print_columnized_mapping(items, *args, **kwargs):
+    print_columnized(items, *args, is_mapping=True, **kwargs)
 
 def print_attrs(obj):
     """
