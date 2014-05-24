@@ -207,6 +207,10 @@ class ColumnWidthCalculator(object):
 
 
 class Formatter(object):
+
+    COLUMN_TEMPLATE_PADDED = '%%-%d.%ds'
+    COLUMN_TEMPLATE_UNPADDED = '%%.%ds'
+
     """
     A class to do columnized formatting on a given list of strings.
     """
@@ -284,7 +288,7 @@ class Formatter(object):
                 template = get_template(column_widths, props.spacing)
                 yield template % line_items
 
-    def get_line_template(self, column_widths, spacing=2):
+    def get_line_template(self, column_widths, spacing):
         """
         Return a string meant to be used as a formatting
         template for *one* line of columnized output. The
@@ -298,22 +302,40 @@ class Formatter(object):
         format specifiers. In the resulting template the
         specifiers are joined by using a separator with a
         `spacing` number of blank characters.
-
-        Specifiers are generated in a form such that any
-        string exceeding its column's width will be truncated
-        when applied via string formatting. This truncation
-        will be made to the right end of the affected string.
-        If a string is shorter than its column's width then
-        the rest of the column in that line will be filled
-        with blank characters.
         """
         if not column_widths:
             return ''
         if len(column_widths) == 1 and self.allow_exceeding:
             return '%s'
-        specs = ['%%-%d.%ds' % (width, width) for width in column_widths[:-1]]
-        specs.append('%%.%ds' % column_widths[-1])
-        return (spacing * ' ').join(specs)
+        templates = [
+            self.get_padded_template(width) for width in column_widths[:-1]
+        ]
+        templates.append(self.get_unpadded_template(column_widths[-1]))
+        return (spacing * ' ').join(templates)
+
+    def get_padded_template(self, width):
+        """
+        Return a column template suitable for string formatting
+        with exactly one string argument (e.g. template % mystring).
+
+        The template is guaranteed to produce results which are
+        always exactly `width` characters long. If a string smaller
+        than the given `width` is passed to the template then the
+        result will be padded on its right side with as much blank
+        characters as necessary to reach the required `width`. In
+        contrast, if the string is wider than `width` then all
+        characters on the right side of the string which are "too
+        much" are truncated.
+        """
+        return self.COLUMN_TEMPLATE_PADDED % (width, width)
+
+    def get_unpadded_template(self, width):
+        """
+        Same as `get_padded_template()` but does not pad blank
+        characters if the string passed to the template is shorter
+        than the given `width`.
+        """
+        return self.COLUMN_TEMPLATE_UNPADDED % width
 
 
 class MappingFormatter(Formatter):
@@ -332,9 +354,9 @@ class MappingFormatter(Formatter):
         for key, value in mapping.items():
             yield template % (key, value)
 
-    def get_line_template(self, mapping_widths, spacing=2):
+    def get_line_template(self, mapping_widths, spacing):
         if not mapping_widths:
             return ''
-        key_template = '%%-%d.%ds' % (mapping_widths[0], mapping_widths[0])
-        value_template = '%%.%ds' % mapping_widths[1]
-        return '{}{}{}'.format(key_template, spacing * ' ', value_template)
+        key_template = self.get_padded_template(mapping_widths[0])
+        value_template = self.get_unpadded_template(mapping_widths[1])
+        return '%s%s%s' % (key_template, spacing * ' ', value_template)
