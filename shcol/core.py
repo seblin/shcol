@@ -84,7 +84,7 @@ class _DefaultLocale(object):
 class ColumnWidthCalculator(object):
     """
     A class with capabilities to calculate the widths for an
-    unknown number of columns based on a given list of strings.
+    unknown number of columns based on a given sequence of strings.
     """
     def __init__(self, spacing=2, max_line_width=80):
         """
@@ -113,18 +113,20 @@ class ColumnWidthCalculator(object):
     def _get_props_for_mapping(self, mapping):
         if not mapping:
             return LineProperties([], self.spacing, 0)
-        key_widths = [len(key) for key in mapping.keys()]
-        value_widths = [len(value) for value in mapping.values()]
+        key_widths = map(len, mapping.keys())
+        value_widths = map(len, mapping.values())
         column_widths = [max(key_widths), max(value_widths)]
+        if not self.fits_in_line(column_widths):
+            column_widths[1] = self.max_line_width - column_widths[0] - spacing
         return LineProperties(column_widths, self.spacing, len(mapping))
 
     def calculate_columns(self, item_widths):
         """
         Calculate column widths based on `item_widths`, expecting
-        `item_widths` to be a list of non-negative integers that
+        `item_widths` to be a sequence of non-negative integers that
         represent the length of each corresponding string. The
         result is returned as a tuple consisting of two elements:
-        A list of calculated column widths and the number of lines
+        A sequence of calculated column widths and the number of lines
         needed to display all items when using that information to
         do columnized formatting.
 
@@ -207,12 +209,8 @@ class ColumnWidthCalculator(object):
 
 
 class Formatter(object):
-
-    COLUMN_TEMPLATE_PADDED = '%%-%d.%ds'
-    COLUMN_TEMPLATE_UNPADDED = '%%.%ds'
-
     """
-    A class to do columnized formatting on a given list of strings.
+    A class to do columnized formatting on a given sequence of strings.
     """
     def __init__(
         self, column_width_calculator=None,
@@ -295,7 +293,7 @@ class Formatter(object):
         template will be suitable for old-style string
         formatting ('%s' % my_string). 
 
-        `column_widths` is expected to be a list of integers
+        `column_widths` is expected to be a sequence of integers
         representing the width of each column (with the idea
         in mind that the template will be re-used for many
         lines). This information is used to generate according 
@@ -327,7 +325,7 @@ class Formatter(object):
         characters on the right side of the string which are "too
         much" are truncated.
         """
-        return self.COLUMN_TEMPLATE_PADDED % (width, width)
+        return '%%-%d.%ds' % (width, width)
 
     def get_unpadded_template(self, width):
         """
@@ -335,7 +333,7 @@ class Formatter(object):
         characters if the string passed to the template is shorter
         than the given `width`.
         """
-        return self.COLUMN_TEMPLATE_UNPADDED % width
+        return '%%.%ds' % width
 
 
 class MappingFormatter(Formatter):
