@@ -99,5 +99,5 @@ __version__ = '0.2-dev'
 __license__ = 'Simplified BSD'
 
 from . import cli
-from .core import *
+from .core import columnize
 from .highlevel import *

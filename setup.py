@@ -11,7 +11,7 @@ setup(
     author=shcol.__author__,
     author_email='Seb_Linke@arcor.de',
     url='https://github.com/seblin/shcol',
-    packages=['shcol'],
+    packages=['shcol', 'shcol.helpers'],
     scripts=[os.path.join('bin', 'shcol')],
     license=shcol.__license__,
     platforms = 'any',
