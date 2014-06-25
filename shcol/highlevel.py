@@ -17,16 +17,16 @@ def print_columnized(items, *args, **kwargs):
     """
     print(columnize(items, *args, **kwargs))
 
-def print_columnized_mapping(items, *args, **kwargs):
+def print_columnized_mapping(items, **kwargs):
     mapping = collections.OrderedDict(items)
-    print_columnized(mapping, *args, **kwargs)
+    print_columnized(mapping, **kwargs)
 
-def print_attrs(obj):
+def print_attrs(obj, **kwargs):
     """
     Similar to the `dir()`-builtin but sort the resulting names
     and print them columnized to stdout.
     """
-    print_columnized(dir(obj), sort_items=True)
+    print_columnized(dir(obj), sort_items=True, **kwargs)
 
 def _get_files(path, hide_dotted):
     path = os.path.expanduser(os.path.expandvars(path))
@@ -40,7 +40,7 @@ def _get_files(path, hide_dotted):
         filenames = [fn for fn in filenames if not fn.startswith('.')]
     return filenames
 
-def print_files(path='.', hide_dotted=False):
+def print_files(path='.', hide_dotted=False, **kwargs):
     """
     Columnize filenames according to given `path` and print them
     to stdout.
@@ -52,4 +52,4 @@ def print_files(path='.', hide_dotted=False):
     such as "*", "?" or even "~" (user's home).
     """
     filenames = _get_files(path, hide_dotted)
-    print_columnized(filenames, sort_items=True)
+    print_columnized(filenames, sort_items=True, **kwargs)
