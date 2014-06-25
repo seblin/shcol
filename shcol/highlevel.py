@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import collections
 import glob
 import os
 
@@ -17,7 +18,8 @@ def print_columnized(items, *args, **kwargs):
     print(columnize(items, *args, **kwargs))
 
 def print_columnized_mapping(items, *args, **kwargs):
-    print_columnized(items, *args, is_mapping=True, **kwargs)
+    mapping = collections.OrderedDict(items)
+    print_columnized(mapping, *args, **kwargs)
 
 def print_attrs(obj):
     """
