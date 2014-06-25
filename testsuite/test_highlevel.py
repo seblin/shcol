@@ -2,11 +2,9 @@ import unittest
 import os
 import shcol
 
-from _helpers import CapturedStream
-
 class PrintTestBase(unittest.TestCase):
     def get_output(self, func, *args, **kwargs):
-        with CapturedStream('stdout') as outstream:
+        with shcol.helpers.CapturedStream('stdout') as outstream:
             func(*args, **kwargs)
             return outstream.getvalue()
 
