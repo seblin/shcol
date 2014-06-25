@@ -2,15 +2,13 @@ import shcol
 import sys
 import unittest
 
-from _helpers import CapturedStream, StringIO
-
 class ArgumentParserTest(unittest.TestCase):
     def setUp(self):
         self.parser = shcol.cli.ArgumentParser('shcol', shcol.__version__)
 
     def _get_stderr_output(self, args):
         result = ''
-        with CapturedStream('stderr') as errstream:
+        with shcol.helpers.CapturedStream('stderr') as errstream:
             try:
                 self.parser.parse_args(args)
             except SystemExit:
@@ -58,7 +56,7 @@ class ArgumentParserTest(unittest.TestCase):
         self.assertEqual(args.width, None)
 
     def test_no_item_args(self):
-        with CapturedStream('stdin') as instream:
+        with shcol.helpers.CapturedStream('stdin') as instream:
             args = self.parser.parse_args([])
             self.assertFalse(args.items)
             instream.write('spam\nham\neggs')
@@ -68,7 +66,7 @@ class ArgumentParserTest(unittest.TestCase):
 
     def test_column_option(self):
         self._test_num_option_invalid('-c', '--column')
-        with CapturedStream('stdin') as instream:
+        with shcol.helpers.CapturedStream('stdin') as instream:
             instream.write('xxx spam\nzzz ham\n~~~ eggs')
             instream.seek(0)
             args = self.parser.parse_args(['-c' '1'])
@@ -84,10 +82,10 @@ class ArgumentParserTest(unittest.TestCase):
         self.assertTrue(args.sort)
 
     def test_read_lines(self):
-        stream = StringIO('spam\nham\neggs')
+        stream = shcol.helpers.StringIO('spam\nham\neggs')
         lines = self.parser.read_lines(stream)
         self.assertEqual(lines, ['spam', 'ham', 'eggs'])
-        stream = StringIO('xxx spam\nzzz ham\n~~~ eggs')
+        stream = shcol.helpers.StringIO('xxx spam\nzzz ham\n~~~ eggs')
         lines = self.parser.read_lines(stream, column_index=1)
         self.assertEqual(lines, ['spam', 'ham', 'eggs'])
         stream.seek(0)
