@@ -62,21 +62,9 @@ class ColumnWidthCalculator(object):
 
         The members of the tuple are: `column_widths`, `spacing`, `num_lines`.
         """
-        if isinstance(items, collections.Mapping):
-            return self._get_props_for_mapping(items)
         item_widths = [len(item) for item in items]
         column_widths, num_lines = self.calculate_columns(item_widths)
         return LineProperties(column_widths, self.spacing, num_lines)
-
-    def _get_props_for_mapping(self, mapping):
-        if not mapping:
-            return LineProperties([], self.spacing, 0)
-        key_widths = map(len, mapping.keys())
-        value_widths = map(len, mapping.values())
-        column_widths = [max(key_widths), max(value_widths)]
-        if not self.fits_in_line(column_widths):
-            column_widths[1] = self.max_line_width - column_widths[0] - spacing
-        return LineProperties(column_widths, self.spacing, len(mapping))
 
     def calculate_columns(self, item_widths):
         """
@@ -128,7 +116,10 @@ class ColumnWidthCalculator(object):
         remaining_width = self.max_line_width - widest_item
         min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
-        return min(num_items, possible_columns)
+        result = min(num_items, possible_columns)
+        if self.max_columns is not None:
+            result = min(self.max_columns, result)
+        return result
 
     def fits_in_line(self, column_widths):
         """
@@ -294,6 +285,7 @@ class MappingFormatter(SequenceFormatter):
         return collections.OrderedDict(zip(keys, values))
 
     def get_line_properties(self, mapping):
+        self.calculator.max_columns = 2
         items = itertools.chain.from_iterable(mapping.items())
         return self.calculator.get_line_properties(items)
 
