@@ -30,9 +30,6 @@ def get_sorted(items, sortkey=None):
     if sortkey is None:
         sortkey = functools.cmp_to_key(locale.strcoll)
     with DefaultLocale(locale.LC_COLLATE):
-        if isinstance(items, collections.Mapping):
-            result = sorted(items.items(), key=sortkey)
-            return collections.OrderedDict(result)
         return sorted(items, key=sortkey)
 
 

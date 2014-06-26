@@ -141,9 +141,9 @@ class FormatterTest(unittest.TestCase):
         items = ['foo', 'bar', 'baz']
         lines = self.make_lines(items)
         self.assertEqual(lines, [self.join(items)])
-        self.formatter.column_width_calculator.max_line_width = 3
+        self.formatter.calculator.max_line_width = 3
         self.assertEqual(self.make_lines(items), items)
-        self.formatter.column_width_calculator.max_line_width = 50
+        self.formatter.calculator.max_line_width = 50
         items = [60 * 'ä', 40 * 'ö']
         expected = [50 * 'ä', 40 * 'ö']
         self.assertEqual(self.make_lines(items), expected)

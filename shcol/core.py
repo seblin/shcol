@@ -27,8 +27,6 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
     relevant in some cases). Leave this option disabled (the default) if you
     want to avoid this.
     """
-    if sort_items:
-        items = helpers.get_sorted(items)
     if max_line_width is None:
         try:
             calculator = ColumnWidthCalculator.for_terminal(spacing)
@@ -37,7 +35,7 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
             calculator = ColumnWidthCalculator(spacing)
     else:
         calculator = ColumnWidthCalculator(spacing, max_line_width)
-    formatter = build_formatter(items, calculator)
+    formatter = build_formatter(items, calculator, sort_items=sort_items)
     return formatter.format(items)
 
 
@@ -166,24 +164,25 @@ class SequenceFormatter(object):
     A class to do columnized formatting on a given sequence of strings.
     """
     def __init__(
-        self, column_width_calculator, linesep=os.linesep, encoding='utf-8'
+        self, calculator, linesep=os.linesep, encoding='utf-8', sort_items=False
     ):
         """
         Initialize the formatter. 
 
-        `column_width_calculator` will be used to determine the width of each
-        column when columnized string formatting is done. It should be a class
-        instance that implements a `.get_properties()` method in a similar way
-        as `ColumnWidthCalculator` does.
+        `calculator` will be used to determine the width of each column when
+        columnized string formatting is done. It should be a class instance
+        that implements a `.get_properties()` method in a similar way as
+        `ColumnWidthCalculator` does.
 
         `linesep` defines the character(s) used to start a new line.
 
         `encoding` will be used when formatting byte-strings. These strings are
         decoded to unicode-strings by using the given `encoding`.
         """
-        self.column_width_calculator = column_width_calculator
+        self.calculator = calculator
         self.linesep = linesep
         self.encoding = encoding
+        self.sort_items = sort_items
 
     def format(self, items):
         """
@@ -192,9 +191,15 @@ class SequenceFormatter(object):
         be converted to a string by using the codec specified in this instance's
         `encoding`-attribute.
         """
+        if self.sort_items:
+            items = self.get_sorted(items)
         decoded_items = self.get_decoded(items)
         lines = self.make_lines(decoded_items)
         return self.linesep.join(lines)
+
+    @staticmethod
+    def get_sorted(items):
+        return helpers.get_sorted(items)
 
     def get_decoded(self, items):
         return list(helpers.get_decoded(items, self.encoding))
@@ -205,7 +210,7 @@ class SequenceFormatter(object):
         is expected to be a sequence of strings. Note that this method does not
         append newline characters to the end of the resulting lines.
         """
-        props = self.column_width_calculator.get_properties(items)
+        props = self.calculator.get_properties(items)
         line_chunks = self.make_line_chunks(items, props)
         template = self.make_line_template(props)
         for chunk in line_chunks:
@@ -271,6 +276,13 @@ class MappingFormatter(SequenceFormatter):
     """
     A class to do columnized formatting on a given mapping of strings.
     """
+
+    @staticmethod
+    def get_sorted(mapping):
+        return collections.OrderedDict(
+            (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
+        )
+
     def get_decoded(self, mapping):
         keys = helpers.get_decoded(mapping.keys(), self.encoding)
         values = helpers.get_decoded(mapping.values(), self.encoding)
@@ -281,11 +293,11 @@ class MappingFormatter(SequenceFormatter):
         return list(mapping.items())[:props.num_lines]
 
 
-def build_formatter(items, calculator=None):
+def build_formatter(items, calculator=None, sort_items=False):
     if isinstance(items, collections.Mapping):
         formatter_class = MappingFormatter
     else:
         formatter_class = SequenceFormatter
     if calculator is None:
         calculator = ColumnWidthCalculator()
-    return formatter_class(calculator)
+    return formatter_class(calculator, sort_items=sort_items)
