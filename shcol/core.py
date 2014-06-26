@@ -35,7 +35,7 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
             calculator = ColumnWidthCalculator(spacing)
     else:
         calculator = ColumnWidthCalculator(spacing, max_line_width)
-    formatter = build_formatter(items, calculator, sort_items=sort_items)
+    formatter = build_formatter(type(items), calculator, sort_items)
     return formatter.format(items)
 
 
@@ -44,7 +44,7 @@ class ColumnWidthCalculator(object):
     A class with capabilities to calculate the widths for an unknown number
     of columns based on a given sequence of strings.
     """
-    def __init__(self, spacing=2, max_line_width=80):
+    def __init__(self, spacing=2, max_line_width=80, max_columns=None):
         """
         Initialize the calculator. `spacing` defines the number of blanks
         between two columns. `max_line_width` is the maximal amount of
@@ -52,8 +52,9 @@ class ColumnWidthCalculator(object):
         """
         self.spacing = spacing
         self.max_line_width = max_line_width
+        self.max_columns = max_columns
 
-    def get_properties(self, items):
+    def get_line_properties(self, items):
         """
         Return a namedtuple containing meaningful properties that may be used
         to format `items` as a columnized string.
@@ -210,7 +211,7 @@ class SequenceFormatter(object):
         is expected to be a sequence of strings. Note that this method does not
         append newline characters to the end of the resulting lines.
         """
-        props = self.calculator.get_properties(items)
+        props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
         template = self.make_line_template(props)
         for chunk in line_chunks:
@@ -221,6 +222,9 @@ class SequenceFormatter(object):
                 # -> regenerate and try again
                 template = self.make_line_template(props, len(chunk))
                 yield template % chunk
+
+    def get_line_properties(self, items):
+        return self.calculator.get_line_properties(items)
 
     @staticmethod
     def make_line_chunks(items, props):
@@ -288,13 +292,17 @@ class MappingFormatter(SequenceFormatter):
         values = helpers.get_decoded(mapping.values(), self.encoding)
         return collections.OrderedDict(zip(keys, values))
 
+    def get_line_properties(self, mapping):
+        items = itertools.chain.from_iterable(mapping.items())
+        return self.calculator.get_line_properties(items)
+
     @staticmethod
     def make_line_chunks(mapping, props):
         return list(mapping.items())[:props.num_lines]
 
 
-def build_formatter(items, calculator=None, sort_items=False):
-    if isinstance(items, collections.Mapping):
+def build_formatter(items_type, calculator=None, sort_items=False):
+    if issubclass(items_type, collections.Mapping):
         formatter_class = MappingFormatter
     else:
         formatter_class = SequenceFormatter

@@ -65,12 +65,12 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
     def test_get_properties(self):
         for items, props in self.expected_results:
             self.assertEqual(
-                self.calculator.get_properties(items),
+                self.calculator.get_line_properties(items),
                 self.make_line_properties(*props)
             )
         self.calculator.max_line_width = 45
         self.assertEqual(
-            self.calculator.get_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
+            self.calculator.get_line_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
             self.make_line_properties([30], 3)
         )
 
