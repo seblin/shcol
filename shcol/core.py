@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import collections
-import itertools
 import os
 import sys
 
@@ -45,7 +44,7 @@ class ColumnWidthCalculator(object):
     A class with capabilities to calculate the widths for an unknown number
     of columns based on a given sequence of strings.
     """
-    def __init__(self, spacing=2, max_line_width=80, max_columns=None):
+    def __init__(self, spacing=2, max_line_width=80, num_columns=None):
         """
         Initialize the calculator. `spacing` defines the number of blanks
         between two columns. `max_line_width` is the maximal amount of
@@ -53,7 +52,7 @@ class ColumnWidthCalculator(object):
         """
         self.spacing = spacing
         self.max_line_width = max_line_width
-        self.max_columns = max_columns
+        self.num_columns = num_columns
 
     def get_line_properties(self, items):
         """
@@ -79,23 +78,30 @@ class ColumnWidthCalculator(object):
         are taken into account when calculation is done. However, the column
         widths of the resulting tuple will *not* include that spacing.
         """
+        if self.num_columns is not None:
+            return self.get_widths_and_lines(item_widths, self.num_columns)
         max_columns = self.calculate_max_columns(item_widths)
         if max_columns == 0:
             return [], 0
-        num_items = len(item_widths)
-        for num_columns in range(max_columns, 0, -1):
-            num_lines = num_items // num_columns + bool(num_items % num_columns)
-            if not self.fits_in_line(item_widths[::num_lines]):
-                # give up early if first items
-                # of columns do not fit in line
-                continue
-            column_widths = [
-                max(item_widths[i : i + num_lines])
-                for i in range(0, num_items, num_lines)
-            ]
+        candidates = self.get_candidates(item_widths, max_columns)
+        for column_widths, num_lines in candidates:
             if self.fits_in_line(column_widths):
                 return column_widths, num_lines
         return [self.max_line_width], len(item_widths)
+
+    def get_candidates(self, item_widths, max_columns):
+        for num_columns in range(max_columns, 0, -1):
+            yield self.get_widths_and_lines(item_widths, num_columns)
+
+    @staticmethod
+    def get_widths_and_lines(item_widths, num_columns):
+        num_items = len(item_widths)
+        num_lines = num_items // num_columns + bool(num_items % num_columns)
+        column_widths = [
+            max(item_widths[i : i + num_lines])
+            for i in range(0, num_items, num_lines)
+        ]
+        return column_widths, num_lines
 
     def calculate_max_columns(self, item_widths):
         """
@@ -116,10 +122,7 @@ class ColumnWidthCalculator(object):
         remaining_width = self.max_line_width - widest_item
         min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
-        result = min(num_items, possible_columns)
-        if self.max_columns is not None:
-            result = min(self.max_columns, result)
-        return result
+        return min(num_items, possible_columns)
 
     def fits_in_line(self, column_widths):
         """
@@ -285,8 +288,8 @@ class MappingFormatter(SequenceFormatter):
         return collections.OrderedDict(zip(keys, values))
 
     def get_line_properties(self, mapping):
-        self.calculator.max_columns = 2
-        items = itertools.chain.from_iterable(mapping.items())
+        self.calculator.num_columns = 2
+        items = list(mapping.keys()) + list(mapping.values())
         return self.calculator.get_line_properties(items)
 
     @staticmethod
