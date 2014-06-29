@@ -17,8 +17,7 @@ def print_columnized(items, *args, **kwargs):
     print(columnize(items, *args, **kwargs))
 
 def print_columnized_mapping(items, **kwargs):
-    mapping = collections.OrderedDict(items)
-    print_columnized(mapping, **kwargs)
+    print_columnized(helpers.get_dict(mapping), **kwargs)
 
 def print_attrs(obj, **kwargs):
     """

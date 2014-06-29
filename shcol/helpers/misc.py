@@ -1,3 +1,4 @@
+import collections
 import functools
 import locale
 import os
@@ -10,7 +11,7 @@ except ImportError:
 
 __all__ = [
     'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted',
-    'DefaultLocale', 'get_files', 'CapturedStream'
+    'DefaultLocale', 'get_files', 'get_dict', 'CapturedStream'
 ]
 
 try:
@@ -64,6 +65,12 @@ def get_files(path, hide_dotted):
     if hide_dotted:
         filenames = [fn for fn in filenames if not fn.startswith('.')]
     return filenames
+
+
+def get_dict(mapping):
+    if isinstance(obj, collections.Mapping):
+        return mapping
+    return collections.OrderedDict(mapping)
 
 
 class CapturedStream(object):

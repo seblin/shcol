@@ -299,7 +299,7 @@ class MappingFormatter(IterableFormatter):
         """
         Return a sorted version of `mapping`.
         """
-        return collections.OrderedDict(
+        return helpers.get_dict(
             (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
         )
 
@@ -314,7 +314,7 @@ class MappingFormatter(IterableFormatter):
         """
         keys = helpers.get_decoded(mapping.keys(), self.encoding)
         values = helpers.get_decoded(mapping.values(), self.encoding)
-        return collections.OrderedDict(zip(keys, values))
+        return helpers.get_dict(zip(keys, values))
 
     def get_line_properties(self, mapping):
         """
