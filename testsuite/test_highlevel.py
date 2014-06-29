@@ -29,10 +29,10 @@ class PrintFilesTest(PrintTestBase):
     def test_get_files(self):
         # TODO: Make this test smarter
         expected = os.listdir('.')
-        result = shcol.highlevel._get_files('.', False)
+        result = shcol.helpers.get_files('.', False)
         self.assertEqual(result, expected)
         expected = [fn for fn in expected if not fn.startswith('.')]
-        result = shcol.highlevel._get_files('.', True)
+        result = shcol.helpers.get_files('.', True)
         self.assertEqual(result, expected)
 
     def test_print_files(self):

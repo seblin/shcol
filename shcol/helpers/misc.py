@@ -1,5 +1,6 @@
 import functools
 import locale
+import os
 import sys
 
 try:
@@ -9,7 +10,7 @@ except ImportError:
 
 __all__ = [
     'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted',
-    'DefaultLocale', 'CapturedStream'
+    'DefaultLocale', 'get_files', 'CapturedStream'
 ]
 
 try:
@@ -50,6 +51,19 @@ class DefaultLocale(object):
         if self.old_locale is not None:
             locale.setlocale(self.category, self.old_locale)
         self.old_locale = None
+
+
+def get_files(path, hide_dotted):
+    path = os.path.expanduser(os.path.expandvars(path))
+    try:
+        filenames = os.listdir(path)
+    except OSError as err:
+        filenames = glob.glob(path)
+        if not filenames:
+            raise err
+    if hide_dotted:
+        filenames = [fn for fn in filenames if not fn.startswith('.')]
+    return filenames
 
 
 class CapturedStream(object):
