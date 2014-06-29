@@ -155,7 +155,7 @@ class ColumnWidthCalculator(object):
         return cls(spacing, width)
 
 
-class SequenceFormatter(object):
+class IterableFormatter(object):
     """
     A class to do columnized formatting on a given iterable of strings.
     """
@@ -289,7 +289,7 @@ class SequenceFormatter(object):
         return '%%.%ds' % width
 
 
-class MappingFormatter(SequenceFormatter):
+class MappingFormatter(IterableFormatter):
     """
     A class to do columnized formatting on a given mapping of strings.
     """
@@ -340,7 +340,7 @@ def build_formatter(items_type, calculator=None, sort_items=False):
     if issubclass(items_type, collections.Mapping):
         formatter_class = MappingFormatter
     else:
-        formatter_class = SequenceFormatter
+        formatter_class = IterableFormatter
     if calculator is None:
         calculator = ColumnWidthCalculator()
     return formatter_class(calculator, sort_items=sort_items)

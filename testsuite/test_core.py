@@ -123,7 +123,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
 class FormatterTest(unittest.TestCase):
     def setUp(self):
         calc = shcol.core.ColumnWidthCalculator()
-        self.formatter = shcol.core.SequenceFormatter(calc)
+        self.formatter = shcol.core.IterableFormatter(calc)
 
     def join(self, items):
         return '  '.join(items)
