@@ -157,7 +157,7 @@ class ColumnWidthCalculator(object):
 
 class SequenceFormatter(object):
     """
-    A class to do columnized formatting on a given sequence of strings.
+    A class to do columnized formatting on a given iterable of strings.
     """
     def __init__(
         self, calculator, linesep=os.linesep, encoding='utf-8', sort_items=False
@@ -182,10 +182,7 @@ class SequenceFormatter(object):
 
     def format(self, items):
         """
-        Return a columnized string based on `items` where `items` is expected to
-        be an iterator of strings or bytes. Note that items that are bytes will
-        be converted to a string by using the codec specified in this instance's
-        `encoding`-attribute.
+        Return a columnized string based on `items`.
         """
         if self.sort_items:
             items = self.get_sorted(items)
@@ -195,16 +192,27 @@ class SequenceFormatter(object):
 
     @staticmethod
     def get_sorted(items):
+        """
+        Return a sorted version of `items`.
+        """
         return helpers.get_sorted(items)
 
     def get_decoded(self, items):
+        """
+        Return a version of `items` where each element is guaranteed to be a
+        unicode-string. If `items` contains byte-strings then these strings
+        are decoded to unicode by using the codec specified in the `encoding`-
+        attribute of this instance. Items that are already unicode-strings are
+        left unchanged. A `TypeError` is raised if `items` contains non-string
+        elements.
+        """
         return list(helpers.get_decoded(items, self.encoding))
 
     def make_lines(self, items):
         """
-        Return columnized lines for `items` yielded by an iterator where `items`
-        is expected to be a sequence of strings. Note that this method does not
-        append newline characters to the end of the resulting lines.
+        Return columnized lines for `items` yielded by an iterator. Note that
+        this method does not append extra newline characters to the end of the
+        resulting lines.
         """
         props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
@@ -219,10 +227,20 @@ class SequenceFormatter(object):
                 yield template % chunk
 
     def get_line_properties(self, items):
+        """
+        Return a `LineProperties`-instance with a configuration based on given
+        `items`.
+        """
         return self.calculator.get_line_properties(items)
 
     @staticmethod
     def make_line_chunks(items, props):
+        """
+        Return an iterable of tuples that represent the elements of `items` for
+        each line meant to be used in a formatted string. Note that the result
+        depends on the value of `props.num_lines` where `props` should be a
+        `LineProperties`-instance.
+        """
         return [
             tuple(items[i::props.num_lines]) for i in range(props.num_lines)
         ]
@@ -278,22 +296,43 @@ class MappingFormatter(SequenceFormatter):
 
     @staticmethod
     def get_sorted(mapping):
+        """
+        Return a sorted version of `mapping`.
+        """
         return collections.OrderedDict(
             (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
         )
 
     def get_decoded(self, mapping):
+        """
+        Return a version of `mapping` where each element is guaranteed to be a
+        unicode-string. If `mapping` contains byte-strings then these strings
+        are decoded to unicode by using the codec specified in the `encoding`-
+        attribute of this instance. Items that are already unicode-strings are
+        left unchanged. A `TypeError` is raised if `mapping` contains non-string
+        elements.
+        """
         keys = helpers.get_decoded(mapping.keys(), self.encoding)
         values = helpers.get_decoded(mapping.values(), self.encoding)
         return collections.OrderedDict(zip(keys, values))
 
     def get_line_properties(self, mapping):
+        """
+        Return a `LineProperties`-instance with a configuration based on given
+        `mapping`.
+        """
         self.calculator.num_columns = 2
         items = list(mapping.keys()) + list(mapping.values())
         return self.calculator.get_line_properties(items)
 
     @staticmethod
     def make_line_chunks(mapping, props):
+        """
+        Return an iterable of tuples that represent the elements of `mapping`
+        for each line meant to be used in a formatted string. Note that the
+        result depends on the value of `props.num_lines` where `props` should
+        be a `LineProperties`-instance.
+        """
         return list(mapping.items())[:props.num_lines]
 
 
