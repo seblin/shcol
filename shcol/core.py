@@ -5,6 +5,8 @@ import sys
 
 from . import helpers
 
+__all__ = ['columnize']
+
 LineProperties = collections.namedtuple(
     'LineProperties', 'column_widths, spacing, num_lines'
 )
