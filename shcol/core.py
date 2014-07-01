@@ -311,7 +311,8 @@ class MappingFormatter(IterableFormatter):
         `mapping`.
         """
         self.calculator.num_columns = 2
-        items = list(mapping.keys()) + list(mapping.values())
+        items = list(mapping.keys())
+        items.extend(mapping.values())
         return self.calculator.get_line_properties(items)
 
     @staticmethod
