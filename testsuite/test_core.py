@@ -50,7 +50,9 @@ class ColumnizeTest(unittest.TestCase):
 
 class ColumnWidthCalculatorTest(unittest.TestCase):
     def setUp(self):
-        self.calculator = shcol.core.ColumnWidthCalculator()
+        self.calculator = shcol.core.ColumnWidthCalculator(
+            spacing=2, max_line_width=80
+        )
         self.expected_results = [
             ([], ([], 0)),
             ([''], ([0], 1)),
@@ -113,7 +115,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
 
 class FormatterTest(unittest.TestCase):
     def setUp(self):
-        calc = shcol.core.ColumnWidthCalculator()
+        calc = shcol.core.ColumnWidthCalculator(spacing=2, max_line_width=80)
         self.formatter = shcol.core.IterableFormatter(calc)
 
     def join(self, items):
