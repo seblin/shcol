@@ -10,8 +10,8 @@ except ImportError:
     from io import StringIO
 
 __all__ = [
-    'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted',
-    'DefaultLocale', 'get_files', 'get_dict', 'CapturedStream'
+    'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted', 'DefaultLocale',
+    'get_files', 'get_dict', 'exit_with_failure', 'CapturedStream'
 ]
 
 try:
@@ -71,6 +71,12 @@ def get_dict(mapping):
     if isinstance(obj, collections.Mapping):
         return mapping
     return collections.OrderedDict(mapping)
+
+
+def exit_with_failure(msg=None):
+    if msg is not None:
+        sys.stderr.write(msg + '\n')
+    sys.exit(1)
 
 
 class CapturedStream(object):
