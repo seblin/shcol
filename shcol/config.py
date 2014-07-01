@@ -1,0 +1,10 @@
+import os
+import sys
+
+ENCODING = 'utf-8'
+LINE_WIDTH = None
+LINE_WIDTH_FALLBACK = 80
+LINESEP = os.linesep
+SORT_ITEMS = False
+SPACING = 2
+TERMINAL_FD = sys.__stdout__.fileno()
