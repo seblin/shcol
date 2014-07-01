@@ -2,6 +2,7 @@ import argparse
 import sys
 
 from . import __version__
+from .config import SPACING
 from .highlevel import print_columnized
 
 __all__ = ['main']
@@ -25,8 +26,9 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(read from stdin if item arguments are not present)'
         )
         self.add_argument(
-            '-s', '--spacing', metavar='N', type=self.num, default=2,
-            help='number of blanks between two columns (default: 2)'
+            '-s', '--spacing', metavar='N', type=self.num, default=SPACING,
+            help='number of blanks between two columns (default: {})'
+                 .format(SPACING)
         )
         self.add_argument(
             '-w', '--width', metavar='N', type=self.num,
@@ -75,7 +77,9 @@ def _exit_with_failure(msg=None):
         sys.stderr.write(msg + '\n')
     sys.exit(1)
 
-def main(cmd_args=None, prog_name='shcol', version=__version__):
+def main(cmd_args=None, prog_name='shcol', version=None):
+    if version is None:
+        version = __version__
     args = ArgumentParser(prog_name, version).parse_args()
     try:
         print_columnized(args.items, args.spacing, args.width, args.sort)
