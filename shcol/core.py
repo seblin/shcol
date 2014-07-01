@@ -57,7 +57,7 @@ class ColumnWidthCalculator(object):
             try:
                 self.max_line_width = helpers.get_terminal_width()
             except (IOError, OSError):
-                self.max_line_width = 80
+                self.max_line_width = config.LINE_WIDTH_FALLBACK
         self.num_columns = num_columns
 
     def get_line_properties(self, items):
