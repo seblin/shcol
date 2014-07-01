@@ -110,15 +110,6 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         self.calculator.max_line_width = 79
         self.assertFalse(self.fits([77, 2]))
 
-    def test_for_terminal(self):
-        expected = shcol.helpers.get_terminal_width(sys.__stdout__.fileno())
-        calc = shcol.core.ColumnWidthCalculator.for_terminal()
-        self.assertEqual(calc.max_line_width, expected)
-        self.assertEqual(calc.spacing, 2)
-        calc = shcol.core.ColumnWidthCalculator.for_terminal(spacing=5)
-        self.assertEqual(calc.max_line_width, expected)
-        self.assertEqual(calc.spacing, 5)
-
 
 class FormatterTest(unittest.TestCase):
     def setUp(self):

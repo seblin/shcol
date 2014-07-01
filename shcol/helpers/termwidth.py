@@ -5,8 +5,10 @@ import sys
 
 __all__ = ['get_terminal_width']
 
+DEFAULT_FD = sys.__stdout__.fileno()
+
 if hasattr(os, 'get_terminal_size'):
-    def get_terminal_width(fd):
+    def get_terminal_width(fd=DEFAULT_FD):
         # New in Python >= 3.3
         return os.get_terminal_size(fd).columns
 
@@ -36,7 +38,7 @@ elif platform.system() == 'Windows':
         ctypes.POINTER(ConsoleScreenBufferInfo),
     ]
 
-    def get_terminal_width(fd):
+    def get_terminal_width(fd=DEFAULT_FD):
         num_handle = -(10 + fd)
         handle = GetStdHandle(num_handle)
         csbi = ctypes.pointer(ConsoleScreenBufferInfo())
@@ -59,7 +61,7 @@ else:
             ('ws_ypixel', ctypes.c_ushort)
         ]
 
-    def get_terminal_width(fd):
+    def get_terminal_width(fd=DEFAULT_FD):
         if not 'termios' in sys.modules or not hasattr(termios, 'TIOCGWINSZ'):
             raise OSError('unsupported platform')
         result = fcntl.ioctl(

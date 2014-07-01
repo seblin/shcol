@@ -27,15 +27,8 @@ def columnize(items, spacing=2, max_line_width=None, sort_items=False):
     relevant in some cases). Leave this option disabled (the default) if you
     want to avoid this.
     """
-    if max_line_width is None:
-        try:
-            calculator = ColumnWidthCalculator.for_terminal(spacing)
-        except (IOError, OSError):
-            # failed to get terminal width -> use calculator's default value
-            calculator = ColumnWidthCalculator(spacing)
-    else:
-        calculator = ColumnWidthCalculator(spacing, max_line_width)
-    formatter = build_formatter(type(items), calculator, sort_items)
+    calculator = ColumnWidthCalculator(spacing, max_line_width)
+    formatter = build_formatter(type(items), calculator, sort_items=sort_items)
     return formatter.format(items)
 
 
@@ -44,7 +37,7 @@ class ColumnWidthCalculator(object):
     A class with capabilities to calculate the widths for an unknown number
     of columns based on a given sequence of strings.
     """
-    def __init__(self, spacing=2, max_line_width=80, num_columns=None):
+    def __init__(self, spacing=2, max_line_width=None, num_columns=None):
         """
         Initialize the calculator. `spacing` defines the number of blanks
         between two columns. `max_line_width` is the maximal amount of
@@ -52,6 +45,11 @@ class ColumnWidthCalculator(object):
         """
         self.spacing = spacing
         self.max_line_width = max_line_width
+        if self.max_line_width is None:
+            try:
+                self.max_line_width = helpers.get_terminal_width()
+            except (IOError, OSError):
+                self.max_line_width = 80
         self.num_columns = num_columns
 
     def get_line_properties(self, items):
@@ -133,26 +131,6 @@ class ColumnWidthCalculator(object):
         """
         total = sum(column_widths) + (len(column_widths) - 1) * self.spacing
         return total <= self.max_line_width
-
-    @classmethod
-    def for_terminal(cls, spacing=2, stream=None):
-        """
-        Return a new `ColumnWidthCalculator` based on given `stream` where
-        `stream` must be a file-object connected to a terminal. If `stream` is
-        `None` then `sys.__stdout__` is used instead.
-
-        `spacing` defines the number of blanks between two columns and is used
-        by the resulting calculator.
-
-        The calculator's line width will equal to the line width of the given
-        terminal-stream. But note that the calculator's line width is *not*
-        updated if subsequent changes of the terminal size occur after
-        initialization of the calculator.
-        """
-        if stream is None:
-            stream = sys.__stdout__
-        width = helpers.get_terminal_width(stream.fileno())
-        return cls(spacing, width)
 
 
 class IterableFormatter(object):
