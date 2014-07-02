@@ -14,8 +14,10 @@ class ArgumentParser(argparse.ArgumentParser):
         argparse.ArgumentParser.__init__(
             self, prog=prog_name, formatter_class=argparse.RawTextHelpFormatter,
             description='Generate columnized output for given string items.\n\n'
-            'Examples:\n'
+            'Examples (on a Debian system):\n'
+            '\n'
             'shcol -S foo bar baz\n'
+            '(shcol -S -c0) < /proc/modules\n'
             'dpkg --get-selections \'python3*\' | shcol -c0 -s4'
         )
         self.init_arguments()
