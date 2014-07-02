@@ -68,7 +68,7 @@ def get_files(path, hide_dotted):
 
 
 def get_dict(mapping):
-    if isinstance(obj, collections.Mapping):
+    if isinstance(mapping, collections.Mapping):
         return mapping
     return collections.OrderedDict(mapping)
 

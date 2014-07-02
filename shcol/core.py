@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 import collections
+import itertools
 
 from . import config, helpers
 
@@ -311,8 +312,9 @@ class MappingFormatter(IterableFormatter):
         `mapping`.
         """
         self.calculator.num_columns = 2
-        items = list(mapping.keys())
-        items.extend(mapping.values())
+        items = itertools.chain.from_iterable(
+            [mapping.keys(), mapping.values()]
+        )
         return self.calculator.get_line_properties(items)
 
     @staticmethod
