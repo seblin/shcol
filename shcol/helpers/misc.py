@@ -11,7 +11,7 @@ except ImportError:
 
 __all__ = [
     'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted', 'DefaultLocale',
-    'get_files', 'get_dict', 'exit_with_failure', 'CapturedStream'
+    'get_files', 'get_dict', 'read_lines', 'exit_with_failure', 'CapturedStream'
 ]
 
 try:
@@ -71,6 +71,13 @@ def get_dict(mapping):
     if isinstance(mapping, collections.Mapping):
         return mapping
     return collections.OrderedDict(mapping)
+
+
+def read_lines(stream, column_index=None):
+    lines = (line.rstrip('\n') for line in stream)
+    if column_index is not None:
+        lines = (line.split()[column_index] for line in lines)
+    return lines
 
 
 def exit_with_failure(msg=None):

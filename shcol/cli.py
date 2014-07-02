@@ -3,7 +3,7 @@ import sys
 
 from . import __version__
 from .config import SPACING
-from .helpers import exit_with_failure
+from .helpers import exit_with_failure, read_lines
 from .highlevel import print_columnized
 
 __all__ = ['main']
@@ -61,19 +61,13 @@ class ArgumentParser(argparse.ArgumentParser):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
             try:
-                args.items = self.read_lines(sys.stdin, args.column_index)
+                args.items = list(read_lines(sys.stdin, args.column_index))
             except IndexError:
                 msg = '{}: error: failed to fetch data for column at index {}'
                 exit_with_failure(msg.format(self.prog, args.column_index))
             except KeyboardInterrupt:
                 exit_with_failure()
         return args
-
-    def read_lines(self, stream, column_index=None):
-        lines = (line.rstrip('\n') for line in stream)
-        if column_index is not None:
-            lines = (line.split()[column_index] for line in lines)
-        return list(lines)
 
 
 def main(cmd_args=None, prog_name='shcol', version=None):

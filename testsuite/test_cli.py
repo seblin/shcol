@@ -80,14 +80,3 @@ class ArgumentParserTest(unittest.TestCase):
         self.assertFalse(args.sort)
         args = self.parser.parse_args(['--sort', 'spam'])
         self.assertTrue(args.sort)
-
-    def test_read_lines(self):
-        stream = shcol.helpers.StringIO('spam\nham\neggs')
-        lines = self.parser.read_lines(stream)
-        self.assertEqual(lines, ['spam', 'ham', 'eggs'])
-        stream = shcol.helpers.StringIO('xxx spam\nzzz ham\n~~~ eggs')
-        lines = self.parser.read_lines(stream, column_index=1)
-        self.assertEqual(lines, ['spam', 'ham', 'eggs'])
-        stream.seek(0)
-        with self.assertRaises(IndexError):
-            lines = self.parser.read_lines(stream, column_index=42)
