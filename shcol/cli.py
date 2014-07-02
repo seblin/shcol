@@ -3,7 +3,7 @@ import sys
 
 from . import __version__
 from .config import SPACING
-from .helpers import exit_with_failure, read_lines
+from .helpers import exit_with_failure, num, read_lines
 from .highlevel import print_columnized
 
 __all__ = ['main']
@@ -29,12 +29,12 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(read from stdin if item arguments are not present)'
         )
         self.add_argument(
-            '-s', '--spacing', metavar='N', type=self.num, default=SPACING,
+            '-s', '--spacing', metavar='N', type=num, default=SPACING,
             help='number of blanks between two columns (default: {})'
                  .format(SPACING)
         )
         self.add_argument(
-            '-w', '--width', metavar='N', type=self.num,
+            '-w', '--width', metavar='N', type=num,
             help='maximal amount of characters per line\n'
                  '(use terminal width by default)'
         )
@@ -43,19 +43,13 @@ class ArgumentParser(argparse.ArgumentParser):
             help='sort the items'
         )
         self.add_argument(
-            '-c', '--column', metavar='N', type=self.num, dest='column_index',
+            '-c', '--column', metavar='N', type=num, dest='column_index',
             help='choose a specific column per line via an index value\n'
                  '(indices start at 0, column seperator is whitespace)'
         )
         self.add_argument(
             '-v', '--version', action='version', version=self._version_string
         )
-
-    def num(self, s):
-        number = int(s)
-        if number < 0:
-            raise ValueError('number must be non-negative')
-        return number
 
     def parse_args(self, args=None, namespace=None):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
