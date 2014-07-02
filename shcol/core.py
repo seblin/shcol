@@ -312,9 +312,7 @@ class MappingFormatter(IterableFormatter):
         `mapping`.
         """
         self.calculator.num_columns = 2
-        items = itertools.chain.from_iterable(
-            [mapping.keys(), mapping.values()]
-        )
+        items = itertools.chain(mapping.keys(), mapping.values())
         return self.calculator.get_line_properties(items)
 
     @staticmethod
