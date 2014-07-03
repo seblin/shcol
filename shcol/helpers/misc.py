@@ -21,6 +21,13 @@ except NameError:
     STRING_TYPES = (str, bytes)
 
 def get_decoded(items, encoding):
+    """
+    Return an iterator that yields all elements of `items` as unicode-strings.
+    If `items` contains byte-strings then each of these strings is decoded to
+    unicode by using the codec name specified by `encoding`. Items that are
+    already unicode-strings are left unchanged. A `TypeError` is raised if
+    `items` contains non-string elements.
+    """
     for item in items:
         if not isinstance(item, STRING_TYPES):
             raise TypeError('all items must be strings')
@@ -29,6 +36,14 @@ def get_decoded(items, encoding):
         yield item
 
 def get_sorted(items, sortkey=None):
+    """
+    Sort given `items` in a locale-aware manner (i.e. ordering with respect to
+    non-ascii characters that are specific to the current locale). Note that
+    calling this function may temporary change the interpreter's global locale
+    configuration and thus is not thread-safe.
+
+    Use `sortkey` if you want to provide your own key to be used for sorting.
+    """
     if sortkey is None:
         sortkey = functools.cmp_to_key(locale.strcoll)
     with DefaultLocale(locale.LC_COLLATE):
@@ -79,8 +94,9 @@ def get_dict(mapping):
     Return `mapping` as a dictionary. If mapping is already a `Mapping`-type
     then it is returned unchanged. Otherwise it is converted to an `OrderedDict`
     to preserve the ordering of its items. Typical candidates for this function
-    are sequences of 2-element tuples. In fact, this is just a shorthand for
-    `collections.OrderedDict(mapping)` but with the pre-check mentioned before.
+    are sequences of 2-element tuples (defining the mapping's items). In fact,
+    this function is just a shorthand for ``collections.OrderedDict(mapping)``
+    but with the pre-check mentioned above.
     """
     if isinstance(mapping, collections.Mapping):
         return mapping
@@ -102,7 +118,7 @@ def read_lines(stream, column_index=None):
     """
     Return an iterator that yields all lines from `stream` removing any trailing
     "\n"-characters per line. `column_index` may be used to restrict reading to
-    specific column per line. Note that the index value is interpreted as an
+    a specific column per line. Note that the index value is interpreted as an
     ordinary Python index. A column is defined as a sequence of non-whitespace
     characters. The column seperator is whitespace.
     """
@@ -123,14 +139,35 @@ def exit_with_failure(msg=None):
 
 
 class CapturedStream(object):
+    """
+    A class to temporary redirect data for a standard stream.
+    """
     def __init__(self, stream_name):
+        """
+        Create a new `CapturedStream`. Use `stream_name` to define the name of
+        the standard stream whose data should be captured. This must be one of
+        "stdin", "stdout" or "stderr" in order to work.
+        """
         self.stream_name = stream_name
         self.original_stream = getattr(sys, stream_name)
-        self.pseudo_stream = StringIO()
+
+    def capture(self):
+        """
+        Start capturing. A new stream that fetches all data for the desired
+        standard stream is created and returned.
+        """
+        pseudo_stream = StringIO()
+        setattr(sys, self.stream_name, pseudo_stream)
+        return pseudo_stream
+
+    def uncapture(self):
+        """
+        Stop capturing. This will restore control by the original stream.
+        """
+        setattr(sys, self.stream_name, self.original_stream)
 
     def __enter__(self):
-        setattr(sys, self.stream_name, self.pseudo_stream)
-        return self.pseudo_stream
+        return self.capture()
 
     def __exit__(self, *unused):
-        setattr(sys, self.stream_name, self.original_stream)
+        self.uncapture()
