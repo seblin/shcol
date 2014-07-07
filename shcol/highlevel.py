@@ -6,7 +6,8 @@ from .core import columnize
 from . import helpers
 
 __all__ = [
-    'print_columnized', 'print_columnized_mapping', 'print_attrs', 'print_files'
+    'print_columnized', 'print_columnized_mapping', 'print_attrs',
+    'print_filenames'
 ]
 
 def print_columnized(items, *args, **kwargs):
@@ -26,7 +27,7 @@ def print_attrs(obj, **kwargs):
     """
     print_columnized(dir(obj), sort_items=True, **kwargs)
 
-def print_files(path='.', hide_dotted=False, **kwargs):
+def print_filenames(path='.', hide_dotted=False, **kwargs):
     """
     Columnize filenames according to given `path` and print them
     to stdout.

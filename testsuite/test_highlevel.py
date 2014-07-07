@@ -25,7 +25,7 @@ class PrintAttrsTest(PrintTestBase):
         result = self.get_output(shcol.print_attrs, shcol)
         self.assertEqual(result, expected)
 
-class PrintFilesTest(PrintTestBase):
+class PrintFilenamesTest(PrintTestBase):
     def test_get_files(self):
         # TODO: Make this test smarter
         expected = os.listdir('.')
@@ -35,12 +35,12 @@ class PrintFilesTest(PrintTestBase):
         result = shcol.helpers.get_files('.', True)
         self.assertEqual(result, expected)
 
-    def test_print_files(self):
+    def test_print_filenames(self):
         filenames = os.listdir('.')
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
-        result = self.get_output(shcol.print_files)
+        result = self.get_output(shcol.print_filenames)
         self.assertEqual(result, expected)
         filenames = [fn for fn in filenames if not fn.startswith('.')]
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
-        result = self.get_output(shcol.print_files, hide_dotted=True)
+        result = self.get_output(shcol.print_filenames, hide_dotted=True)
         self.assertEqual(result, expected)
