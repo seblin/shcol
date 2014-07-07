@@ -130,18 +130,18 @@ class FormatterTest(unittest.TestCase):
     def make_lines(self, items):
         return list(self.formatter.make_lines(items))
 
-    def test_iter_lines(self):
+    def test_make_lines(self):
         items = ['foo', 'bar', 'baz']
         lines = self.make_lines(items)
         self.assertEqual(lines, [self.join(items)])
         self.formatter.calculator.line_width = 3
         self.assertEqual(self.make_lines(items), items)
-        self.formatter.calculator.line_width = 50
         items = [60 * 'ä', 40 * 'ö']
         expected = [60 * 'ä', 40 * 'ö']
+        self.formatter.calculator.line_width = 50
         self.assertEqual(self.make_lines(items), expected)
         self.formatter.calculator.allow_exceeding = False
-        expected = [items[0][:50], items[1]]
+        expected = [50 * 'ä', 40 * 'ö']
         self.assertEqual(self.make_lines(items), expected)
 
     def make_template(self, column_widths, spacing=2):
