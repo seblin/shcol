@@ -12,7 +12,7 @@ class ScriptTest(unittest.TestCase):
     def test_script_args(self):
         args = ['spam', 'ham', 'eggs']
         result = self.check_output([SHCOL, '-w80'] + args)
-        expected = shcol.columnize(args, max_line_width=80) + '\n'
+        expected = shcol.columnize(args, line_width=80) + '\n'
         self.assertEqual(result, expected)
 
     def test_script_help(self):

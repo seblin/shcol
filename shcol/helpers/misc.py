@@ -10,9 +10,8 @@ except ImportError:
     from io import StringIO
 
 __all__ = [
-    'StringIO', 'STRING_TYPES', 'get_decoded', 'get_sorted', 'DefaultLocale',
-    'get_files', 'get_dict', 'num', 'read_lines', 'exit_with_failure',
-    'CapturedStream'
+    'StringIO', 'get_decoded', 'get_sorted', 'DefaultLocale', 'get_files',
+    'get_dict', 'num', 'read_lines', 'exit_with_failure', 'CapturedStream'
 ]
 
 try:

@@ -11,7 +11,7 @@ LineProperties = collections.namedtuple(
 )
 
 def columnize(
-        items, spacing=config.SPACING, max_line_width=config.LINE_WIDTH,
+        items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
         sort_items=config.SORT_ITEMS
     ):
     """
@@ -21,9 +21,9 @@ def columnize(
     `spacing` should be a positive integer defining the number of blank
     characters between two columns.
 
-    `max_line_width` should be a positive integer defining the maximal amount
-    of characters that are allowed for each line. If this is `None` then the
-    terminal's width is used.
+    `line_width` should be a positive integer defining the maximal amount
+    of characters that fit in one line. If this is `None` then the terminal's
+    width is used.
 
     If `sort_items` is `True`, then a locale-aware sorted version of `items`
     is used to generate the columnized output.
@@ -33,7 +33,7 @@ def columnize(
     relevant in some cases). Leave this option disabled if you want to avoid
     this.
     """
-    calculator = ColumnWidthCalculator(spacing, max_line_width)
+    calculator = ColumnWidthCalculator(spacing, line_width)
     formatter = build_formatter(type(items), calculator, sort_items=sort_items)
     return formatter.format(items)
 
@@ -44,22 +44,23 @@ class ColumnWidthCalculator(object):
     of columns based on a given sequence of strings.
     """
     def __init__(
-        self, spacing=config.SPACING, max_line_width=config.LINE_WIDTH,
-        num_columns=None
+        self, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+        num_columns=None, allow_exceeding=config.ALLOW_EXCEEDING
     ):
         """
         Initialize the calculator. `spacing` defines the number of blanks
-        between two columns. `max_line_width` is the maximal amount of
-        characters that a line may consume.
+        between two columns. `line_width` is the maximal amount of characters
+        that fits in one line.
         """
         self.spacing = spacing
-        self.max_line_width = max_line_width
-        if self.max_line_width is None:
+        self.line_width = line_width
+        if self.line_width is None:
             try:
-                self.max_line_width = helpers.get_terminal_width()
+                self.line_width = helpers.get_terminal_width()
             except (IOError, OSError):
-                self.max_line_width = config.LINE_WIDTH_FALLBACK
+                self.line_width = config.LINE_WIDTH_FALLBACK
         self.num_columns = num_columns
+        self.allow_exceeding = allow_exceeding
 
     def get_line_properties(self, items):
         """
@@ -81,9 +82,9 @@ class ColumnWidthCalculator(object):
         of lines needed to display all items when using that information to do
         columnized formatting.
 
-        Note that this instance's `.max_line_width` and `.spacing` attributes
-        are taken into account when calculation is done. However, the column
-        widths of the resulting tuple will *not* include that spacing.
+        Note that this instance's `.line_width` and `.spacing` attributes are
+        taken into account when calculation is done. However, the column widths
+        of the resulting tuple will *not* include that spacing.
         """
         if self.num_columns is not None:
             return self.get_widths_and_lines(item_widths, self.num_columns)
@@ -94,7 +95,11 @@ class ColumnWidthCalculator(object):
         for column_widths, num_lines in candidates:
             if self.fits_in_line(column_widths):
                 return column_widths, num_lines
-        return [self.max_line_width], len(item_widths)
+        else:
+            width = (
+                max(item_widths) if self.allow_exceeding else self.line_width
+            )
+            return [width], len(item_widths)
 
     def get_candidates(self, item_widths, max_columns):
         for num_columns in range(max_columns, 0, -1):
@@ -124,9 +129,9 @@ class ColumnWidthCalculator(object):
         if num_items <= 1:
             return num_items
         smallest_item, widest_item = min(item_widths), max(item_widths)
-        if widest_item >= self.max_line_width:
+        if widest_item >= self.line_width:
             return 1
-        remaining_width = self.max_line_width - widest_item
+        remaining_width = self.line_width - widest_item
         min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
         return min(num_items, possible_columns)
@@ -134,12 +139,12 @@ class ColumnWidthCalculator(object):
     def fits_in_line(self, column_widths):
         """
         Summarize the values of given `column_widths`, add `.spacing` between
-        each column and then check whether it exceeds `.max_line_width`. Return
+        each column and then check whether it exceeds `.line_width`. Return
         `True` if the result does *not* exceed the allowed line width. Return
         `False` otherwise.
         """
         total = sum(column_widths) + (len(column_widths) - 1) * self.spacing
-        return total <= self.max_line_width
+        return total <= self.line_width
 
 
 class IterableFormatter(object):

@@ -9,8 +9,8 @@ import unittest
 class ColumnizeTest(unittest.TestCase):
 
     @staticmethod
-    def columnize(items, spacing=2, max_line_width=80, sort_items=False):
-        return shcol.columnize(items, spacing, max_line_width, sort_items)
+    def columnize(items, spacing=2, line_width=80, sort_items=False):
+        return shcol.columnize(items, spacing, line_width, sort_items)
 
     @staticmethod
     def join(items, spacing=2):
@@ -26,18 +26,18 @@ class ColumnizeTest(unittest.TestCase):
                 self.columnize(items, spacing=i), self.join(items, i)
             )
 
-    def test_max_line_width(self):
+    def test_line_width(self):
         x, y, ae = 30 * 'x', 10 * 'y', 15 * 'ä'
         items = [x, y, ae]
         self.assertEqual(
             self.columnize(items), self.join([x, y, ae])
         )
         self.assertEqual(
-            self.columnize(items, max_line_width=50),
+            self.columnize(items, line_width=50),
             '%s\n%s' % (self.join([x, ae]), y)
         )
         self.assertEqual(
-            self.columnize(items, max_line_width=45), '\n'.join([x, y, ae])
+            self.columnize(items, line_width=45), '\n'.join([x, y, ae])
         )
 
     def test_sort_items(self):
@@ -51,7 +51,7 @@ class ColumnizeTest(unittest.TestCase):
 class ColumnWidthCalculatorTest(unittest.TestCase):
     def setUp(self):
         self.calculator = shcol.core.ColumnWidthCalculator(
-            spacing=2, max_line_width=80
+            spacing=2, line_width=80
         )
         self.expected_results = [
             ([], ([], 0)),
@@ -70,7 +70,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
                 self.calculator.get_line_properties(items),
                 self.make_line_properties(*props)
             )
-        self.calculator.max_line_width = 45
+        self.calculator.line_width = 45
         self.assertEqual(
             self.calculator.get_line_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
             self.make_line_properties([30], 3)
@@ -82,7 +82,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.assertEqual(
                 self.calculator.calculate_columns(item_widths), result
             )
-        self.calculator.max_line_width = 45
+        self.calculator.line_width = 45
         self.assertEqual(
             self.calculator.calculate_columns([30, 10, 15]), ([30], 3)
         )
@@ -109,13 +109,13 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         self.calculator.spacing = 1
         self.assertTrue(self.fits([77, 2]))
         self.assertFalse(self.fits([77, 3]))
-        self.calculator.max_line_width = 79
+        self.calculator.line_width = 79
         self.assertFalse(self.fits([77, 2]))
 
 
 class FormatterTest(unittest.TestCase):
     def setUp(self):
-        calc = shcol.core.ColumnWidthCalculator(spacing=2, max_line_width=80)
+        calc = shcol.core.ColumnWidthCalculator(spacing=2, line_width=80)
         self.formatter = shcol.core.IterableFormatter(calc)
 
     def join(self, items):
@@ -134,13 +134,13 @@ class FormatterTest(unittest.TestCase):
         items = ['foo', 'bar', 'baz']
         lines = self.make_lines(items)
         self.assertEqual(lines, [self.join(items)])
-        self.formatter.calculator.max_line_width = 3
+        self.formatter.calculator.line_width = 3
         self.assertEqual(self.make_lines(items), items)
-        self.formatter.calculator.max_line_width = 50
+        self.formatter.calculator.line_width = 50
         items = [60 * 'ä', 40 * 'ö']
-        expected = [50 * 'ä', 40 * 'ö']
+        expected = [60 * 'ä', 40 * 'ö']
         self.assertEqual(self.make_lines(items), expected)
-        self.formatter.allow_exceeding = False
+        self.formatter.calculator.allow_exceeding = False
         expected = [items[0][:50], items[1]]
         self.assertEqual(self.make_lines(items), expected)
 
