@@ -1,10 +1,7 @@
 import argparse
 import sys
 
-from . import __version__
-from .config import SPACING
-from .helpers import exit_with_failure, num, read_lines
-from .highlevel import print_columnized
+from . import __version__, config, helpers, highlevel
 
 __all__ = ['main']
 
@@ -29,12 +26,13 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(read from stdin if item arguments are not present)'
         )
         self.add_argument(
-            '-s', '--spacing', metavar='N', type=num, default=SPACING,
+            '-s', '--spacing', metavar='N', type=helpers.num,
+            default=config.SPACING,
             help='number of blanks between two columns (default: {})'
-                 .format(SPACING)
+                 .format(config.SPACING)
         )
         self.add_argument(
-            '-w', '--width', metavar='N', type=num,
+            '-w', '--width', metavar='N', type=helpers.num,
             help='maximal amount of characters per line\n'
                  '(use terminal width by default)'
         )
@@ -43,7 +41,8 @@ class ArgumentParser(argparse.ArgumentParser):
             help='sort the items'
         )
         self.add_argument(
-            '-c', '--column', metavar='N', type=num, dest='column_index',
+            '-c', '--column', metavar='N', type=helpers.num,
+            dest='column_index',
             help='choose a specific column per line via an index value\n'
                  '(indices start at 0, column seperator is whitespace)'
         )
@@ -55,12 +54,15 @@ class ArgumentParser(argparse.ArgumentParser):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
             try:
-                args.items = list(read_lines(sys.stdin, args.column_index))
+                items = helpers.read_lines(sys.stdin, args.column_index)
+                args.items = list(items)
             except IndexError:
                 msg = '{}: error: failed to fetch data for column at index {}'
-                exit_with_failure(msg.format(self.prog, args.column_index))
+                helpers.exit_with_failure(
+                    msg.format(self.prog, args.column_index)
+                )
             except KeyboardInterrupt:
-                exit_with_failure()
+                helpers.exit_with_failure()
         return args
 
 
@@ -69,7 +71,9 @@ def main(cmd_args=None, prog_name='shcol', version=None):
         version = __version__
     args = ArgumentParser(prog_name, version).parse_args()
     try:
-        print_columnized(args.items, args.spacing, args.width, args.sort)
+        highlevel.print_columnized(
+            args.items, args.spacing, args.width, args.sort
+        )
     except UnicodeEncodeError:
         msg = '{}: error: this input could not be encoded'
-        _exit_with_failure(msg.format(prog_name))
+        helpers.exit_with_failure(msg.format(prog_name))
