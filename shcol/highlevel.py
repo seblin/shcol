@@ -2,8 +2,7 @@ from __future__ import print_function
 
 import collections
 
-from .core import columnize
-from . import helpers
+from . import config, core, helpers
 
 __all__ = [
     'print_columnized', 'print_columnized_mapping', 'print_attrs',
@@ -15,7 +14,8 @@ def print_columnized(items, *args, **kwargs):
     Shortcut to show the columnized `items` on standard output.
     Takes the same arguments as `columnize()`.
     """
-    print(columnize(items, *args, **kwargs))
+    result = core.columnize(items, *args, **kwargs)
+    print(result, file=config.PRINT_STREAM)
 
 def print_columnized_mapping(mapping, **kwargs):
     print_columnized(helpers.get_dict(mapping), **kwargs)

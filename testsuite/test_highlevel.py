@@ -4,7 +4,7 @@ import shcol
 
 class PrintTestBase(unittest.TestCase):
     def get_output(self, func, *args, **kwargs):
-        with shcol.helpers.CapturedStream('stdout') as outstream:
+        with shcol.helpers.CapturedStream('PRINT_STREAM') as outstream:
             func(*args, **kwargs)
             return outstream.getvalue()
 

@@ -9,6 +9,8 @@ try:
 except ImportError:
     from io import StringIO
 
+from .. import config
+
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'DefaultLocale', 'get_files',
     'get_dict', 'num', 'read_lines', 'exit_with_failure', 'CapturedStream'
@@ -139,16 +141,26 @@ def exit_with_failure(msg=None):
 
 class CapturedStream(object):
     """
-    A class to temporary redirect data for a standard stream.
+    A class to temporary redirect data for a stream.
     """
+    stream_locations = {
+        'stdin': sys,
+        'stdout': sys,
+        'stderr': sys,
+        'PRINT_STREAM': config,
+    }
+
     def __init__(self, stream_name):
         """
         Create a new `CapturedStream`. Use `stream_name` to define the name of
-        the standard stream whose data should be captured. This must be one of
-        "stdin", "stdout" or "stderr" in order to work.
+        the stream whose data should be captured. This must be one of "stdin",
+        "stdout", "stderr" or "PRINT_STREAM" in order to work.
         """
+        if stream_name not in self.stream_locations:
+            raise ValueError('Unknown stream name: {}'.format(stream_name))
         self.stream_name = stream_name
-        self.original_stream = getattr(sys, stream_name)
+        self.location = self.stream_locations[stream_name]
+        self.original_stream = getattr(self.location, stream_name)
 
     def capture(self):
         """
@@ -156,14 +168,14 @@ class CapturedStream(object):
         standard stream is created and returned.
         """
         pseudo_stream = StringIO()
-        setattr(sys, self.stream_name, pseudo_stream)
+        setattr(self.location, self.stream_name, pseudo_stream)
         return pseudo_stream
 
     def uncapture(self):
         """
         Stop capturing. This will restore control by the original stream.
         """
-        setattr(sys, self.stream_name, self.original_stream)
+        setattr(self.location, self.stream_name, self.original_stream)
 
     def __enter__(self):
         return self.capture()
