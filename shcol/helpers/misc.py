@@ -164,8 +164,8 @@ class CapturedStream(object):
 
     def capture(self):
         """
-        Start capturing. A new stream that fetches all data for the desired
-        standard stream is created and returned.
+        Start capturing. A new `StringIO`-instance that fetches all data for the
+        desired stream is created and returned.
         """
         pseudo_stream = StringIO()
         setattr(self.location, self.stream_name, pseudo_stream)
