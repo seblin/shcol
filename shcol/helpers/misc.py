@@ -145,8 +145,8 @@ class TemporaryLocale(object):
 
     def set(self):
         """
-        Set the interpreter's configuration to the temporary locale. Return
-        the resulting locale string.
+        Set the temporary locale. If this was successful then the resulting
+        locale string is returned.
         """
         try:
             return locale.setlocale(self.category, self.locale_name)
