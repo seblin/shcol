@@ -313,8 +313,8 @@ class MappingFormatter(IterableFormatter):
 
     def get_line_properties(self, mapping):
         """
-        Return a `LineProperties`-instance with a configuration based on given
-        `mapping`.
+        Return a `LineProperties`-instance with a configuration based on the
+        strings in the keys and values of `mapping`.
         """
         self.calculator.num_columns = 2
         items = itertools.chain(mapping.keys(), mapping.values())
