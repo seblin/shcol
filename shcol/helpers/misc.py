@@ -12,8 +12,8 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'StringIO', 'get_decoded', 'get_sorted', 'DefaultLocale', 'get_files',
-    'get_dict', 'num', 'read_lines', 'exit_with_failure', 'CapturedStream'
+    'get_decoded', 'get_sorted', 'get_files', 'get_dict', 'num', 'read_lines',
+    'exit_with_failure', 'TemporaryLocale', 'CapturedStream',
 ]
 
 try:
@@ -47,29 +47,8 @@ def get_sorted(items, sortkey=None):
     """
     if sortkey is None:
         sortkey = functools.cmp_to_key(locale.strcoll)
-    with DefaultLocale(locale.LC_COLLATE):
+    with TemporaryLocale('', locale.LC_COLLATE):
         return sorted(items, key=sortkey)
-
-
-class DefaultLocale(object):
-    def __init__(self, category, fail_on_locale_error=False):
-        self.category = category
-        self.fail_on_locale_error = fail_on_locale_error
-        self.old_locale = None
-
-    def __enter__(self):
-        self.old_locale = locale.getlocale(self.category)
-        try:
-            locale.setlocale(self.category, '')
-        except locale.Error as err:
-            if self.fail_on_locale_error:
-                raise err
-
-    def __exit__(self, *unused):
-        if self.old_locale is not None:
-            locale.setlocale(self.category, self.old_locale)
-        self.old_locale = None
-
 
 def get_files(path, hide_dotted):
     """
@@ -89,7 +68,6 @@ def get_files(path, hide_dotted):
         filenames = [fn for fn in filenames if not fn.startswith('.')]
     return filenames
 
-
 def get_dict(mapping):
     """
     Return `mapping` as a dictionary. If mapping is already a `Mapping`-type
@@ -102,7 +80,6 @@ def get_dict(mapping):
     if isinstance(mapping, collections.Mapping):
         return mapping
     return collections.OrderedDict(mapping)
-
 
 def num(s):
     """
@@ -128,7 +105,6 @@ def read_lines(stream, column_index=None):
         lines = (line.split()[column_index] for line in lines)
     return lines
 
-
 def exit_with_failure(msg=None):
     """
     Exit the application with exit code 1. If `msg` is given then its text is
@@ -137,6 +113,58 @@ def exit_with_failure(msg=None):
     if msg is not None:
         sys.stderr.write(msg + '\n')
     sys.exit(1)
+
+
+class TemporaryLocale(object):
+    """
+    A class to temporary change the interpreter's locale configuration.
+    """
+    def __init__(
+        self, locale_name, category=locale.LC_ALL, fail_on_locale_error=False
+    ):
+        """
+        Create a new `TemporaryLocale`.
+
+        `locale_name` defines the name of the locale to be temporary used. This
+        name has the same meaning as it would be directly passed to the stdlib's
+        `locale.setlocale`-function.
+
+        `category` defines the locale's category. It should be one of the
+        `LC_*`-constants defined in the stdlib's `locale`-module.
+
+        If `fail_on_locale_error` is `True` then a `locale.Error`, that might
+        occur when setting the temporary locale, will be raised. Otherwise,
+        this exception is silently ignored. However, a `locale.Error` will
+        always let the locale setting remain in its old state (i.e. temporary
+        locale was not set), no matter if it was ignored or not.
+        """
+        self.locale_name = locale_name
+        self.category = category
+        self.fail_on_locale_error = fail_on_locale_error
+        self.original_locale = locale.getlocale(category)
+
+    def set(self):
+        """
+        Set the interpreter's configuration to the temporary locale. Return
+        the resulting locale string.
+        """
+        try:
+            return locale.setlocale(self.category, self.locale_name)
+        except locale.Error as err:
+            if self.fail_on_locale_error:
+                raise err
+
+    def unset(self, *unused):
+        """
+        Unset the temporary locale and restore the old locale settings.
+        """
+        locale.setlocale(self.category, self.original_locale)
+
+    def __enter__(self):
+        return self.set()
+
+    def __exit__(self, *unused):
+        self.unset()
 
 
 class CapturedStream(object):
