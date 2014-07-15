@@ -23,17 +23,17 @@ def print_columnized_mapping(mapping, **kwargs):
 def print_attrs(obj, **kwargs):
     """
     Similar to the `dir()`-builtin but sort the resulting names
-    and print them columnized to stdout.
+    and print them columnized to standard output.
     """
     print_columnized(dir(obj), sort_items=True, **kwargs)
 
-def print_filenames(path='.', hide_dotted=False, **kwargs):
+def print_filenames(path='.', hide_dotted=True, **kwargs):
     """
     Columnize filenames according to given `path` and print them
-    to stdout.
+    to standard output.
 
     `hide_dotted` defines whether to exclude filenames starting
-    with a ".".
+    with a "." from the result.
 
     Note that this function does shell-like expansion of symbols
     such as "*", "?" or even "~" (user's home).

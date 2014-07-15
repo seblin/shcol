@@ -1,5 +1,6 @@
 import collections
 import functools
+import glob
 import locale
 import os
 import sys
@@ -92,7 +93,7 @@ def num(s):
         raise ValueError('number must be non-negative')
     return number
 
-def read_lines(stream, column_index=None):
+def read_lines(stream, column_index=None, linesep=config.LINESEP):
     """
     Return an iterator that yields all lines from `stream` removing any trailing
     "\n"-characters per line. `column_index` may be used to restrict reading to

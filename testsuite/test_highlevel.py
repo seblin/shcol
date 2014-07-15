@@ -38,7 +38,7 @@ class PrintFilenamesTest(PrintTestBase):
     def test_print_filenames(self):
         filenames = os.listdir('.')
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
-        result = self.get_output(shcol.print_filenames)
+        result = self.get_output(shcol.print_filenames, hide_dotted=False)
         self.assertEqual(result, expected)
         filenames = [fn for fn in filenames if not fn.startswith('.')]
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
