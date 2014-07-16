@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import collections
 import functools
 import glob
@@ -109,10 +111,10 @@ def read_lines(stream, column_index=None, linesep=config.LINESEP):
 def exit_with_failure(msg=None):
     """
     Exit the application with exit code 1. If `msg` is given then its text is
-    printed to stderr.
+    printed to the standard error stream.
     """
     if msg is not None:
-        sys.stderr.write(msg + '\n')
+        print(msg, file=sys.stderr)
     sys.exit(1)
 
 

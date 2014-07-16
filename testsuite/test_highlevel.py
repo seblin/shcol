@@ -27,7 +27,6 @@ class PrintAttrsTest(PrintTestBase):
 
 class PrintFilenamesTest(PrintTestBase):
     def test_get_files(self):
-        # TODO: Make this test smarter
         expected = os.listdir('.')
         result = shcol.helpers.get_filenames(path='.', hide_dotted=False)
         self.assertEqual(result, expected)
