@@ -1,107 +1,107 @@
 shcol - A shell columnizer
 --------------------------
 
-``shcol`` generates columnized output for given string items.
+``shcol`` is a shell columnizer that works in a similar way as the Unix-tool
+``ls`` does when rendering directory contents.
 
-Example:
+Some examples:
 
 ```python
 >>> import shcol
->>> items = dir(shcol)
->>> print shcol.columnize(items)
-ColumnWidthCalculator  __all__       __name__     functools
-Formatter              __builtins__  __package__  locale
-LineProperties         __doc__       collections  os
-_DefaultLocale         __file__      columnize    unicode_literals
+>>> shcol.print_filenames()  # print contents of current directory
+bin    LICENSE   MANIFEST.in  setup.py  testsuite
+build  Makefile  README.md    shcol
+>>> shcol.print_filenames('testsuite')  # print contents of a subdirectory
+test_cli.py   test_core.py   test_highlevel.py   test_script.py
+test_cli.pyc  test_core.pyc  test_highlevel.pyc  test_script.pyc
+>>> shcol.print_filenames('testsuite/*.py')  # only print `*.py`-files
+testsuite/test_cli.py   testsuite/test_highlevel.py
+testsuite/test_core.py  testsuite/test_script.py
+>>> shcol.print_filenames('~/shcol', hide_dotted=False)  # like `ls -A ~/shcol`
+bin    .git     Makefile     README.md  shcol
+build  LICENSE  MANIFEST.in  setup.py   testsuite
 ```
 
-The same will work for file listings:
+``shcol`` can also columnize the names of a Python-object:
 
 ```python
->>> import os
->>> print shcol.columnize(os.listdir('/'))
-selinux  bin   etc             lib64  media       usr         sbin  proc
-run      root  initrd.img.old  sys    tmp         initrd.img  lib   dev
-home     boot  srv             var    lost+found  vmlinuz     opt   mnt
+>>> shcol.print_attrs(shcol)
+__author__    config    helpers      __package__       print_columnized_mapping
+__builtins__  core      highlevel    __path__          print_filenames
+cli           __doc__   __license__  print_attrs       __version__
+columnize     __file__  __name__     print_columnized
+>>> shcol.print_attrs(shcol, spacing=5)
+__author__       core          __license__     print_columnized
+__builtins__     __doc__       __name__        print_columnized_mapping
+cli              __file__      __package__     print_filenames
+columnize        helpers       __path__        __version__
+config           highlevel     print_attrs
 ```
 
-For convenience ``shcol`` can sort the output for you:
+Note that the ``spacing``-parameter as shown above works with all kinds of
+``print_*``-functions in ``shcol``.
+
+You can also tell a ``print_*``-function to use a specific line width for
+its output:
 
 ```python
->>> print shcol.columnize(os.listdir('/'), sort_items=True)
-bin   etc         initrd.img.old  lost+found  opt   run      srv  usr
-boot  home        lib             media       proc  sbin     sys  var
-dev   initrd.img  lib64           mnt         root  selinux  tmp  vmlinuz
+>>> shcol.print_attrs(shcol, spacing=5, line_width=60)
+__author__       __file__        print_attrs
+__builtins__     helpers         print_columnized
+cli              highlevel       print_columnized_mapping
+columnize        __license__     print_filenames
+config           __name__        __version__
+core             __package__
+__doc__          __path__
 ```
 
-It even handles input containing non-ascii strings correctly:
+Note that by default the terminal's width is used as the line width.
+
+And of course, you can columnize arbitrary names with ``shcol``:
 
 ```python
->>> home_path = os.path.expanduser('~')
->>> print shcol.columnize(os.listdir(home_path), sort_items=True)
-.adobe                      .gnome2_private   .pip
-.alsaplayer                 .gnupg            .pki
-Arbeitsfläche               .gphoto           .profile
-backup                      .gstreamer-0.10   prog
-.bash_history               .gtk-bookmarks    .psensor
-.bash_logout                .hardinfo         .pulse
-bewerbung                   .ICEauthority     .pulse-cookie
-Bilder                      .IdeaIC12         PyBitmessage
-bin                         .idlerc           .pypirc
-cache                       .java             .pyxbld
-.cache                      .jdownloader      .sane
-C:\nppdf32Log\debuglog.txt  .jython-cache     .spe
-.config                     .kde              spiele
-.dbus                       .lesshst          .ssh
-.dmrc                       .linuxmint        .subversion
-Dokumente                   .local            .thumbnails
-Downloads                   .macromedia       .thunderbird
-dwhelper                    .mozilla          tor-browser_de
-fh                          Musik             Videos
-.gconf                      .mysql_history    Vorlagen
-geditpycompletion           .nano_history     .wine
-.gftp                       .nbi              .Xauthority
-.gimp-2.8                   .netbeans         .xsession-errors
-.gitconfig                  netbeans-7.4      .zcompdump
-.git-credential-cache       NetBeansProjects  zip
-.gitk                       notizen           .zsh_history
-.gksu.lock                  .odbc.ini         .zshrc
-glassfish-4.0               Öffentlich
-.gnome2                     .pam_environment
+>>> shcol.print_columnized(['foo', 'bar', 'baz'], spacing=7)
+foo       bar       baz
+>>> shcol.print_columnized(['foo', 'bar', 'baz'], spacing=7, sort_items=True)
+bar       baz       foo
 ```
 
-That result should be pretty equivalent to what a call to ``ls -A ~`` on your
-command-line would give you.
-
-Additionally, you are free to change the spacing between columns:
+The following example demonstrates that sorting is locale-aware. Note the
+German umlaut in it. Hint: You need German as your default locale setting
+to reproduce that in your Python interpreter:
 
 ```python
->>> print shcol.columnize(os.listdir('/'), spacing=4, sort_items=True)
-bin     home              lib64         opt     sbin       tmp
-boot    initrd.img        lost+found    proc    selinux    usr
-dev     initrd.img.old    media         root    srv        var
-etc     lib               mnt           run     sys        vmlinuz
+>>> shcol.print_columnized(['foo', 'bär', 'baz'], sort_items=True)
+bär  baz  foo
 ```
 
-...or to change the line width:
+You can see that ``shcol`` handles Unicode-characters as you would expect it.
+
+In case you need the raw columnized string you can get that directly:
 
 ```python
->>> print shcol.columnize(os.listdir('/'), max_line_width=50, sort_items=True)
-bin   initrd.img      media  run      tmp
-boot  initrd.img.old  mnt    sbin     usr
-dev   lib             opt    selinux  var
-etc   lib64           proc   srv      vmlinuz
-home  lost+found      root   sys
+>>> shcol.columnize(['foo', 'bär', 'baz'], sort_items=True)  # on Python 2.7
+u'b\xe4r  baz  foo'
+>>> shcol.columnize(['foo', 'bär', 'baz'], sort_items=True)  # on Python 3.x
+'bär  baz  foo'
 ```
 
-(Note that future versions of ``shcol`` will try to use an appropriate line
-width on their own.)
+``shcol`` has its focus on usability and speed. Even large lists will be
+rendered relatively fast (like ``shcol.print_filenames('/usr/bin')``).
 
-``shcol`` has its focus on speed, features and usability, though it is in an
-early development state. See the source code for details on what ``shcol`` is
-currently able to do for you.
+Just give it a try if you like it and feel free to give some feedback. :-)
+
 
 How to install
 --------------
 
-The preferred way is to use the simple command: ``pip install shcol``.
+To get the latest stable release (currently ``shcol 0.1`` from 2013-11-05):
+``pip install shcol``.
+
+To get the latest state of development (currently ``shcol 0.2-dev``):
+``pip install git+git://github.com/seblin/shcol.git``.
+
+Note that you need the tool ``pip`` in order to make that way of installation
+work. As an alternative you may clone this repository via
+``git clone https://github.com/seblin/shcol.git``, then ``cd`` to ``shcol``
+and run the installation via ``python setup.py install``.
