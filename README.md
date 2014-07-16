@@ -101,7 +101,9 @@ To get the latest stable release (currently ``shcol 0.1`` from 2013-11-05):
 To get the latest state of development (currently ``shcol 0.2-dev``):
 ``pip install git+git://github.com/seblin/shcol.git``.
 
-Note that you need the tool ``pip`` in order to make that way of installation
-work. As an alternative you may clone this repository via
-``git clone https://github.com/seblin/shcol.git``, then ``cd`` to ``shcol``
-and run the installation via ``python setup.py install``.
+Please note that all ``print_*``-functions as shown in the examples above will
+only work with ``shcol 0.2``. So you currently will need the development version
+if you want to use these functions. That version actually just needs more tests
+and some more docstrings to be released, though it is pretty stable right now.
+If you don't want the development version to be installed you can still pass the
+contents to be rendered to ``shcol.columnize()`` by hand.
