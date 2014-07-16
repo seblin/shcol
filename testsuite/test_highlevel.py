@@ -29,10 +29,10 @@ class PrintFilenamesTest(PrintTestBase):
     def test_get_files(self):
         # TODO: Make this test smarter
         expected = os.listdir('.')
-        result = shcol.helpers.get_files('.', False)
+        result = shcol.helpers.get_filenames(path='.', hide_dotted=False)
         self.assertEqual(result, expected)
         expected = [fn for fn in expected if not fn.startswith('.')]
-        result = shcol.helpers.get_files('.', True)
+        result = shcol.helpers.get_filenames(path='.', hide_dotted=True)
         self.assertEqual(result, expected)
 
     def test_print_filenames(self):

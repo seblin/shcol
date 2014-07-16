@@ -13,8 +13,8 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'get_decoded', 'get_sorted', 'get_files', 'get_dict', 'num', 'read_lines',
-    'exit_with_failure', 'TemporaryLocale', 'CapturedStream',
+    'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
+    'read_lines', 'exit_with_failure', 'TemporaryLocale', 'CapturedStream',
 ]
 
 try:
@@ -51,7 +51,7 @@ def get_sorted(items, sortkey=None):
     with TemporaryLocale('', locale.LC_COLLATE):
         return sorted(items, key=sortkey)
 
-def get_files(path, hide_dotted):
+def get_filenames(path, hide_dotted):
     """
     Return a sequence of the filenames in `path`. Note that this function does
     shell-like expansion of symbols such as "*", "?" or even "~" (user's home).

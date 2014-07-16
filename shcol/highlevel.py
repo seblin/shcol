@@ -27,7 +27,7 @@ def print_attrs(obj, **kwargs):
     """
     print_columnized(dir(obj), sort_items=True, **kwargs)
 
-def print_filenames(path='.', hide_dotted=True, **kwargs):
+def print_filenames(path='.', hide_dotted=config.HIDE_DOTTED, **kwargs):
     """
     Columnize filenames according to given `path` and print them
     to standard output.
@@ -38,5 +38,5 @@ def print_filenames(path='.', hide_dotted=True, **kwargs):
     Note that this function does shell-like expansion of symbols
     such as "*", "?" or even "~" (user's home).
     """
-    filenames = helpers.get_files(path, hide_dotted)
+    filenames = helpers.get_filenames(path, hide_dotted)
     print_columnized(filenames, sort_items=True, **kwargs)
