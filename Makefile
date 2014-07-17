@@ -1,7 +1,6 @@
 PY=python
-NOSE=nosetests
 
-.PHONY: install clean test test_verbose
+.PHONY: install clean test
 
 install:
 	$(PY) setup.py install
@@ -11,8 +10,4 @@ clean:
 	find . -name '*.pyc' -exec rm -f {} +
 
 test:
-	$(NOSE)
-
-test_verbose:
-	$(NOSE) --verbosity=2
-
+	$(PY) -m unittest discover testsuite
