@@ -141,8 +141,7 @@ class FormatterTest(unittest.TestCase):
         self.formatter.calculator.line_width = 50
         self.assertEqual(self.make_lines(items), expected)
         self.formatter.calculator.allow_exceeding = False
-        expected = [50 * 'ä', 40 * 'ö']
-        self.assertEqual(self.make_lines(items), expected)
+        self.assertRaises(ValueError, self.make_lines, items)
 
     def make_template(self, column_widths, spacing=2):
         props = shcol.core.LineProperties(column_widths, spacing, None)
