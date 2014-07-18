@@ -344,5 +344,7 @@ def build_formatter(
         calculator = ColumnWidthCalculator.for_mapping(spacing, line_width)
     else:
         formatter_class = IterableFormatter
-        calculator = ColumnWidthCalculator(spacing, line_width)
+        calculator = ColumnWidthCalculator(
+            spacing, line_width, allow_exceeding=(line_width is None)
+        )
     return formatter_class(calculator, sort_items=sort_items)
