@@ -98,10 +98,8 @@ class ColumnWidthCalculator(object):
             column_widths, num_lines = self.get_widths_and_lines(
                 item_widths, self.num_columns
             )
-        if not self.allow_exceeding:
-            if self.num_columns is not None or len(column_widths) == 1:
-                if not self.fits_in_line(column_widths):
-                    raise ValueError('items do not fit in line')
+        if not self.allow_exceeding and not self.fits_in_line(column_widths):
+            raise ValueError('items do not fit in line')
         return column_widths, num_lines
 
     def calculate_max_columns(self, item_widths):
