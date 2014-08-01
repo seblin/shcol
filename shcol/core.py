@@ -147,10 +147,6 @@ class ColumnWidthCalculator(object):
         total = sum(column_widths) + (len(column_widths) - 1) * self.spacing
         return total <= self.line_width
 
-    @classmethod
-    def for_mapping(cls, spacing=config.SPACING, line_width=config.LINE_WIDTH):
-        return cls(spacing, line_width, num_columns=2, allow_exceeding=False)
-
 
 class IterableFormatter(object):
     """
@@ -362,12 +358,14 @@ def build_formatter(
     `sort_items` defines whether items should be sorted.
 
     `calculator_class` defines the class to use for column width calculation.
-    It should at least implement a `get_line_properties()`-method in a similar
-    way as `ColumnWidthCalculator` does.
+    It should implement a `get_line_properties`-method and it should provide an
+    `__init__`-method with the same signature as `ColumnWidthCalculator` does.
     """
     if issubclass(items_type, collections.Mapping):
         formatter_class = MappingFormatter
-        calculator = calculator_class.for_mapping(spacing, line_width)
+        calculator = calculator_class(
+            spacing, line_width, num_columns=2, allow_exceeding=False
+        )
     else:
         formatter_class = IterableFormatter
         calculator = calculator_class(
