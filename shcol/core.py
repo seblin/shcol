@@ -337,14 +337,40 @@ class MappingFormatter(IterableFormatter):
 
 def build_formatter(
     items_type, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-    sort_items=config.SORT_ITEMS
+    sort_items=config.SORT_ITEMS, calculator_class=ColumnWidthCalculator
 ):
+    """
+    Return a new formatter instance based on the given parameters.
+
+    `items_type` defines the container type of the items that are meant to
+    be formatted (list, dict, tuple, ...). In its current implementation only
+    mapping types are special-cased by this function. All other types are just
+    treated as iterables.
+
+    `spacing` defines the number of blank characters between two columns.
+
+    `line_width` is the maximal amount of characters that fits in one line.
+    If this is set to `None` then the terminal's width is used. Note that
+    setting a numeric value to this parameter guarantees that the given
+    line width is never exceeded when rendered with columnized items. A
+    `ValueError` is thrown in cases where this guarantee can't be fulfilled
+    (e.g. at least one item is wider than the allowed line width). In
+    contrast, setting that parameter to `None` will not give that guarantee.
+    The underlying calculator is then free do decide whether throwing an
+    exception is reasonable.
+
+    `sort_items` defines whether items should be sorted.
+
+    `calculator_class` defines the class to use for column width calculation.
+    It should at least implement a `get_line_properties()`-method in a similar
+    way as `ColumnWidthCalculator` does.
+    """
     if issubclass(items_type, collections.Mapping):
         formatter_class = MappingFormatter
-        calculator = ColumnWidthCalculator.for_mapping(spacing, line_width)
+        calculator = calculator_class.for_mapping(spacing, line_width)
     else:
         formatter_class = IterableFormatter
-        calculator = ColumnWidthCalculator(
+        calculator = calculator_class(
             spacing, line_width, allow_exceeding=(line_width is None)
         )
     return formatter_class(calculator, sort_items=sort_items)
