@@ -86,10 +86,12 @@ u'b\xe4r  baz  foo'
 'bär  baz  foo'
 ```
 
-``shcol`` has its focus on usability and speed. Even large lists will be
-rendered relatively fast (like ``shcol.print_filenames('/usr/bin')``).
 
-Just give it a try if you like it and feel free to give some feedback. :-)
+Command-line interface
+----------------------
+
+``shcol``s core functionality is also available from the command-line. Just run
+the command ``shcol --help`` after installation to learn more about that.
 
 
 How to install
@@ -107,3 +109,12 @@ if you want to use these functions. That version actually just needs more tests
 and some more docstrings to be released, though it is pretty stable right now.
 If you don't want the development version to be installed you can still pass the
 contents to be rendered to ``shcol.columnize()`` by hand.
+
+
+Additional notes
+----------------
+
+``shcol`` has its focus on usability and speed. Even large lists will be
+rendered relatively fast (like ``shcol.print_filenames('/usr/bin')``).
+
+Just give it a try if you like it and feel free to give some feedback. :-)
