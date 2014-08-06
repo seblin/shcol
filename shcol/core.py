@@ -59,16 +59,16 @@ class ColumnWidthCalculator(object):
         useful when the input is just something like a list of names where the
         resulting number of columns fitting in one line is usually unknown,
         while the "fixed-mode" make sense when you have structured input where
-        the number of resulting columns is essential (e.g. in mappings). 
+        the number of resulting columns is essential (e.g. in mappings).
         
         If `allow_exceeding` is set to `True` then the calculator is allowed to
         exceed the given line width under some circumstances. Currently, this is
         done in some cases where `num_columns` is `None`: If the input for the
         calculation contains at least one item wider than the allowed line width
         then the result will consist of only one column. Depending on the value
-        of `allow_exceeding` the resulting column width will then either equal
-        to the widest item width (i.e. exceeding was allowed) or it will just be
-        the line width (i.e. exceeding was not allowed).
+        of `allow_exceeding` the resulting column width will then equal to the
+        widest item width if exceeding was allowed. Otherwise, if exceeding was
+        *not* allowed, `ValueError` will be raised instead.
         """
         self.spacing = spacing
         self.line_width = line_width
