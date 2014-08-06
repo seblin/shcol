@@ -108,7 +108,7 @@ class ColumnWidthCalculator(object):
             return [], 0
         if self.num_columns is None:
             max_columns = self.calculate_max_columns(item_widths)
-            candidates = self.get_candidates(item_widths, max_columns)
+            candidates = self.get_column_configs(item_widths, max_columns)
             for column_widths, num_lines in candidates:
                 if self.fits_in_line(column_widths):
                     return column_widths, num_lines
@@ -142,7 +142,14 @@ class ColumnWidthCalculator(object):
         possible_columns = 1 + remaining_width // min_width
         return min(num_items, possible_columns)
 
-    def get_candidates(self, item_widths, max_columns):
+    def get_column_configs(self, item_widths, max_columns):
+        """
+        Return an iterator that yields all possible "column configurations"
+        (i.e. a list of column widths) for `item_widths`. The maximum number
+        of columns is defined by `max_columns`. This is also used as an initial
+        value to find the first configuration. Subsequent configurations are
+        calculated by decreasing `max_columns` at each step.
+        """
         for num_columns in range(max_columns, 0, -1):
             yield self.get_widths_and_lines(item_widths, num_columns)
 
