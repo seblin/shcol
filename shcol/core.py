@@ -144,11 +144,16 @@ class ColumnWidthCalculator(object):
 
     def get_column_configs(self, item_widths, max_columns):
         """
-        Return an iterator that yields all possible "column configurations"
-        (i.e. a list of column widths) for `item_widths`. The maximum number
-        of columns is defined by `max_columns`. This is also used as an initial
-        value to find the first configuration. Subsequent configurations are
-        calculated by decreasing `max_columns` at each step.
+        Return an iterator that yields all possible "column configurations" for
+        `item_widths`. A configuration is a 2-element tuple consisting of a list
+        of column widths and the number of lines that are needed to display all
+        items with that configuration. The maximum number of columns is defined
+        by `max_columns`.
+        
+        Note that `max_columns` is also used to define the initial amount of
+        columns for the first configuration. Subsequent configurations are
+        calculated by decreasing that amount by one at each step until an
+        amount of zero columns is reached.
         """
         for num_columns in range(max_columns, 0, -1):
             yield self.get_widths_and_lines(item_widths, num_columns)
