@@ -160,6 +160,12 @@ class ColumnWidthCalculator(object):
 
     @staticmethod
     def get_widths_and_lines(item_widths, num_columns):
+        """
+        Calulate column widths based on `item_widths` for an amount of
+        `num_columns` per line. The resulting column widths are represented
+        as a list of positive integers. This list and the number of lines
+        needed to display all items is returned as a 2-element tuple.
+        """
         num_items = len(item_widths)
         num_lines = num_items // num_columns + bool(num_items % num_columns)
         column_widths = [
