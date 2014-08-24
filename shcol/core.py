@@ -279,7 +279,7 @@ class IterableFormatter(object):
             tuple(items[i::props.num_lines]) for i in range(props.num_lines)
         ]
 
-    def make_line_template(self, props, num=None):
+    def make_line_template(self, props, num_columns=None):
         """
         Return a string meant to be used as a formatting template for *one* line
         of columnized output. The template will be suitable for old-style string
@@ -290,8 +290,13 @@ class IterableFormatter(object):
         the information of `props.column_widths`. In the resulting template the
         specifiers are joined by using a separator with a `props.spacing` number
         of blank characters.
+
+        `num_columns` defines the number of columns that the resulting template
+        should cover. If `None` is used then all items of `props.columns_widths`
+        are taken into account. Otherwise, the resulting format string will only
+        hold specifiers for the first `num_columns`.
         """
-        widths = props.column_widths[:num]
+        widths = props.column_widths[:num_columns]
         if not widths:
             return ''
         parts = [self.get_padded_template(width) for width in widths[:-1]]
