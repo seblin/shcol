@@ -68,3 +68,9 @@ else:
             fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
         )
         return WinSize.from_buffer_copy(result).ws_col
+
+get_terminal_width.__doc__ = (
+    """
+    Return the current width of the (pseudo-)terminal connected to `fd`.
+    """
+)
