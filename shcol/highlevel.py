@@ -23,8 +23,19 @@ def print_columnized(items, *args, **kwargs):
     result = core.columnize(items, *args, **kwargs)
     print(result, file=config.PRINT_STREAM)
 
-def print_columnized_mapping(mapping, **kwargs):
-    print_columnized(helpers.get_dict(mapping), **kwargs)
+def print_columnized_mapping(items, **kwargs):
+    """
+    Like `print_columnized()` but expects `items` to be given as a mapping.
+    
+    Alternatively, `items` may be given as an iterable of 2-element tuples.
+    In that case each tuple will be interpreted as a "key-value pair" just 
+    like it would have been provided by a mapping.
+    
+    In both cases a string with exactly two columns (i.e. one for the keys
+    and one for the values) is returned. Note that an exception will occur
+    if the result would exceed the allowed line width.
+    """
+    print_columnized(helpers.get_dict(items), **kwargs)
 
 def print_attrs(obj, **kwargs):
     """
