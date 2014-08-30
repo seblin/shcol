@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*
+# Copyright (c) 2013-2014, Sebastian Linke
+
+# Released under the Simplified BSD license 
+# (see LICENSE file for details).
+
 from __future__ import unicode_literals
 import collections
 import itertools
