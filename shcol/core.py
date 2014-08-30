@@ -62,13 +62,11 @@ class ColumnWidthCalculator(object):
         the number of resulting columns is essential (e.g. in mappings).
         
         If `allow_exceeding` is set to `True` then the calculator is allowed to
-        exceed the given line width under some circumstances. Currently, this is
-        done in some cases where `num_columns` is `None`: If the input for the
-        calculation contains at least one item wider than the allowed line width
-        then the result will consist of only one column. Depending on the value
-        of `allow_exceeding` the resulting column width will then equal to the
-        widest item width if exceeding was allowed. Otherwise, if exceeding was
-        *not* allowed, `ValueError` will be raised instead.
+        exceed the given line width in cases where `num_columns` is `None` *and*
+        at least one item of the input is wider than the allowed line width. The
+        result will then consist of only one column and that column's width will
+        equal to the widest item's width. Note that in all other constellations
+        a `ValueError` will be raised instead.
         """
         self.spacing = spacing
         self.line_width = line_width
