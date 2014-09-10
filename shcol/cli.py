@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
 # Released under the Simplified BSD license 
@@ -72,13 +72,12 @@ class ArgumentParser(argparse.ArgumentParser):
         return args
 
 
-def main(cmd_args=None, prog_name='shcol', version=None):
-    if version is None:
-        version = __version__
+def main(cmd_args=None, prog_name='shcol', version=__version__):
     args = ArgumentParser(prog_name, version).parse_args()
     try:
         highlevel.print_columnized(
-            args.items, args.spacing, args.width, args.sort
+            args.items, spacing=args.spacing,
+            line_width=args.width, sort_items=args.sort
         )
     except UnicodeEncodeError:
         msg = '{}: error: this input could not be encoded'

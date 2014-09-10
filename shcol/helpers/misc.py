@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
 # Released under the Simplified BSD license 
@@ -21,7 +21,7 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
+    'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
     'read_lines', 'exit_with_failure', 'TemporaryLocale', 'CapturedStream',
 ]
 

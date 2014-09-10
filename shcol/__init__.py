@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
 # Released under the Simplified BSD license 

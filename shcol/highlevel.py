@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*
+# -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
 # Released under the Simplified BSD license 
@@ -15,13 +15,13 @@ __all__ = [
     'print_filenames'
 ]
 
-def print_columnized(items, *args, **kwargs):
+def print_columnized(items, print_stream=config.PRINT_STREAM, **kwargs):
     """
     Shortcut to show the columnized `items` on standard output.
     Takes the same arguments as `columnize()`.
     """
-    result = core.columnize(items, *args, **kwargs)
-    print(result, file=config.PRINT_STREAM)
+    result = core.columnize(items, **kwargs)
+    print(result, file=print_stream)
 
 def print_columnized_mapping(items, **kwargs):
     """
@@ -44,7 +44,7 @@ def print_attrs(obj, **kwargs):
     """
     print_columnized(dir(obj), sort_items=True, **kwargs)
 
-def print_filenames(path='.', hide_dotted=config.HIDE_DOTTED, **kwargs):
+def print_filenames(path='.', hide_dotted=False, **kwargs):
     """
     Columnize filenames according to given `path` and print them
     to standard output.

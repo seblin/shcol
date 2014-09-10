@@ -1,31 +1,42 @@
-import unittest
+import functools
 import os
 import shcol
+import unittest
 
-class PrintTestBase(unittest.TestCase):
-    def get_output(self, func, *args, **kwargs):
-        with shcol.helpers.CapturedStream('PRINT_STREAM') as outstream:
-            func(*args, **kwargs)
-            return outstream.getvalue()
+class PrintFunctionTestCase(unittest.TestCase):
+    def __getattr__(self, name):
+        if name.startswith('print_') and hasattr(shcol, name):
+            func = getattr(shcol, name)
+            return functools.partial(func, print_stream=self.pseudo_stream)
+        return object.__getattr__(self, name)
 
-class PrintColumnizedTest(PrintTestBase):
+    def setUp(self):
+        self.pseudo_stream = shcol.helpers.StringIO()
+
+    def tearDown(self):
+        self.pseudo_stream = None
+
+    def get_output(self):
+        return self.pseudo_stream.getvalue()
+
+class PrintColumnizedTest(PrintFunctionTestCase):
     def test_items(self):
         items = ['spam', 'ham', 'eggs']
         expected = '  '.join(items) + '\n'
-        result = self.get_output(shcol.print_columnized, items)
-        self.assertEqual(result, expected)
+        self.print_columnized(items)
+        self.assertEqual(self.get_output(), expected)
 
     def test_no_items(self):
-        result = self.get_output(shcol.print_columnized, [])
-        self.assertEqual(result, '\n')
+        self.print_columnized([])
+        self.assertEqual(self.get_output(), '\n')
 
-class PrintAttrsTest(PrintTestBase):
+class PrintAttrsTest(PrintFunctionTestCase):
     def test_print_attrs(self):
         expected = shcol.columnize(dir(shcol), sort_items=True) + '\n'
-        result = self.get_output(shcol.print_attrs, shcol)
-        self.assertEqual(result, expected)
+        self.print_attrs(shcol)
+        self.assertEqual(self.get_output(), expected)
 
-class PrintFilenamesTest(PrintTestBase):
+class PrintFilenamesTest(PrintFunctionTestCase):
     def test_get_files(self):
         expected = os.listdir('.')
         result = shcol.helpers.get_filenames(path='.', hide_dotted=False)
@@ -37,9 +48,11 @@ class PrintFilenamesTest(PrintTestBase):
     def test_print_filenames(self):
         filenames = os.listdir('.')
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
-        result = self.get_output(shcol.print_filenames, hide_dotted=False)
-        self.assertEqual(result, expected)
-        filenames = [fn for fn in filenames if not fn.startswith('.')]
+        self.print_filenames()
+        self.assertEqual(self.get_output(), expected)
+
+    def test_hide_dotted(self):
+        filenames = [fn for fn in os.listdir('.') if not fn.startswith('.')]
         expected = shcol.columnize(filenames, sort_items=True) + '\n'
-        result = self.get_output(shcol.print_filenames, hide_dotted=True)
-        self.assertEqual(result, expected)
+        self.print_filenames(hide_dotted=True)
+        self.assertEqual(self.get_output(), expected)
