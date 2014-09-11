@@ -35,12 +35,12 @@ def get_decoded(items, encoding):
     Return an iterator that yields all elements of `items` as unicode-strings.
     If `items` contains byte-strings then each of these strings is decoded to
     unicode by using the codec name specified by `encoding`. Items that are
-    already unicode-strings are left unchanged. A `TypeError` is raised if
-    `items` contains non-string elements.
+    already unicode-strings are left unchanged. A `TypeError` is raised if a
+    non-string item is encountered.
     """
     for item in items:
         if not isinstance(item, STRING_TYPES):
-            raise TypeError('all items must be strings')
+            raise TypeError('encountered non-string item')
         if isinstance(item, bytes):
             item = item.decode(encoding)
         yield item
@@ -48,9 +48,9 @@ def get_decoded(items, encoding):
 def get_sorted(items, sortkey=None):
     """
     Sort given `items` in a locale-aware manner (i.e. ordering with respect to
-    non-ascii characters that are specific to the current locale). Note that
-    calling this function may temporary change the interpreter's global locale
-    configuration and thus is not thread-safe.
+    characters that are specific to the current locale). Note that calling this
+    function temporary changes the interpreter's global locale configuration and
+    thus is not thread-safe.
 
     Use `sortkey` if you want to provide your own key to be used for sorting.
     """
@@ -61,7 +61,7 @@ def get_sorted(items, sortkey=None):
 
 def get_filenames(path, hide_dotted):
     """
-    Return a sequence of the filenames in `path`. Note that this function does
+    Return an iterator of the filenames in `path`. Note that this function does
     shell-like expansion of symbols such as "*", "?" or even "~" (user's home).
 
     `hide_dotted` defines whether to exclude filenames starting with a ".".
@@ -74,8 +74,8 @@ def get_filenames(path, hide_dotted):
         if not filenames:
             raise err
     if hide_dotted:
-        filenames = [fn for fn in filenames if not fn.startswith('.')]
-    return filenames
+        filenames = (fn for fn in filenames if not fn.startswith('.'))
+    return iter(filenames)
 
 def get_dict(mapping):
     """

@@ -8,7 +8,7 @@ class PrintFunctionTestCase(unittest.TestCase):
         if name.startswith('print_') and hasattr(shcol, name):
             func = getattr(shcol, name)
             return functools.partial(func, print_stream=self.pseudo_stream)
-        return object.__getattr__(self, name)
+        return unittest.TestCase.__getattr__(self, name)
 
     def setUp(self):
         self.pseudo_stream = shcol.helpers.StringIO()
@@ -40,10 +40,10 @@ class PrintFilenamesTest(PrintFunctionTestCase):
     def test_get_files(self):
         expected = os.listdir('.')
         result = shcol.helpers.get_filenames(path='.', hide_dotted=False)
-        self.assertEqual(result, expected)
+        self.assertEqual(list(result), expected)
         expected = [fn for fn in expected if not fn.startswith('.')]
         result = shcol.helpers.get_filenames(path='.', hide_dotted=True)
-        self.assertEqual(result, expected)
+        self.assertEqual(list(result), expected)
 
     def test_print_filenames(self):
         filenames = os.listdir('.')
