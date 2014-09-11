@@ -4,22 +4,24 @@
 # Released under the Simplified BSD license 
 # (see LICENSE file for details).
 
-from __future__ import print_function
+"""
+Highlevel functions to support some cases where columnizing can be useful.
+"""
 
-import collections
+from __future__ import print_function
 
 from . import config, core, helpers
 
 __all__ = [
-    'print_columnized', 'print_columnized_mapping', 'print_attrs',
+    'print_columnized', 'print_columnized_mapping', 'print_attr_names',
     'print_filenames'
 ]
 
 def print_columnized(items, print_stream=config.PRINT_STREAM, **kwargs):
     """
-    Shortcut for writing columnized `items` to `print_stream` (standard output
-    by default). Additional keyword-arguments are passed as is to the underlying
-    `columnize()`-function and are interpreted there.
+    Shorthand for writing columnized `items` to `print_stream` (standard output
+    by default). Note that additional keyword-arguments are passed as is to the
+    underlying `columnize()`-function and are interpreted there.
     """
     result = core.columnize(items, **kwargs)
     print(result, file=print_stream)
@@ -38,23 +40,18 @@ def print_columnized_mapping(items, **kwargs):
     """
     print_columnized(helpers.get_dict(items), **kwargs)
 
-def print_attrs(obj, **kwargs):
+def print_attr_names(obj, **kwargs):
     """
-    Similar to the `dir()`-builtin but sort the resulting names
-    and print them columnized to standard output.
+    Like `print_columnized()` but columnizes the attribute names of `obj`.
     """
     print_columnized(dir(obj), sort_items=True, **kwargs)
 
 def print_filenames(path='.', hide_dotted=False, **kwargs):
     """
-    Columnize filenames according to given `path` and print them
-    to standard output.
-
-    `hide_dotted` defines whether to exclude filenames starting
-    with a "." from the result.
-
-    Note that this function does shell-like expansion of symbols
-    such as "*", "?" or even "~" (user's home).
+    Like `print_columnized()` but columnizes the filenames living in given
+    `path`. If `hide_dotted` is `True` then all filenames starting with a "."
+    are excluded from the result. Note that this function does shell-like
+    expansion of symbols such as "*", "?" or even "~" (user's home).
     """
     filenames = helpers.get_filenames(path, hide_dotted)
     print_columnized(filenames, sort_items=True, **kwargs)

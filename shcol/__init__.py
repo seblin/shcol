@@ -24,14 +24,14 @@ testsuite/test_core.py  testsuite/test_script.py
 bin    .git     Makefile     README.md  shcol
 build  LICENSE  MANIFEST.in  setup.py   testsuite
 
-`shcol` can also columnize the names of a Python-object:
+`shcol` can also columnize the attribute names of a Python-object:
 
->>> shcol.print_attrs(shcol)
+>>> shcol.print_attr_names(shcol)
 __author__    config    helpers      __package__       print_columnized_mapping
 __builtins__  core      highlevel    __path__          print_filenames
 cli           __doc__   __license__  print_attrs       __version__
 columnize     __file__  __name__     print_columnized
->>> shcol.print_attrs(shcol, spacing=5)
+>>> shcol.print_attr_names(shcol, spacing=5)
 __author__       core          __license__     print_columnized
 __builtins__     __doc__       __name__        print_columnized_mapping
 cli              __file__      __package__     print_filenames
@@ -44,7 +44,7 @@ Note that the `spacing`-parameter as shown above works with all kinds of
 You can also tell a `print_*`-function to use a specific line width for
 its output:
 
->>> shcol.print_attrs(shcol, spacing=5, line_width=60)
+>>> shcol.print_attr_names(shcol, spacing=5, line_width=60)
 __author__       __file__        print_attrs
 __builtins__     helpers         print_columnized
 cli              highlevel       print_columnized_mapping

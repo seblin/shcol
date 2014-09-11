@@ -30,10 +30,10 @@ class PrintColumnizedTest(PrintFunctionTestCase):
         self.print_columnized([])
         self.assertEqual(self.get_output(), '\n')
 
-class PrintAttrsTest(PrintFunctionTestCase):
-    def test_print_attrs(self):
+class PrintAttrNamesTest(PrintFunctionTestCase):
+    def test_print_attr_names(self):
         expected = shcol.columnize(dir(shcol), sort_items=True) + '\n'
-        self.print_attrs(shcol)
+        self.print_attr_names(shcol)
         self.assertEqual(self.get_output(), expected)
 
 class PrintFilenamesTest(PrintFunctionTestCase):
