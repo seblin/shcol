@@ -4,6 +4,10 @@
 # Released under the Simplified BSD license 
 # (see LICENSE file for details).
 
+"""
+Classes and functions providing the core functionality of `shcol`.
+"""
+
 from __future__ import unicode_literals
 import collections
 import itertools
@@ -57,8 +61,9 @@ class ColumnWidthCalculator(object):
         
         `spacing` defines the number of blanks between two columns.
         
-        `line_width` is the maximal amount of characters that fits in one line.
-        
+        `line_width` is the maximal amount of characters that fit in one line.
+        If this is `None` then the terminal's width is used.
+
         `num_columns` defines a fixed number of columns to be used for column
         width calculation. This can be `None` to let the calculator decide about
         the number of columns on its own. Note that the "`None`-mode" is often
@@ -75,14 +80,28 @@ class ColumnWidthCalculator(object):
         a `ValueError` will be raised instead.
         """
         self.spacing = spacing
-        self.line_width = line_width
-        if self.line_width is None:
-            try:
-                self.line_width = helpers.get_terminal_width()
-            except (IOError, OSError):
-                self.line_width = config.LINE_WIDTH_FALLBACK
+        self._line_width = line_width
         self.num_columns = num_columns
         self.allow_exceeding = allow_exceeding
+
+    @property
+    def line_width(self):
+        """
+        Return the line width used by this calculator.
+        """
+        if self._line_width is None:
+            try:
+                return helpers.get_terminal_width()
+            except (IOError, OSError):
+                return config.LINE_WIDTH_FALLBACK
+        return self._line_width
+
+    @line_width.setter
+    def line_width(self, width):
+        """
+        Set the line width to be used by this calculator.
+        """
+        self._line_width = width
 
     def get_line_properties(self, items):
         """
