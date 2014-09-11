@@ -17,8 +17,9 @@ __all__ = [
 
 def print_columnized(items, print_stream=config.PRINT_STREAM, **kwargs):
     """
-    Shortcut to show the columnized `items` on standard output.
-    Takes the same arguments as `columnize()`.
+    Shortcut for writing columnized `items` to `print_stream` (standard output
+    by default). Additional keyword-arguments are passed as is to the underlying
+    `columnize()`-function and are interpreted there.
     """
     result = core.columnize(items, **kwargs)
     print(result, file=print_stream)
