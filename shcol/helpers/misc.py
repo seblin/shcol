@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
-# Released under the Simplified BSD license 
+# Released under the Simplified BSD license
 # (see LICENSE file for details).
 
 from __future__ import print_function
@@ -22,7 +22,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
-    'read_lines', 'exit_with_failure', 'TemporaryLocale', 'CapturedStream',
+    'read_lines', 'TemporaryLocale'
 ]
 
 try:
@@ -101,27 +101,18 @@ def num(s):
         raise ValueError('number must be non-negative')
     return number
 
-def read_lines(stream, column_index=None, linesep=config.LINESEP):
+def read_lines(stream=sys.stdin, column_index=None):
     """
     Return an iterator that yields all lines from `stream` removing any trailing
-    "\n"-characters per line. `column_index` may be used to restrict reading to
-    a specific column per line. Note that the index value is interpreted as an
-    ordinary Python index. A column is defined as a sequence of non-whitespace
-    characters. The column seperator is whitespace.
+    "\n"-characters per line. `column_index` will be interpreted as an ordinary
+    Python index and may be used to restrict reading to a specific column per
+    line. A column is defined as a sequence of non-whitespace characters. The
+    column seperator is whitespace.
     """
     lines = (line.rstrip('\n') for line in stream)
     if column_index is not None:
         lines = (line.split()[column_index] for line in lines)
     return lines
-
-def exit_with_failure(msg=None):
-    """
-    Exit the application with exit code 1. If `msg` is given then its text is
-    printed to the standard error stream.
-    """
-    if msg is not None:
-        print(msg, file=sys.stderr)
-    sys.exit(1)
 
 
 class TemporaryLocale(object):
@@ -174,48 +165,3 @@ class TemporaryLocale(object):
 
     def __exit__(self, *unused):
         self.unset()
-
-
-class CapturedStream(object):
-    """
-    A class to temporary redirect data for a stream.
-    """
-    stream_locations = {
-        'stdin': sys,
-        'stdout': sys,
-        'stderr': sys,
-        'PRINT_STREAM': config,
-    }
-
-    def __init__(self, stream_name):
-        """
-        Create a new `CapturedStream`. Use `stream_name` to define the name of
-        the stream whose data should be captured. This must be one of "stdin",
-        "stdout", "stderr" or "PRINT_STREAM" in order to work.
-        """
-        if stream_name not in self.stream_locations:
-            raise ValueError('Unknown stream name: {}'.format(stream_name))
-        self.stream_name = stream_name
-        self.location = self.stream_locations[stream_name]
-        self.original_stream = getattr(self.location, stream_name)
-
-    def capture(self):
-        """
-        Start capturing. A new `StringIO`-instance that fetches all data for the
-        desired stream is created and returned.
-        """
-        pseudo_stream = StringIO()
-        setattr(self.location, self.stream_name, pseudo_stream)
-        return pseudo_stream
-
-    def uncapture(self):
-        """
-        Stop capturing. This will restore control by the original stream.
-        """
-        setattr(self.location, self.stream_name, self.original_stream)
-
-    def __enter__(self):
-        return self.capture()
-
-    def __exit__(self, *unused):
-        self.uncapture()

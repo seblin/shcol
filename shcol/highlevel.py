@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
-# Released under the Simplified BSD license 
+# Released under the Simplified BSD license
 # (see LICENSE file for details).
 
 """
@@ -17,14 +17,14 @@ __all__ = [
     'print_filenames'
 ]
 
-def print_columnized(items, print_stream=config.PRINT_STREAM, **kwargs):
+def print_columnized(items, output_stream=config.OUTPUT_STREAM, **kwargs):
     """
-    Shorthand for writing columnized `items` to `print_stream` (standard output
-    by default). Note that additional keyword-arguments are passed as is to the
-    underlying `columnize()`-function and are interpreted there.
+    Shorthand for writing columnized `items` to `output_stream`. Additional
+    keyword-arguments are passed as is to the underlying `columnize()`-function
+    and are interpreted there.
     """
     result = core.columnize(items, **kwargs)
-    print(result, file=print_stream)
+    print(result, file=output_stream)
 
 def print_columnized_mapping(items, **kwargs):
     """

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
-# Released under the Simplified BSD license 
+# Released under the Simplified BSD license
 # (see LICENSE file for details).
 
 import argparse
@@ -12,8 +12,11 @@ from . import __version__, config, helpers, highlevel
 __all__ = ['main']
 
 class ArgumentParser(argparse.ArgumentParser):
-    def __init__(self, prog_name, version):
-        self._version_string = '{} {}'.format(prog_name, version)
+    def __init__(
+        self, prog_name, version, stdin=config.INPUT_STREAM,
+        stdout=config.OUTPUT_STREAM, stderr=config.ERROR_STREAM
+    ):
+        self.version_string = '{} {}'.format(prog_name, version)
         argparse.ArgumentParser.__init__(
             self, prog=prog_name, formatter_class=argparse.RawTextHelpFormatter,
             description='Generate columnized output for given string items.\n\n'
@@ -23,7 +26,17 @@ class ArgumentParser(argparse.ArgumentParser):
             '(shcol -S -c0) < /proc/modules\n'
             'dpkg --get-selections \'python3*\' | shcol -c0 -s4'
         )
+        self.stdin = stdin
+        self.stdout = stdout
+        self.stderr = stderr
         self.init_arguments()
+
+    def _print_message(self, message, stream=None):
+        if stream is sys.stdout:
+            stream = self.stdout
+        elif stream is sys.stderr:
+            stream = self.stderr
+        argparse.ArgumentParser._print_message(self, message, file=stream)
 
     def init_arguments(self):
         self.add_argument(
@@ -47,38 +60,39 @@ class ArgumentParser(argparse.ArgumentParser):
             help='sort the items'
         )
         self.add_argument(
-            '-c', '--column', metavar='N', type=helpers.num,
-            dest='column_index',
+            '-c', '--column', metavar='N', type=helpers.num, dest='column',
             help='choose a specific column per line via an index value\n'
                  '(indices start at 0, column seperator is whitespace)'
         )
         self.add_argument(
-            '-v', '--version', action='version', version=self._version_string
+            '-v', '--version', action='version', version=self.version_string
         )
 
     def parse_args(self, args=None, namespace=None):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
             try:
-                items = helpers.read_lines(sys.stdin, args.column_index)
-                args.items = list(items)
+                args.items = list(
+                    helpers.read_lines(
+                        stream=self.stdin, column_index=args.column
+                    )
+                )
             except IndexError:
                 msg = '{}: error: failed to fetch data for column at index {}'
-                helpers.exit_with_failure(
-                    msg.format(self.prog, args.column_index)
-                )
+                self.exit(1, msg.format(self.prog, args.column))
             except KeyboardInterrupt:
-                helpers.exit_with_failure()
+                self.exit(1)
         return args
 
 
 def main(cmd_args=None, prog_name='shcol', version=__version__):
-    args = ArgumentParser(prog_name, version).parse_args()
+    parser = ArgumentParser(prog_name, version)
+    args = parser.parse_args(cmd_args)
     try:
         highlevel.print_columnized(
             args.items, spacing=args.spacing,
             line_width=args.width, sort_items=args.sort
         )
     except UnicodeEncodeError:
-        msg = '{}: error: this input could not be encoded'
-        helpers.exit_with_failure(msg.format(prog_name))
+        msg = '{}: error: failed to decode input'
+        parser.exit(1, msg.format(prog_name))
