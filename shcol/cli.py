@@ -71,28 +71,26 @@ class ArgumentParser(argparse.ArgumentParser):
     def parse_args(self, args=None, namespace=None):
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
-            try:
-                args.items = list(
-                    helpers.read_lines(
-                        stream=self.stdin, column_index=args.column
-                    )
-                )
-            except IndexError:
-                msg = '{}: error: failed to fetch data for column at index {}'
-                self.exit(1, msg.format(self.prog, args.column))
-            except KeyboardInterrupt:
-                self.exit(1)
+            args.items = helpers.get_lines(self.stdin)
+        if args.column is not None:
+            args.items = helpers.get_column(args.column, args.items)
+        try:
+            # Walk through the iterator
+            args.items = list(args.items)
+        except IndexError:
+            msg = 'failed to fetch input for column at index {}'
+            self.error(msg.format(args.column))
+        except KeyboardInterrupt:
+            self.exit(1)
         return args
 
-
-def main(cmd_args=None, prog_name='shcol', version=__version__):
+def main(args=None, prog_name='shcol', version=__version__):
     parser = ArgumentParser(prog_name, version)
-    args = parser.parse_args(cmd_args)
+    args = parser.parse_args(args)
     try:
         highlevel.print_columnized(
             args.items, spacing=args.spacing,
             line_width=args.width, sort_items=args.sort
         )
     except UnicodeEncodeError:
-        msg = '{}: error: failed to decode input'
-        parser.exit(1, msg.format(prog_name))
+        parser.error('failed to encode input')

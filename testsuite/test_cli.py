@@ -35,14 +35,14 @@ class ArgumentParserTest(unittest.TestCase):
         args = self.parser.parse_args([])
         self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
 
-    def _test_num_option(self, long_option, short_option):
+    def _test_num_option(self, long_option, short_option, items=['spam']):
         option_name = long_option.lstrip('-')
         for option_string in (long_option, short_option):
             for value in ('0', '2', '80', '100'):
-                args = self.parser.parse_args([option_string, value, 'spam'])
+                args = self.parser.parse_args([option_string, value] + items)
                 self.assertEqual(getattr(args, option_name), int(value))
             for invalid in ('-42', '-1', '1.0', 'x'):
-                error = self.get_error_message([option_string, invalid, 'spam'])
+                error = self.get_error_message([option_string, invalid] + items)
                 self.assertIn('invalid num value', error)
 
     def test_spacing_option(self):
@@ -56,7 +56,7 @@ class ArgumentParserTest(unittest.TestCase):
         self.assertTrue(args.sort)
 
     def test_column_option(self):
-        self._test_num_option('--column', '-c')
+        self._test_num_option('--column', '-c', items=['spam ' * 1000])
 
     def test_second_column(self):
         self.parser.stdin = shcol.helpers.StringIO(
@@ -70,4 +70,4 @@ class ArgumentParserTest(unittest.TestCase):
             'xxx spam\nzzz ham\n~~~ eggs'
         )
         error = self.get_error_message(['-c', '42'])
-        self.assertIn('failed to fetch data', error)
+        self.assertIn('failed to fetch input', error)

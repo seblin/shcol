@@ -11,7 +11,6 @@ import functools
 import glob
 import locale
 import os
-import sys
 
 try:
     from StringIO import StringIO
@@ -22,7 +21,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
-    'read_lines', 'TemporaryLocale'
+    'get_lines', 'get_column', 'TemporaryLocale'
 ]
 
 try:
@@ -79,7 +78,7 @@ def get_filenames(path, hide_dotted):
 
 def get_dict(mapping):
     """
-    Return `mapping` as a dictionary. If mapping is already a `Mapping`-type
+    Return `mapping` as a dictionary. If `mapping` is already a mapping-type
     then it is returned unchanged. Otherwise it is converted to an `OrderedDict`
     to preserve the ordering of its items. Typical candidates for this function
     are sequences of 2-element tuples (defining the mapping's items). In fact,
@@ -101,18 +100,21 @@ def num(s):
         raise ValueError('number must be non-negative')
     return number
 
-def read_lines(stream=sys.stdin, column_index=None):
+def get_lines(source):
     """
-    Return an iterator that yields all lines from `stream` removing any trailing
-    "\n"-characters per line. `column_index` will be interpreted as an ordinary
-    Python index and may be used to restrict reading to a specific column per
-    line. A column is defined as a sequence of non-whitespace characters. The
-    column seperator is whitespace.
+    Return an iterator that yields all lines from `source`. Note that the
+    resulting lines will not contain any trailing "\n"-characters.
     """
-    lines = (line.rstrip('\n') for line in stream)
-    if column_index is not None:
-        lines = (line.split()[column_index] for line in lines)
-    return lines
+    return (line.rstrip('\n') for line in source)
+
+def get_column(column_index, source):
+    """
+    Return the content of a specific column linewise by using `column_index`.
+    A column is defined as a sequence of non-whitespace characters. The column
+    seperator is whitespace. `source` is expected to yield the lines to be
+    processed.
+    """
+    return (line.split()[column_index] for line in source)
 
 
 class TemporaryLocale(object):
