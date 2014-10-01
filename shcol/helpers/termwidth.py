@@ -14,7 +14,7 @@ from .. import config
 __all__ = ['get_terminal_width']
 
 if hasattr(os, 'get_terminal_size'):
-    def get_terminal_width(fd=config.TERMINAL_FD):
+    def terminal_width_impl(fd):
         # New in Python >= 3.3
         return os.get_terminal_size(fd).columns
 
@@ -67,14 +67,14 @@ else:
             ('ws_ypixel', ctypes.c_ushort)
         ]
 
-    def get_terminal_width(fd=config.TERMINAL_FD):
-        if any([
-            # `termios` not guaranteed to be available on all Unix-like systems
-            not 'termios' in sys.modules,
-            # Do not assume `TIOCGWINSZ` to be available on all systems
-            not hasattr(termios, 'TIOCGWINSZ'),
-            # Python-2.7-compatible `pypy`-interpreters lack this
-            not hasattr(ctypes.Structure, 'from_buffer_copy')
+    def terminal_width_impl(fd):
+        if not all([
+            # `termios` is not available on all non-Windows systems
+            'termios' in sys.modules,
+            # `TIOCGWINSZ` must be defined
+            hasattr(termios, 'TIOCGWINSZ'),
+            # Python-2.7-compatible `pypy`-interpreter lacks this
+            hasattr(ctypes.Structure, 'from_buffer_copy')
         ]):
             raise OSError('unsupported platform')
         result = fcntl.ioctl(
@@ -82,8 +82,12 @@ else:
         )
         return WinSize.from_buffer_copy(result).ws_col
 
-get_terminal_width.__doc__ = (
+def get_terminal_width(fd=config.TERMINAL_FD, get_width=terminal_width_impl):
     """
-    Return the current width of the (pseudo-)terminal connected to `fd`.
+    Return the current width of the (pseudo-)terminal connected to the file
+    descriptor `fd`.
+
+    `get_width` should be a callable that provides a concrete implementation for
+    getting the terminal's width. It is assumed to take `fd` as a parameter.
     """
-)
+    return get_width(fd)
