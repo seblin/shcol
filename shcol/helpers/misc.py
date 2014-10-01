@@ -156,7 +156,7 @@ class TemporaryLocale(object):
             if self.fail_on_locale_error:
                 raise err
 
-    def unset(self, *unused):
+    def unset(self):
         """
         Unset the temporary locale and restore the old locale settings.
         """

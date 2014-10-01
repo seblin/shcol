@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013-2014, Sebastian Linke
 
-# Released under the Simplified BSD license 
+# Released under the Simplified BSD license
 # (see LICENSE file for details).
 
 import ctypes
@@ -68,7 +68,14 @@ else:
         ]
 
     def get_terminal_width(fd=config.TERMINAL_FD):
-        if not 'termios' in sys.modules or not hasattr(termios, 'TIOCGWINSZ'):
+        if any([
+            # `termios` not guaranteed to be available on all Unix-like systems
+            not 'termios' in sys.modules,
+            # Do not assume `TIOCGWINSZ` to be available on all systems
+            not hasattr(termios, 'TIOCGWINSZ'),
+            # Python-2.7-compatible `pypy`-interpreters lack this
+            not hasattr(ctypes.Structure, 'from_buffer_copy')
+        ]):
             raise OSError('unsupported platform')
         result = fcntl.ioctl(
             fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
