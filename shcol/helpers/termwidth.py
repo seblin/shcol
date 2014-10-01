@@ -44,7 +44,7 @@ elif platform.system() == 'Windows':
         ctypes.POINTER(ConsoleScreenBufferInfo),
     ]
 
-    def get_terminal_width(fd=config.TERMINAL_FD):
+    def terminal_width_impl(fd):
         num_handle = -(10 + fd)
         handle = GetStdHandle(num_handle)
         csbi = ctypes.pointer(ConsoleScreenBufferInfo())
