@@ -110,9 +110,8 @@ class ArgumentParser(argparse.ArgumentParser):
         try:
             # Walk through the iterator
             args.items = list(args.items)
-        except IndexError:
-            msg = 'failed to fetch input for column at index {}'
-            self.error(msg.format(args.column))
+        except IndexError as e:
+            self.error(e.message)
         except KeyboardInterrupt:
             self.exit(1, '\n')
         return args

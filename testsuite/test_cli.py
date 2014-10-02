@@ -76,4 +76,4 @@ class ArgumentParserTest(unittest.TestCase):
             'xxx spam\nzzz ham\n~~~ eggs'
         )
         error = self.get_error_message(['-c', '42'])
-        self.assertIn('failed to fetch input', error)
+        self.assertIn('no data for column index', error)

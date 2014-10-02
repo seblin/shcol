@@ -97,13 +97,13 @@ def num(s):
     """
     number = int(s)
     if number < 0:
-        raise ValueError('number must be non-negative')
+        raise ValueError('value must be non-negative')
     return number
 
 def get_lines(source):
     """
     Return an iterator that yields all lines from `source`. Note that the
-    resulting lines will not contain any trailing "\n"-characters.
+    resulting lines will not contain any trailing "\\n"-characters.
     """
     return (line.rstrip('\n') for line in source)
 
@@ -113,8 +113,20 @@ def get_column(column_index, source):
     A column is defined as a sequence of non-whitespace characters. The column
     seperator is whitespace. `source` is expected to yield the lines to be
     processed.
+
+    Note that `column_index` must be a non-negative integer. If the iterator
+    encounters a line that has not enough columns for the desired `column_index`
+    then `IndexError` will be thrown. Lines with no columns are ignored.
     """
-    return (line.split()[column_index] for line in source)
+    column_index = num(column_index)
+    for num_line, line in enumerate(source, 1):
+        columns = line.split()
+        if not columns:
+            continue
+        if column_index >= len(columns):
+            msg = 'no data for column index {} at line #{}'
+            raise IndexError(msg.format(column_index, num_line))
+        yield columns[column_index]
 
 
 class TemporaryLocale(object):
