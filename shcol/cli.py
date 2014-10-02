@@ -114,7 +114,7 @@ class ArgumentParser(argparse.ArgumentParser):
             msg = 'failed to fetch input for column at index {}'
             self.error(msg.format(args.column))
         except KeyboardInterrupt:
-            self.exit(1)
+            self.exit(1, '\n')
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):
