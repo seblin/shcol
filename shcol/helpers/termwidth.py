@@ -4,6 +4,10 @@
 # Released under the Simplified BSD license
 # (see LICENSE file for details).
 
+"""
+Detect terminal width on different platforms.
+"""
+
 import ctypes
 import os
 import platform

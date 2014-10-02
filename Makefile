@@ -1,3 +1,8 @@
+# Copyright (c) 2013-2014, Sebastian Linke
+
+# Released under the Simplified BSD license
+# (see LICENSE file for details).
+
 PY=python
 
 .PHONY: install clean test

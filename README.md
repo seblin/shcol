@@ -120,3 +120,10 @@ Additional notes
 rendered relatively fast (like ``shcol.print_filenames('/usr/bin')``).
 
 Just give it a try if you like it and feel free to give some feedback. :-)
+
+
+License
+----------------
+
+``shcol`` is released under the Simplified BSD license (see the LICENSE file for
+details).
