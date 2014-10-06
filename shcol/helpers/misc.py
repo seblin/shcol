@@ -4,13 +4,13 @@
 # Released under the Simplified BSD license
 # (see LICENSE file for details).
 
-from __future__ import print_function
-
 import collections
+import fnmatch
 import functools
 import glob
 import locale
 import os
+import re
 
 try:
     from StringIO import StringIO
@@ -20,8 +20,8 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'get_dict', 'num',
-    'get_lines', 'get_column', 'TemporaryLocale'
+    'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'filter_names',
+    'get_dict', 'num', 'get_lines', 'get_column', 'TemporaryLocale'
 ]
 
 try:
@@ -29,7 +29,7 @@ try:
 except NameError:
     STRING_TYPES = (str, bytes)
 
-def get_decoded(items, encoding):
+def get_decoded(items, encoding=config.ENCODING):
     """
     Return an iterator that yields all elements of `items` as unicode-strings.
     If `items` contains byte-strings then each of these strings is decoded to
@@ -58,7 +58,7 @@ def get_sorted(items, sortkey=None):
     with TemporaryLocale('', locale.LC_COLLATE):
         return sorted(items, key=sortkey)
 
-def get_filenames(path, hide_dotted):
+def get_filenames(path='.', hide_dotted=False):
     """
     Return an iterator of the filenames in `path`. Note that this function does
     shell-like expansion of symbols such as "*", "?" or even "~" (user's home).
@@ -76,6 +76,22 @@ def get_filenames(path, hide_dotted):
         filenames = (fn for fn in filenames if not fn.startswith('.'))
     return iter(filenames)
 
+def filter_names(source, pattern):
+    """
+    Yield all names that match the given pattern.
+
+    `source` is expected to yield the names to be processed.
+
+    `pattern` is meant to be an expression that is free to make use of
+    shell-like file matching mechanisms (e.g. "x*" to match all names
+    starting with "x").
+    """
+    pattern = re.compile(fnmatch.translate(pattern))
+    for name in source:
+        match = pattern.match(name)
+        if match is not None:
+            yield match.group(0)
+
 def get_dict(mapping):
     """
     Return `mapping` as a dictionary. If `mapping` is already a mapping-type
@@ -85,9 +101,9 @@ def get_dict(mapping):
     this function is just a shorthand for ``collections.OrderedDict(mapping)``
     but with the pre-check mentioned above.
     """
-    if isinstance(mapping, collections.Mapping):
-        return mapping
-    return collections.OrderedDict(mapping)
+    if not isinstance(mapping, collections.Mapping):
+        mapping = collections.OrderedDict(mapping)
+    return mapping
 
 def num(s):
     """

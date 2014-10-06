@@ -74,7 +74,7 @@ You can see that `shcol` handles Unicode-characters as you would expect it.
 In case you need the raw columnized string you can get that directly:
 
 >>> shcol.columnize(['foo', 'bär', 'baz'], sort_items=True)  # on Python 2.7
-u'b\xe4r  baz  foo'
+u'b\\xe4r  baz  foo'
 >>> shcol.columnize(['foo', 'bär', 'baz'], sort_items=True)  # on Python 3.x
 'bär  baz  foo'
 
@@ -85,7 +85,7 @@ Just give it a try if you like it and feel free to give some feedback. :-)
 """
 
 __author__ = 'Sebastian Linke'
-__version__ = '0.2-rc1'
+__version__ = '0.2-final-dev'
 __license__ = 'Simplified BSD'
 
 from . import cli
