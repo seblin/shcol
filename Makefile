@@ -5,7 +5,7 @@
 
 PY=python
 
-.PHONY: install clean test
+.PHONY: install clean test upload
 
 install:
 	$(PY) setup.py install
@@ -16,3 +16,6 @@ clean:
 
 test:
 	$(PY) -m unittest discover testsuite
+
+upload:
+	$(PY) setup.py sdist upload
