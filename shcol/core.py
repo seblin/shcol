@@ -190,6 +190,7 @@ class ColumnWidthCalculator(object):
         needed to display all items is returned as a 2-element tuple.
         """
         num_items = len(item_widths)
+        num_columns = helpers.num(num_columns)
         num_lines = num_items // num_columns + bool(num_items % num_columns)
         column_widths = [
             max(item_widths[i : i + num_lines])
