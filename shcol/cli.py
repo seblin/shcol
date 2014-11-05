@@ -111,7 +111,8 @@ class ArgumentParser(argparse.ArgumentParser):
             # Walk through the iterator
             args.items = list(args.items)
         except IndexError as e:
-            self.error(e.message)
+            message = e.args[0]
+            self.error(message)
         except KeyboardInterrupt:
             self.exit(1, '\n')
         return args
