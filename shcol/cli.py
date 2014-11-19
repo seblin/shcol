@@ -48,7 +48,16 @@ class ArgumentParser(argparse.ArgumentParser):
         self.stderr = stderr
         self.init_arguments()
 
-    def _print_message(self, message, stream=None):
+    def print_message(self, message, stream=None):
+        """
+        Print `message` to `stream`. Note that this method will replace the use
+        of streams bound to `sys.stdout` or `sys.stderr` with a stream specified
+        by this instance's `.stdout` or `.stderr`-attribute.
+        """
+        self._print_message(message, stream)
+
+    def _print_message(self, message, stream):
+        # Redefined internal method called by the parent class
         if stream is sys.stdout:
             stream = self.stdout
         elif stream is sys.stderr:
