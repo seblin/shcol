@@ -79,9 +79,9 @@ class ColumnWidthCalculator(object):
         equal to the widest item's width. Note that in all other constellations
         a `ValueError` will be raised instead.
         """
-        self.spacing = spacing
-        self._line_width = line_width
-        self.num_columns = num_columns
+        self.spacing = helpers.num(spacing)
+        self._line_width = helpers.num(line_width)
+        self.num_columns = helpers.num(num_columns)
         self.allow_exceeding = allow_exceeding
 
     @property

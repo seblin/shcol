@@ -105,13 +105,23 @@ def get_dict(mapping):
         mapping = collections.OrderedDict(mapping)
     return mapping
 
-def num(s):
+def num(value, allow_none=True):
     """
-    Return string `s` converted to a number. `s` is expected to represent an
-    integer >= 0. An exception is raised if conversion failed or if the result
-    is a negative number.
+    Return `value` converted to an `int`-object. `value` should represent an
+    integer >= 0. It may be any kind of object that supports conversion when
+    passed to the built-in `int()`-function. An exception will be raised if the
+    conversion failed or if the result of the conversion is a negative number.
+
+    Note that `value` may be `None` if `allow_none` is `True`. In that case no
+    conversion is made and the function just returns `None`. Otherwise, passing
+    `None` as the `value`-parameter will raise a `TypeError`.
     """
-    number = int(s)
+    if allow_none and value is None:
+        return None
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        raise TypeError('value should represent an integer')
     if number < 0:
         raise ValueError('value must be non-negative')
     return number

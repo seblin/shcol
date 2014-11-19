@@ -34,14 +34,14 @@ class ColumnizeTest(unittest.TestCase):
         x, y, ae = 30 * 'x', 10 * 'y', 15 * 'ä'
         items = [x, y, ae]
         self.assertEqual(
-            self.columnize(items), self.join([x, y, ae])
+            self.columnize(items), self.join(items)
         )
         self.assertEqual(
             self.columnize(items, line_width=50),
             '%s\n%s' % (self.join([x, ae]), y)
         )
         self.assertEqual(
-            self.columnize(items, line_width=45), '\n'.join([x, y, ae])
+            self.columnize(items, line_width=45), '\n'.join(items)
         )
 
     def test_sort_items(self):
@@ -50,6 +50,15 @@ class ColumnizeTest(unittest.TestCase):
         result = self.columnize(items, sort_items=True)
         expected = self.join(shcol.helpers.get_sorted(items))
         self.assertEqual(result, expected)
+
+    def test_invalid_values(self):
+        with self.assertRaises(TypeError):
+            self.columnize([42])
+            self.columnize(['spam'], spacing='bogus')
+            self.columnize(['spam'], line_width='bogus')
+        with self.assertRaises(ValueError):
+            self.columnize(['spam'], spacing=-42)
+            self.columnize(['spam'], line_width=-42)
 
 
 class ColumnWidthCalculatorTest(unittest.TestCase):
