@@ -94,6 +94,15 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.make_line_properties([30], 3)
         )
 
+    def test_line_width_getter(self):
+        try:
+            expected = shcol.helpers.get_terminal_width()
+        except (IOError, OSError):
+            expected = shcol.config.LINE_WIDTH_FALLBACK
+        self.assertEqual(self.calculator.line_width, expected)
+        self.calculator.line_width = 40
+        self.assertEqual(self.calculator.line_width, 40)
+
     def test_wide_spacing(self):
         self.calculator.spacing = 5
         for items, props in self.expected_results[:-1]:
@@ -101,6 +110,10 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
                 self.calculator.get_line_properties(items),
                 self.make_line_properties(*props, spacing=5)
             )
+        self.assertEqual(
+            self.calculator.get_line_properties([50 * 'a', 40 * 'b', 28 * 'c']),
+            self.make_line_properties([50], 3, spacing=5)
+        )
 
     def test_calculate_columns(self):
         for items, result in self.expected_results:
