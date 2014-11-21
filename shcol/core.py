@@ -182,16 +182,25 @@ class ColumnWidthCalculator(object):
             yield self.get_widths_and_lines(item_widths, num_columns)
 
     @staticmethod
-    def get_widths_and_lines(item_widths, num_columns):
+    def get_widths_and_lines(item_widths, max_columns):
         """
-        Calulate column widths based on `item_widths` for an amount of
-        `num_columns` per line. The resulting column widths are represented
+        Calulate column widths based on `item_widths` for an amount of at most
+        `max_columns` per line. The resulting column widths are represented
         as a list of positive integers. This list and the number of lines
         needed to display all items is returned as a 2-element tuple.
+
+        Note that this method does *not* check whether the resulting column
+        width configuration would fit in a line. Also it does *not* take any
+        spacing into account.
+
+        This algorithm prefers balanced column lengths over matching exactly
+        `max_columns`. This means that you might encounter results which have a
+        much fewer number of columns than you had requested. Also two requests
+        with different `max_columns` might return the same result.
         """
         num_items = len(item_widths)
-        num_columns = helpers.num(num_columns)
-        num_lines = num_items // num_columns + bool(num_items % num_columns)
+        max_columns = helpers.num(max_columns)  # ensure non-negative integer
+        num_lines = num_items // max_columns + bool(num_items % max_columns)
         column_widths = [
             max(item_widths[i : i + num_lines])
             for i in range(0, num_items, num_lines)

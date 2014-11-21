@@ -70,8 +70,11 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             ([], ([], 0)),
             ([''], ([0], 1)),
             ([' '], ([1], 1)),
-            (['foo', 'bar', 'baz'], ([3, 3, 3], 1)),
+            (['spam', 'ham', 'eggs'], ([4, 3, 4], 1)),
+            ([100 * 'spam', 100 * 'ham', 100 * 'eggs'], ([400], 3)),
             ([30 * 'x', 10 * 'y', 15 * 'ä'], ([30, 10, 15], 1)),
+            ([50 * 'a', 40 * 'b', 30 * 'c'], ([50], 3)),
+            ([50 * 'a', 40 * 'b', 28 * 'c'], ([50, 28], 2)),
         ]
 
     def make_line_properties(self, item_widths, num_lines, spacing=2):
@@ -83,11 +86,21 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
                 self.calculator.get_line_properties(items),
                 self.make_line_properties(*props)
             )
+
+    def test_small_line_width(self):
         self.calculator.line_width = 45
         self.assertEqual(
             self.calculator.get_line_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
             self.make_line_properties([30], 3)
         )
+
+    def test_wide_spacing(self):
+        self.calculator.spacing = 5
+        for items, props in self.expected_results[:-1]:
+            self.assertEqual(
+                self.calculator.get_line_properties(items),
+                self.make_line_properties(*props, spacing=5)
+            )
 
     def test_calculate_columns(self):
         for items, result in self.expected_results:
@@ -100,6 +113,12 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.calculator.calculate_columns([30, 10, 15]), ([30], 3)
         )
 
+    def test_allow_exceeding(self):
+        self.assertEqual(self.calculator.calculate_columns([81]), ([81], 1))
+        self.calculator.allow_exceeding = False
+        with self.assertRaises(ValueError):
+            self.calculator.calculate_columns([81])
+
     def test_calculate_max_columns(self):
         expected_results = [
             ([], 0), ([0], 1), ([1], 1), ([81], 1), ([81, 2], 1), ([79, 2], 1),
@@ -110,6 +129,31 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.assertEqual(
                 self.calculator.calculate_max_columns(item_widths), result
             )
+
+    def test_get_column_configs(self):
+        item_widths = [234, 23, 246]
+        expected = [([234, 23, 246], 1), ([234, 246], 2), ([246], 3)]
+        result = self.calculator.get_column_configs(
+            item_widths, len(item_widths)
+        )
+        self.assertEqual(list(result), expected)
+
+    def test_get_widths_and_lines(self):
+        item_widths = [2, 347, 65, 32, 345, 23]
+        expected_results = [
+            ([2, 347, 65, 32, 345, 23], 1),
+            ([347, 65, 345], 2),
+            ([347, 65, 345], 2),
+            ([347, 65, 345], 2),
+            ([347, 345], 3),
+            ([347], 6),
+        ]
+        column_range = range(len(expected_results), 0, -1)
+        for num_columns, expected in zip(column_range, expected_results):
+            result = self.calculator.get_widths_and_lines(
+                item_widths, num_columns
+            )
+            self.assertEqual(result, expected)
 
     def fits(self, item_widths):
         return self.calculator.fits_in_line(item_widths)
