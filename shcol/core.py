@@ -177,9 +177,18 @@ class ColumnWidthCalculator(object):
         columns for the first configuration. Subsequent configurations are
         calculated by decreasing that amount by one at each step until an
         amount of zero columns is reached.
+
+        Depending on the underlying algorithm this method might omit some
+        configurations (e.g. the current implementation prefers balanced column
+        lengths over strictly matching each possible combination - see the
+        docstring of `.get_widths_and_lines()` for details).
         """
+        cached_config = ()
         for num_columns in range(max_columns, 0, -1):
-            yield self.get_widths_and_lines(item_widths, num_columns)
+            config = self.get_widths_and_lines(item_widths, num_columns)
+            if config != cached_config:
+                yield config
+            cached_config = config
 
     @staticmethod
     def get_widths_and_lines(item_widths, max_columns):

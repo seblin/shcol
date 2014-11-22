@@ -144,8 +144,13 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             )
 
     def test_get_column_configs(self):
-        item_widths = [234, 23, 246]
-        expected = [([234, 23, 246], 1), ([234, 246], 2), ([246], 3)]
+        item_widths = [2, 347, 65, 32, 345, 23]
+        expected = [
+            ([2, 347, 65, 32, 345, 23], 1),
+            ([347, 65, 345], 2),
+            ([347, 345], 3),
+            ([347], 6),
+        ]
         result = self.calculator.get_column_configs(
             item_widths, len(item_widths)
         )
