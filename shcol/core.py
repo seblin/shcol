@@ -167,7 +167,7 @@ class ColumnWidthCalculator(object):
 
     def get_column_configs(self, item_widths, max_columns):
         """
-        Return an iterator that yields all possible "column configurations" for
+        Return an iterator that yields a sequence of "column configurations" for
         `item_widths`. A configuration is a 2-element tuple consisting of a list
         of column widths and the number of lines that are needed to display all
         items with that configuration. The maximum number of columns is defined
@@ -175,13 +175,14 @@ class ColumnWidthCalculator(object):
         
         Note that `max_columns` is also used to define the initial amount of
         columns for the first configuration. Subsequent configurations are
-        calculated by decreasing that amount by one at each step until an
-        amount of zero columns is reached.
+        calculated by decreasing that amount at each step until an amount of
+        zero columns is reached.
 
-        Depending on the underlying algorithm this method might omit some
-        configurations (e.g. the current implementation prefers balanced column
-        lengths over strictly matching each possible combination - see the
-        docstring of `.get_widths_and_lines()` for details).
+        Depending on the underlying algorithm this method must not necessarily
+        return each possible configuration. In fact, the current implementation
+        prefers balanced column lengths where only the last column is allowed to
+        be shorter than the other columns. This might result in ommiting some
+        configurations. See `.get_widths_and_lines()` for details.
         """
         cached_config = ()
         for num_columns in range(max_columns, 0, -1):
@@ -203,7 +204,8 @@ class ColumnWidthCalculator(object):
         spacing into account.
 
         This algorithm prefers balanced column lengths over matching exactly
-        `max_columns`. This means that you might encounter results which have a
+        `max_columns`. Only the last column is allowed to be shorter than the
+        other columns. This means that you might encounter results which have a
         much fewer number of columns than you had requested. Also two requests
         with different `max_columns` might return the same result.
         """
