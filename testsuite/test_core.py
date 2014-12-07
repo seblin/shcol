@@ -77,10 +77,19 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             ([50 * 'a', 40 * 'b', 28 * 'c'], ([50, 28], 2)),
         ]
 
+    def test_line_width_getter(self):
+        try:
+            expected = shcol.helpers.get_terminal_width()
+        except (IOError, OSError):
+            expected = shcol.config.LINE_WIDTH_FALLBACK
+        self.assertEqual(self.calculator.line_width, expected)
+        self.calculator.line_width = 40
+        self.assertEqual(self.calculator.line_width, 40)
+
     def make_line_properties(self, item_widths, num_lines, spacing=2):
         return shcol.core.LineProperties(item_widths, spacing, num_lines)
 
-    def test_get_properties(self):
+    def test_get_line_properties(self):
         for items, props in self.expected_results:
             self.assertEqual(
                 self.calculator.get_line_properties(items),
@@ -93,15 +102,6 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             self.calculator.get_line_properties([30 * 'x', 10 * 'y', 15 * 'ä']),
             self.make_line_properties([30], 3)
         )
-
-    def test_line_width_getter(self):
-        try:
-            expected = shcol.helpers.get_terminal_width()
-        except (IOError, OSError):
-            expected = shcol.config.LINE_WIDTH_FALLBACK
-        self.assertEqual(self.calculator.line_width, expected)
-        self.calculator.line_width = 40
-        self.assertEqual(self.calculator.line_width, 40)
 
     def test_wide_spacing(self):
         self.calculator.spacing = 5
@@ -188,35 +188,40 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         self.assertFalse(self.fits([77, 2]))
 
 
-class FormatterTest(unittest.TestCase):
+class IterableFormatterTest(unittest.TestCase):
     def setUp(self):
         calc = shcol.core.ColumnWidthCalculator(spacing=2, line_width=80)
         self.formatter = shcol.core.IterableFormatter(calc)
+        self.items = ['spam', 'ham', 'eggs']
 
     def join(self, items):
         return '  '.join(items)
 
     def test_format(self):
-        for items in (
-            [], ['spam', 'ham', 'egg'], ['späm', 'häm', 'ägg']
-        ):
+        for items in ([], self.items, ['späm', 'häm', 'ägg']):
             self.assertEqual(self.formatter.format(items), self.join(items))
 
     def make_lines(self, items):
         return list(self.formatter.make_lines(items))
 
     def test_make_lines(self):
-        items = ['foo', 'bar', 'baz']
-        lines = self.make_lines(items)
-        self.assertEqual(lines, [self.join(items)])
-        self.formatter.calculator.line_width = 3
-        self.assertEqual(self.make_lines(items), items)
+        lines = self.make_lines(self.items)
+        self.assertEqual(lines, [self.join(self.items)])
+        self.formatter.calculator.line_width = 4
+        self.assertEqual(self.make_lines(self.items), self.items)
         items = [60 * 'ä', 40 * 'ö']
         expected = [60 * 'ä', 40 * 'ö']
         self.formatter.calculator.line_width = 50
         self.assertEqual(self.make_lines(items), expected)
         self.formatter.calculator.allow_exceeding = False
-        self.assertRaises(ValueError, self.make_lines, items)
+        with self.assertRaises(ValueError):
+            self.make_lines(items)
+
+    def test_get_sorted(self):
+        items = ['foo', 'bar', 'baz']
+        self.assertEqual(
+            self.formatter.get_sorted(items), shcol.helpers.get_sorted(items)
+        )
 
     def make_template(self, column_widths, spacing=2):
         props = shcol.core.LineProperties(column_widths, spacing, None)
