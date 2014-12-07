@@ -6,8 +6,8 @@
 
 from __future__ import unicode_literals
 
+import locale
 import shcol
-import sys
 import unittest
 
 class ColumnizeTest(unittest.TestCase):
@@ -193,12 +193,15 @@ class IterableFormatterTest(unittest.TestCase):
         calc = shcol.core.ColumnWidthCalculator(spacing=2, line_width=80)
         self.formatter = shcol.core.IterableFormatter(calc)
         self.items = ['spam', 'ham', 'eggs']
+        self.sorted_items = ['eggs', 'ham', 'spam']
+        self.umlaut_items = ['späm', 'häm', 'äggs']
+        self.sorted_umlaut_items = ['äggs', 'häm', 'späm']
 
     def join(self, items):
         return '  '.join(items)
 
     def test_format(self):
-        for items in ([], self.items, ['späm', 'häm', 'ägg']):
+        for items in ([], self.items, self.umlaut_items):
             self.assertEqual(self.formatter.format(items), self.join(items))
 
     def make_lines(self, items):
@@ -218,9 +221,17 @@ class IterableFormatterTest(unittest.TestCase):
             self.make_lines(items)
 
     def test_get_sorted(self):
-        items = ['foo', 'bar', 'baz']
         self.assertEqual(
-            self.formatter.get_sorted(items), shcol.helpers.get_sorted(items)
+            self.formatter.get_sorted(self.items), self.sorted_items
+        )
+
+    def test_get_sorted_with_umlauts(self):
+        lang_code, encoding = locale.getdefaultlocale()
+        if lang_code is None or not 'de' in lang_code.lower():
+            self.skipTest('need German as default locale')
+        self.assertEqual(
+            self.formatter.get_sorted(self.umlaut_items),
+            self.sorted_umlaut_items
         )
 
     def make_template(self, column_widths, spacing=2):
