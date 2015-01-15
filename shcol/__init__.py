@@ -91,3 +91,6 @@ __license__ = 'Simplified BSD'
 from . import cli
 from .core import *
 from .highlevel import *
+
+if __name__ == '__main':
+    cli.main()
