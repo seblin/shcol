@@ -7,22 +7,39 @@
 import shcol
 import unittest
 
-class ArgumentParserTest(unittest.TestCase):
-    def setUp(self):
-        self.parser = shcol.cli.ArgumentParser('shcol', shcol.__version__)
-
-    def get_error_message(self, args):
-        error_stream = shcol.helpers.StringIO()
-        self.parser.stderr = error_stream
+class CLITestMixin(object):
+    def fetch_error_message(self, args, stream_name='stderr'):
+        pseudo_stream = shcol.helpers.StringIO()
+        setattr(self.parser, stream_name, pseudo_stream)
         with self.assertRaises(SystemExit):
             self.parser.parse_args(args)
-        return error_stream.getvalue().rstrip('\n')
+        return pseudo_stream.getvalue().rstrip('\n')
+
+    def check_num_option(self, long_option, short_option, items=['spam']):
+        option_name = long_option.lstrip('-')
+        for option_string in (long_option, short_option):
+            for value in ('0', '2', '80', '100'):
+                args = self.parser.parse_args([option_string, value] + items)
+                self.assertEqual(getattr(args, option_name), int(value))
+            for invalid in ('-42', '-1', '1.0', 'x'):
+                args = [option_string, invalid] + items
+                error = self.fetch_error_message(args)
+                self.assertIn('invalid num value', error)
+
+    def set_parser_input(self, data):
+        pseudo_stream = shcol.helpers.StringIO(data)
+        self.parser.stdin = pseudo_stream
+
+
+class ArgumentParserTest(unittest.TestCase, CLITestMixin):
+    def setUp(self):
+        self.parser = shcol.cli.ArgumentParser('shcol', shcol.__version__)
 
     def test_version(self):
         expected = '{} {}'.format('shcol', shcol.__version__)
         for version in ('--version', '-v'):
-            result = self.get_error_message([version])
-            self.assertEqual(result, expected)
+            result = self.fetch_error_message([version], 'stdout')
+            self.assertEqual(expected, result)
 
     def test_default_params(self):
         args = self.parser.parse_args(['spam'])
@@ -34,46 +51,32 @@ class ArgumentParserTest(unittest.TestCase):
     def test_item_args(self):
         items = ['spam', 'ham', 'eggs']
         args = self.parser.parse_args(items)
-        self.assertEqual(args.items, items)
+        self.assertEqual(items, args.items)
 
     def test_stdin_input(self):
-        self.parser.stdin = shcol.helpers.StringIO('spam\nham\neggs')
+        self.set_parser_input('spam\nham\neggs\n')
         args = self.parser.parse_args([])
-        self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
-
-    def _test_num_option(self, long_option, short_option, items=['spam']):
-        option_name = long_option.lstrip('-')
-        for option_string in (long_option, short_option):
-            for value in ('0', '2', '80', '100'):
-                args = self.parser.parse_args([option_string, value] + items)
-                self.assertEqual(getattr(args, option_name), int(value))
-            for invalid in ('-42', '-1', '1.0', 'x'):
-                error = self.get_error_message([option_string, invalid] + items)
-                self.assertIn('invalid num value', error)
+        self.assertEqual(['spam', 'ham', 'eggs'], args.items)
 
     def test_spacing_option(self):
-        self._test_num_option('--spacing', '-s')
+        self.check_num_option('--spacing', '-s')
 
     def test_line_width_option(self):
-        self._test_num_option('--width', '-w')
+        self.check_num_option('--width', '-w')
 
     def test_sort_option(self):
         args = self.parser.parse_args(['--sort', 'spam'])
         self.assertTrue(args.sort)
 
     def test_column_option(self):
-        self._test_num_option('--column', '-c', items=['spam ' * 1000])
+        self.check_num_option('--column', '-c', items=['spam ' * 1000])
 
     def test_second_column(self):
-        self.parser.stdin = shcol.helpers.StringIO(
-            'xxx spam\nzzz ham\n~~~ eggs'
-        )
+        self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
         args = self.parser.parse_args(['-c' '1'])
-        self.assertEqual(args.items, ['spam', 'ham', 'eggs'])
+        self.assertEqual(['spam', 'ham', 'eggs'], args.items)
 
     def test_nonexistent_column(self):
-        self.parser.stdin = shcol.helpers.StringIO(
-            'xxx spam\nzzz ham\n~~~ eggs'
-        )
-        error = self.get_error_message(['-c', '42'])
+        self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
+        error = self.fetch_error_message(['-c', '42'])
         self.assertIn('no data for column index', error)
