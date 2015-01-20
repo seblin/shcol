@@ -9,7 +9,7 @@ import sys
 import unittest
 
 class CLITestMixin(object):
-    def fetch_error_message(self, args, stream_name='stderr'):
+    def fetch_output(self, args, stream_name='stdout'):
         pseudo_stream = shcol.helpers.StringIO()
         setattr(self.parser, stream_name, pseudo_stream)
         with self.assertRaises(SystemExit):
@@ -24,7 +24,7 @@ class CLITestMixin(object):
                 self.assertEqual(getattr(args, option_name), int(value))
             for invalid in ('-42', '-1', '1.0', 'x'):
                 args = [option_string, invalid] + items
-                error = self.fetch_error_message(args)
+                error = self.fetch_output(args, 'stderr')
                 self.assertIn('invalid num value', error)
 
     def set_parser_input(self, data):
@@ -40,7 +40,7 @@ class ArgumentParserTest(unittest.TestCase, CLITestMixin):
         expected = '{} {}'.format('shcol', shcol.__version__)
         stream_name = 'stdout' if sys.version_info >= (3, 4) else 'stderr'
         for version in ('--version', '-v'):
-            result = self.fetch_error_message([version], stream_name)
+            result = self.fetch_output([version], stream_name)
             self.assertEqual(expected, result)
 
     def test_default_params(self):
@@ -80,5 +80,5 @@ class ArgumentParserTest(unittest.TestCase, CLITestMixin):
 
     def test_nonexistent_column(self):
         self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
-        error = self.fetch_error_message(['-c', '42'])
+        error = self.fetch_output(['-c', '42'], 'stderr')
         self.assertIn('no data for column index', error)
