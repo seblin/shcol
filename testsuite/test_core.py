@@ -195,15 +195,20 @@ class IterableFormatterTest(unittest.TestCase):
         self.formatter = shcol.core.IterableFormatter(calc)
         self.items = ['spam', 'ham', 'eggs']
         self.sorted_items = ['eggs', 'ham', 'spam']
-        self.umlaut_items = ['späm', 'häm', 'äggs']
-        self.sorted_umlaut_items = ['äggs', 'häm', 'späm']
+        self.non_ascii_items = ['späm', 'häm', 'äggs']
 
     def join(self, items):
         return '  '.join(items)
 
     def test_format(self):
-        for items in ([], self.items, self.umlaut_items):
+        for items in ([], self.items, self.non_ascii_items):
             self.assertEqual(self.formatter.format(items), self.join(items))
+
+    def test_sort_items(self):
+        self.formatter.sort_items = True
+        self.assertEqual(
+            self.formatter.format(self.items), self.join(self.sorted_items)
+        )
 
     def make_lines(self, items):
         return list(self.formatter.make_lines(items))
@@ -220,20 +225,6 @@ class IterableFormatterTest(unittest.TestCase):
         self.formatter.calculator.allow_exceeding = False
         with self.assertRaises(ValueError):
             self.make_lines(items)
-
-    def test_get_sorted(self):
-        self.assertEqual(
-            self.formatter.get_sorted(self.items), self.sorted_items
-        )
-
-    def test_get_sorted_with_umlauts(self):
-        lang_code, encoding = locale.getdefaultlocale()
-        if lang_code is None or not 'de' in lang_code.lower():
-            self.skipTest('need German as default locale')
-        self.assertEqual(
-            self.formatter.get_sorted(self.umlaut_items),
-            self.sorted_umlaut_items
-        )
 
     def make_template(self, column_widths, spacing=2):
         props = shcol.core.LineProperties(column_widths, spacing, None)
