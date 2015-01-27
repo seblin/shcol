@@ -54,9 +54,10 @@ def get_sorted(items, locale_name='', strict=False):
     given as an empty string (the default) then the system's default locale will
     be used.
 
-    Use `strict` to decide what to do if a `locale.Error` occurs. `True` means
-    that the error is just thrown. `False` means that the error is ignored and
-    sorting is based on the current locale.
+    Use `strict` to decide what to do if setting the locale failed with a
+    `locale.Error`. `True` means that the function will fail by throwing the
+    error. `False` means that the error is ignored and sorting is done
+    locale-independent by simply calling `sorted(items)`.
 
     Note that this function temporary changes the interpreter's global locale
     configuration. It does this by storing the current locale and then setting
