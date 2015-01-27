@@ -21,7 +21,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'filter_names',
-    'get_dict', 'num', 'get_lines', 'get_column', 'TemporaryLocale'
+    'get_dict', 'num', 'get_lines', 'get_column'
 ]
 
 try:
@@ -44,19 +44,44 @@ def get_decoded(items, encoding=config.ENCODING):
             item = item.decode(encoding)
         yield item
 
-def get_sorted(items, sortkey=None):
+def get_sorted(items, locale_name='', strict=False):
     """
-    Sort given `items` in a locale-aware manner (i.e. ordering with respect to
-    characters that are specific to the current locale). Note that calling this
-    function temporary changes the interpreter's global locale configuration and
-    thus is not thread-safe.
+    Sort `items` with respect to characters that are specific to the given
+    locale. The result will be returned as a new list.
 
-    Use `sortkey` if you want to provide your own key to be used for sorting.
+    `locale_name` defines the locale to be used. It has the same meaning as if
+    it would have been passed to the stdlib's `locale.setlocale()`-function. If
+    given as an empty string (the default) then the system's default locale will
+    be used.
+
+    Use `strict` to decide what to do if a `locale.Error` occurs. `True` means
+    that the error is just thrown. `False` means that the error is ignored and
+    sorting is based on the current locale.
+
+    Note that this function temporary changes the interpreter's global locale
+    configuration. It does this by storing the current locale and then setting
+    the given locale name. Then the items are sorted and after that it will set
+    the stored locale again. This function is not thread-safe.
     """
-    if sortkey is None:
-        sortkey = functools.cmp_to_key(locale.strcoll)
-    with TemporaryLocale('', locale.LC_COLLATE):
-        return sorted(items, key=sortkey)
+    locale_name_was_set = False
+    old_locale = locale.getlocale(locale.LC_COLLATE)
+    sortkey = functools.cmp_to_key(locale.strcoll)
+    try:
+        # `old_locale` might be invalid (at least on Windows)
+        # => try to set it before doing the "real" switch
+        locale.setlocale(locale.LC_COLLATE, old_locale)
+        locale.setlocale(locale.LC_COLLATE, locale_name)
+        locale_name_was_set = True
+        result = sorted(items, key=sortkey)
+    except locale.Error:
+        if strict:
+            raise
+        result = sorted(items)
+    finally:
+        if locale_name_was_set:
+            # this would fail otherwise
+            locale.setlocale(locale.LC_COLLATE, old_locale)
+    return result
 
 def get_filenames(path='.', hide_dotted=False):
     """
@@ -153,55 +178,3 @@ def get_column(column_index, source):
             msg = 'no data for column index {} at line #{}'
             raise IndexError(msg.format(column_index, num_line))
         yield columns[column_index]
-
-
-class TemporaryLocale(object):
-    """
-    A class to temporary change the interpreter's locale configuration.
-    """
-    def __init__(
-        self, locale_name, category=locale.LC_ALL, fail_on_locale_error=False
-    ):
-        """
-        Create a new `TemporaryLocale`.
-
-        `locale_name` defines the name of the locale to be temporary used. This
-        name has the same meaning as it would be directly passed to the stdlib's
-        `locale.setlocale`-function.
-
-        `category` defines the locale's category. It should be one of the
-        `LC_*`-constants defined in the stdlib's `locale`-module.
-
-        If `fail_on_locale_error` is `True` then a `locale.Error`, that might
-        occur when setting the temporary locale, will be raised. Otherwise,
-        this exception is silently ignored. However, a `locale.Error` will
-        always let the locale setting remain in its old state (i.e. temporary
-        locale was not set), no matter if it was ignored or not.
-        """
-        self.locale_name = locale_name
-        self.category = category
-        self.fail_on_locale_error = fail_on_locale_error
-        self.original_locale = locale.getlocale(category)
-
-    def set(self):
-        """
-        Set the temporary locale. If this was successful then the resulting
-        locale string is returned.
-        """
-        try:
-            return locale.setlocale(self.category, self.locale_name)
-        except locale.Error as err:
-            if self.fail_on_locale_error:
-                raise err
-
-    def unset(self):
-        """
-        Unset the temporary locale and restore the old locale settings.
-        """
-        locale.setlocale(self.category, self.original_locale)
-
-    def __enter__(self):
-        return self.set()
-
-    def __exit__(self, *unused):
-        self.unset()
