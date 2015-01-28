@@ -24,25 +24,21 @@ __all__ = [
     'get_dict', 'num', 'get_lines', 'get_column'
 ]
 
-try:
-    STRING_TYPES = (str, bytes, unicode)
-except NameError:
-    STRING_TYPES = (str, bytes)
-
 def get_decoded(items, encoding=config.ENCODING):
     """
-    Return an iterator that yields all elements of `items` as unicode-strings.
-    If `items` contains byte-strings then each of these strings is decoded to
-    unicode by using the codec name specified by `encoding`. Items that are
-    already unicode-strings are left unchanged. A `TypeError` is raised if a
-    non-string item is encountered.
+    Decode given `items` and return the result as an iterator.
+
+    `encoding` defines the name of the encoding to be used. It is passed to each
+    item's `.decode()`-method.
+
+    Note that if an item does not provide a `.decode()`-method then it is left
+    unchanged. If decoding an item throws an error then this function will fail.
     """
     for item in items:
-        if not isinstance(item, STRING_TYPES):
-            raise TypeError('encountered non-string item')
-        if isinstance(item, bytes):
-            item = item.decode(encoding)
-        yield item
+        try:
+            yield item.decode(encoding)
+        except AttributeError:
+            yield item
 
 def get_sorted(items, locale_name='', strict=False):
     """
