@@ -45,10 +45,9 @@ class ColumnizeTest(unittest.TestCase):
         )
 
     def test_sort_items(self):
-        # TODO: Test for more languages (currently only german Umlauts)
-        items = ['spam', 'ham', 'äggs', 'fü', 'bar', 'baz']
+        items = ['spam', 'ham', 'eggs']
         result = self.columnize(items, sort_items=True)
-        expected = self.join(shcol.helpers.get_sorted(items))
+        expected = self.join(['eggs', 'ham', 'spam'])
         self.assertEqual(result, expected)
 
     def test_invalid_values(self):
