@@ -10,7 +10,6 @@ Detect terminal width on different platforms.
 
 import ctypes
 import os
-import platform
 import sys
 
 from .. import config
@@ -22,7 +21,7 @@ if hasattr(os, 'get_terminal_size'):
         # New in Python >= 3.3
         return os.get_terminal_size(fd).columns
 
-elif platform.system() == 'Windows':
+elif sys.platform.startswith('win'):
     import ctypes.wintypes
 
     class ConsoleScreenBufferInfo(ctypes.Structure):
