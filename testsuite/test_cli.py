@@ -32,7 +32,7 @@ class CLITestMixin(object):
         self.parser.stdin = pseudo_stream
 
 
-class ArgumentParserTest(unittest.TestCase, CLITestMixin):
+class ArgumentParserTest(CLITestMixin, unittest.TestCase):
     def setUp(self):
         self.parser = shcol.cli.ArgumentParser('shcol', shcol.__version__)
 
