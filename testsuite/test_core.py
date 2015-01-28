@@ -77,7 +77,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         ]
 
     def test_line_width_getter(self):
-        self.calculator = shcol.core.ColumnWidthCalculator()
+        self.calculator.line_width = None
         try:
             expected = shcol.helpers.get_terminal_width()
         except (IOError, OSError):
