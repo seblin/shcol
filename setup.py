@@ -11,7 +11,6 @@ if sys.version_info < (2, 7):
     sys.exit('ERROR: Python interpreter\'s version must be 2.7 or higher\n')
 
 from distutils.core import setup
-import os
 import shcol
 
 def main():
@@ -24,7 +23,7 @@ def main():
         author_email='Seb_Linke@arcor.de',
         url='https://github.com/seblin/shcol',
         packages=['shcol', 'shcol.helpers'],
-        scripts=[os.path.join('bin', 'shcol')],
+        scripts=[shcol.config.STARTER],
         license=shcol.__license__,
         platforms = 'any',
         classifiers=[
