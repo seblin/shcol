@@ -36,9 +36,10 @@ def get_decoded(items, encoding=config.ENCODING):
     the function will fail.
     """
     for item in items:
-        if not hasattr(item, 'decode'):
+        if hasattr(item, 'decode'):
+            yield item.decode(encoding)
+        else:
             yield item
-        yield item.decode(encoding)
 
 
 def get_sorted(items, locale_name='', strict=False):
