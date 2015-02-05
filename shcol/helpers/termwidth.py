@@ -10,7 +10,6 @@ Detect terminal width on different platforms.
 
 import ctypes
 import os
-import sys
 
 from .. import config
 
@@ -21,7 +20,7 @@ if hasattr(os, 'get_terminal_size'):
         # New in Python >= 3.3
         return os.get_terminal_size(fd).columns
 
-elif sys.platform.startswith('win'):
+elif config.ON_WINDOWS:
     import ctypes.wintypes
 
     class ConsoleScreenBufferInfo(ctypes.Structure):
@@ -60,7 +59,9 @@ else:
         import fcntl
         import termios
     except ImportError:
-        pass
+        import_ok = False
+    else:
+        import_ok = True
 
     class WinSize(ctypes.Structure):
         _fields_ = [
@@ -72,8 +73,8 @@ else:
 
     def terminal_width_impl(fd):
         if not all([
-            # `termios` is not available on all non-Windows systems
-            'termios' in sys.modules,
+            # some modules might not be available on all non-Windows systems
+            import_ok,
             # `TIOCGWINSZ` must be defined
             hasattr(termios, 'TIOCGWINSZ'),
             # Python-2.7-compatible `pypy`-interpreter lacks this

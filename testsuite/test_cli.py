@@ -5,7 +5,6 @@
 # (see LICENSE file for details).
 
 import shcol
-import sys
 import unittest
 
 class CLITestMixin(object):
@@ -38,7 +37,9 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
 
     def test_version(self):
         expected = '{} {}'.format('shcol', shcol.__version__)
-        stream_name = 'stdout' if sys.version_info >= (3, 4) else 'stderr'
+        stream_name = (
+            'stdout' if shcol.config.PY_VERSION >= (3, 4) else 'stderr'
+        )
         for version in ('--version', '-v'):
             result = self.fetch_output([version], stream_name)
             self.assertEqual(expected, result)
