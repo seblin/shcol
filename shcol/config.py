@@ -12,12 +12,13 @@ read during initialization of the `shcol`-package.
 
 import sys
 
-ENCODING = 'utf-8'
+ENCODING = sys.getdefaultencoding()
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
 LINE_WIDTH_FALLBACK = 80
 LINESEP = '\n'
+NEEDS_DECODING = (sys.version_info < (3, 0))
 OUTPUT_STREAM = sys.stdout
 SORT_ITEMS = False
 SPACING = 2

@@ -22,7 +22,7 @@ LineProperties = collections.namedtuple(
 
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-    sort_items=config.SORT_ITEMS
+    sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
 ):
     """
     Return a columnized string based on `items`. The result is similar to
@@ -36,15 +36,16 @@ def columnize(
     width is used.
 
     If `sort_items` is `True`, then a locale-aware sorted version of `items`
-    is used to generate the columnized output.
+    is used to generate the columnized output. Note that enabling sorting is not
+    thread-safe because it temporarily changes the interpreter's global locale
+    configuration.
 
-    Note that enabling `sort_items` may temporary change the interpreter's
-    global locale configuration and thus is not thread-safe (which might be
-    relevant in some cases). Leave this option disabled if you want to avoid
-    this.
+    `decode` defines whether non-unicode items should be decoded to unicode. If
+     running on Python 3.x then most of the time the "decoding step" is not
+     necessary and can be skipped to safe some time.
     """
     formatter = build_formatter(type(items), spacing, line_width, sort_items)
-    return formatter.format(items)
+    return formatter.format(items, decode)
 
 
 class ColumnWidthCalculator(object):
@@ -259,14 +260,20 @@ class IterableFormatter(object):
         self.encoding = encoding
         self.sort_items = sort_items
 
-    def format(self, items):
+    def format(self, items, decode=config.NEEDS_DECODING):
         """
         Return a columnized string based on `items`.
+
+        `decode` defines whether each item should be decoded in order to get
+        unicode-strings. When passing items that already are unicode then this
+        parameter may be set to `False` to skip the "decoding step" (which will
+        safe some time).
         """
         if self.sort_items:
             items = self.get_sorted(items)
-        decoded_items = self.get_decoded(items)
-        lines = self.make_lines(decoded_items)
+        if decode:
+            items = self.get_decoded(items)
+        lines = self.make_lines(items)
         return self.linesep.join(lines)
 
     @staticmethod
@@ -278,12 +285,7 @@ class IterableFormatter(object):
 
     def get_decoded(self, items):
         """
-        Return a version of `items` where each element is guaranteed to be a
-        unicode-string. If `items` contains byte-strings then these strings
-        are decoded to unicode by using the codec specified in the `encoding`-
-        attribute of this instance. Items that are already unicode-strings are
-        left unchanged. A `TypeError` is raised if `items` contains non-string
-        elements.
+        Return a decoded version of `items`.
         """
         return list(helpers.get_decoded(items, self.encoding))
 
@@ -388,12 +390,7 @@ class MappingFormatter(IterableFormatter):
 
     def get_decoded(self, mapping):
         """
-        Return a version of `mapping` where each element is guaranteed to be a
-        unicode-string. If `mapping` contains byte-strings then these strings
-        are decoded to unicode by using the codec specified in the `encoding`-
-        attribute of this instance. Items that are already unicode-strings are
-        left unchanged. A `TypeError` is raised if `mapping` contains non-string
-        elements.
+        Return a decoded version of `mapping`.
         """
         keys = helpers.get_decoded(mapping.keys(), self.encoding)
         values = helpers.get_decoded(mapping.values(), self.encoding)
