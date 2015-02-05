@@ -31,14 +31,15 @@ def get_decoded(items, encoding=config.ENCODING):
     `encoding` defines the name of the encoding to be used. It is passed to each
     item's `.decode()`-method.
 
-    Note that if an item does not provide a `.decode()`-method then it is left
-    unchanged. If decoding an item throws an error then this function will fail.
+    Note that if an item does not provide a `.decode()`-method then the item is
+    left unchanged. If the item's `.decode()`-method throws an exception then
+    the function will fail.
     """
     for item in items:
-        try:
-            yield item.decode(encoding)
-        except AttributeError:
+        if not hasattr(item, 'decode'):
             yield item
+        yield item.decode(encoding)
+
 
 def get_sorted(items, locale_name='', strict=False):
     """
