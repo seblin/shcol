@@ -50,14 +50,28 @@ class ArgumentParser(argparse.ArgumentParser):
 
     def print_message(self, message, stream=None):
         """
-        Print `message` to `stream`. Note that this method will replace the use
-        of streams bound to `sys.stdout` or `sys.stderr` with a stream specified
-        by this instance's `.stdout` or `.stderr`-attribute.
+        Print `message` to `stream`.
+
+        If `stream` is `sys.stdout` or `sys.stderr` then it is translated to its
+        corresponding instance variable (`self.stdout` or `self.stderr`).
+
+        This technique makes it possible to control the output streams of some
+        internal methods defined by the superclass. Most of them do not support
+        setting alternative streams directly. Instead, they invoke methods that
+        are based on `_print_message()`. By redefining that method, which does
+        expect the stream to be used as a parameter, the new implementation is
+        able to map those stream references to alternative streams.
+
+        Note that the actual work is done by `_print_message`. The "public"
+        version of it (`print_message`) is used a thin wrapper around it.
         """
         self._print_message(message, stream)
 
     def _print_message(self, message, stream):
-        # Redefined internal method called by the parent class
+        """
+        Redefined internal method called by the superclass. See docstring of
+        `print_message()` for details.
+        """
         if stream is sys.stdout:
             stream = self.stdout
         elif stream is sys.stderr:
@@ -109,7 +123,7 @@ class ArgumentParser(argparse.ArgumentParser):
         Namespace is created.
 
         See the stdlib's `argparse`-module documentation for more details, since
-        this is an overriden method of `argparse.ArgumentParser`.
+        this is a redefined method of `argparse.ArgumentParser`.
         """
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
         if not args.items:
@@ -128,8 +142,8 @@ class ArgumentParser(argparse.ArgumentParser):
 
 def main(args=None, prog_name='shcol', version=__version__):
     """
-    Parse command-line arguments and invoke `shcol.print_columnized()` with the
-    result.
+    Parse command-line arguments and invoke `highlevel.print_columnized()`
+    with the result.
 
     `args` defines the arguments to parse. If this is `None` then `sys.argv[1:]`
     is used instead.
