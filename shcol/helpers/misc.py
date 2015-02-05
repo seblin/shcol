@@ -31,14 +31,14 @@ def get_decoded(items, encoding=config.ENCODING):
     `encoding` defines the name of the encoding to be used. It is passed to each
     item's `.decode()`-method.
 
-    Note that if an item does not provide a `.decode()`-method then the item is
-    left unchanged. If the item's `.decode()`-method throws an exception then
-    the function will fail.
+    Note that if an item does not provide a `.decode()`-method or if decoding
+    throws a `UnicodeEncodeError` (as on Python 2.x) then the item is left
+    unchanged. Any other exception during decoding an item will cause an error.
     """
     for item in items:
-        if hasattr(item, 'decode'):
+        try:
             yield item.decode(encoding)
-        else:
+        except (AttributeError, UnicodeEncodeError):
             yield item
 
 
