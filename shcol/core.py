@@ -40,12 +40,245 @@ def columnize(
     thread-safe because it temporarily changes the interpreter's global locale
     configuration.
 
-    `decode` defines whether non-unicode items should be decoded to unicode. If
+    `decode` defines whether non-Unicode items should be decoded to Unicode. If
      running on Python 3.x then most of the time the "decoding step" is not
-     necessary and can be skipped to safe some time.
+     necessary and can be skipped to safe some time. This is why the default
+     value for `decode` is `False` when running on a Python 3.x interpreter
+     while it is set to `True` when running on Python 2.x.
     """
-    formatter = build_formatter(type(items), spacing, line_width, sort_items)
-    return formatter.format(items, decode)
+    formatter = get_formatter_class(items).for_line_config(spacing, line_width)
+    return formatter.format(items, sort_items, decode)
+
+def get_formatter_class(items):
+    """
+    Return an appropriated class based on the type of `items`.
+
+    If `items` is a dict-like object then `MappingFormatter` will be returned.
+    Otherwise, `IterableFormatter` is returned.
+
+    Note that these heuristics are based on rough assumptions. There is no
+    guarantee that formatting with the returned class will not fail.
+    """
+    if hasattr(items, 'keys') and hasattr(items, 'values'):
+        return MappingFormatter
+    return IterableFormatter
+
+
+class IterableFormatter(object):
+    """
+    A class to do columnized formatting on a given iterable of strings.
+    """
+    def __init__(
+        self, calculator, linesep=config.LINESEP, encoding=config.ENCODING
+    ):
+        """
+        Initialize the formatter.
+
+        `calculator` will be used to determine the width of each column when
+        columnized string formatting is done. It should be a class instance
+        that implements a `.get_properties()` method in a similar way as
+        `ColumnWidthCalculator` does.
+
+        `linesep` defines the character(s) used to start a new line.
+
+        `encoding` should be a string defining the codec name to be used in
+        cases where decoding of items is requested.
+        """
+        self.calculator = calculator
+        self.linesep = linesep
+        self.encoding = encoding
+
+    @classmethod
+    def for_line_config(
+        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+    ):
+        """
+        Return a new instance of this class with a pre-configured calculator.
+        The calculator instance will be based on the given `spacing` and
+        `line_width` parameters.
+        """
+        calculator = ColumnWidthCalculator(
+            spacing, line_width, allow_exceeding=(line_width is None)
+        )
+        return cls(calculator)
+
+    def format(
+        self, items, sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
+    ):
+        """
+        Return a columnized string based on `items`.
+
+        `sort_items` should be a boolean defining whether `items` should be
+        sorted before they are columnized.
+
+        `decode` defines whether each item should be decoded in order to get
+        Unicode-strings. When passing items that already are Unicode then this
+        parameter may be set to `False` to skip the "decoding step" (which will
+        safe some time).
+
+        Please note that Python 2.x (byte-)strings with non-ascii characters in
+        it (e.g. German umlauts) should always be decoded. Otherwise, formatting
+        is likely to return unexpected results. Unicode items in Python 2.x are
+        *not* affected by this.
+        """
+        if sort_items:
+            items = self.get_sorted(items)
+        if decode:
+            items = self.get_decoded(items)
+        lines = self.make_lines(items)
+        return self.linesep.join(lines)
+
+    @staticmethod
+    def get_sorted(items):
+        """
+        Return a sorted version of `items`.
+        """
+        return helpers.get_sorted(items)
+
+    def get_decoded(self, items):
+        """
+        Return a decoded version of `items`.
+        """
+        return list(helpers.get_decoded(items, self.encoding))
+
+    def make_lines(self, items):
+        """
+        Return columnized lines for `items` yielded by an iterator. Note that
+        this method does not append extra newline characters to the end of the
+        resulting lines.
+        """
+        props = self.get_line_properties(items)
+        line_chunks = self.make_line_chunks(items, props)
+        template = self.make_line_template(props)
+        for chunk in line_chunks:
+            try:
+                yield template % chunk
+            except TypeError:
+                # cached template does not match current chunk length
+                # -> regenerate and try again
+                template = self.make_line_template(props, len(chunk))
+                yield template % chunk
+
+    def get_line_properties(self, items):
+        """
+        Return a `LineProperties`-instance with a configuration based on given
+        `items`.
+        """
+        return self.calculator.get_line_properties(items)
+
+    @staticmethod
+    def make_line_chunks(items, props):
+        """
+        Return an iterable of tuples that represent the elements of `items` for
+        each line meant to be used in a formatted string. Note that the result
+        depends on the value of `props.num_lines` where `props` should be a
+        `LineProperties`-instance.
+        """
+        return [
+            tuple(items[i::props.num_lines]) for i in range(props.num_lines)
+        ]
+
+    def make_line_template(self, props, num_columns=None):
+        """
+        Return a string meant to be used as a formatting template for *one* line
+        of columnized output. The template will be suitable for old-style string
+        formatting ('%s' % my_string).
+
+        `props` is expected to be a `LineProperties`-instance as it is defined
+        in this module. Appropriated format specifiers are generated based on
+        the information of `props.column_widths`. In the resulting template the
+        specifiers are joined by using a separator with a `props.spacing` number
+        of blank characters.
+
+        `num_columns` defines the number of columns that the resulting template
+        should cover. If `None` is used then all items of `props.columns_widths`
+        are taken into account. Otherwise, the resulting format string will only
+        hold specifiers for the first `num_columns`.
+        """
+        widths = props.column_widths[:num_columns]
+        if not widths:
+            return ''
+        parts = [self.get_padded_template(width) for width in widths[:-1]]
+        parts.append(self.get_unpadded_template(widths[-1]))
+        return (props.spacing * ' ').join(parts)
+
+    @staticmethod
+    def get_padded_template(width):
+        """
+        Return a column template suitable for string formatting with exactly
+        one string argument (e.g. template % mystring).
+
+        The template is guaranteed to produce results which are always exactly
+        `width` characters long. If a string smaller than the given `width` is
+        passed to the template then the result will be padded on its right side
+        with as much blank characters as necessary to reach the required
+        `width`. In contrast, if the string is wider than `width` then all
+        characters on the right side of the string which are "too much" are
+        truncated.
+        """
+        return '%%-%d.%ds' % (width, width)
+
+    @staticmethod
+    def get_unpadded_template(width):
+        """
+        Same as `get_padded_template()` but does not pad blank characters if
+        the string passed to the template is shorter than the given `width`.
+        """
+        return '%%.%ds' % width
+
+
+class MappingFormatter(IterableFormatter):
+    """
+    A class to do columnized formatting on a given mapping of strings.
+    """
+    @classmethod
+    def for_line_config(
+        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH
+    ):
+        """
+        Return a new instance of this class with a pre-configured calculator.
+        The calculator instance will be based on the given `spacing` and
+        `line_width` parameters.
+        """
+        calculator = ColumnWidthCalculator(
+            spacing, line_width, num_columns=2, allow_exceeding=False
+        )
+        return cls(calculator)
+
+    @staticmethod
+    def get_sorted(mapping):
+        """
+        Return a sorted version of `mapping`.
+        """
+        return helpers.get_dict(
+            (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
+        )
+
+    def get_decoded(self, mapping):
+        """
+        Return a decoded version of `mapping`.
+        """
+        keys = helpers.get_decoded(mapping.keys(), self.encoding)
+        values = helpers.get_decoded(mapping.values(), self.encoding)
+        return helpers.get_dict(zip(keys, values))
+
+    def get_line_properties(self, mapping):
+        """
+        Return a `LineProperties`-instance with a configuration based on the
+        strings in the keys and values of `mapping`.
+        """
+        items = itertools.chain(mapping.keys(), mapping.values())
+        return self.calculator.get_line_properties(items)
+
+    @staticmethod
+    def make_line_chunks(mapping, props):
+        """
+        Return an iterable of tuples that represent the elements of `mapping`
+        for each line meant to be used in a formatted string. Note that the
+        result depends on the value of `props.num_lines` where `props` should
+        be a `LineProperties`-instance.
+        """
+        return list(mapping.items())[:props.num_lines]
 
 
 class ColumnWidthCalculator(object):
@@ -229,230 +462,3 @@ class ColumnWidthCalculator(object):
         """
         total = sum(column_widths) + (len(column_widths) - 1) * self.spacing
         return total <= self.line_width
-
-
-class IterableFormatter(object):
-    """
-    A class to do columnized formatting on a given iterable of strings.
-    """
-    def __init__(
-        self, calculator, linesep=config.LINESEP, encoding=config.ENCODING,
-        sort_items=config.SORT_ITEMS
-    ):
-        """
-        Initialize the formatter. 
-
-        `calculator` will be used to determine the width of each column when
-        columnized string formatting is done. It should be a class instance
-        that implements a `.get_properties()` method in a similar way as
-        `ColumnWidthCalculator` does.
-
-        `linesep` defines the character(s) used to start a new line.
-
-        `encoding` will be used when formatting byte-strings. These strings are
-        decoded to unicode-strings by using the given `encoding`.
-
-        `sort_items` defines whether the given items should be sorted before
-        they are columnized.
-        """
-        self.calculator = calculator
-        self.linesep = linesep
-        self.encoding = encoding
-        self.sort_items = sort_items
-
-    def format(self, items, decode=config.NEEDS_DECODING):
-        """
-        Return a columnized string based on `items`.
-
-        `decode` defines whether each item should be decoded in order to get
-        unicode-strings. When passing items that already are unicode then this
-        parameter may be set to `False` to skip the "decoding step" (which will
-        safe some time).
-        """
-        if self.sort_items:
-            items = self.get_sorted(items)
-        if decode:
-            items = self.get_decoded(items)
-        lines = self.make_lines(items)
-        return self.linesep.join(lines)
-
-    @staticmethod
-    def get_sorted(items):
-        """
-        Return a sorted version of `items`.
-        """
-        return helpers.get_sorted(items)
-
-    def get_decoded(self, items):
-        """
-        Return a decoded version of `items`.
-        """
-        return list(helpers.get_decoded(items, self.encoding))
-
-    def make_lines(self, items):
-        """
-        Return columnized lines for `items` yielded by an iterator. Note that
-        this method does not append extra newline characters to the end of the
-        resulting lines.
-        """
-        props = self.get_line_properties(items)
-        line_chunks = self.make_line_chunks(items, props)
-        template = self.make_line_template(props)
-        for chunk in line_chunks:
-            try:
-                yield template % chunk
-            except TypeError:
-                # cached template does not match current chunk length
-                # -> regenerate and try again
-                template = self.make_line_template(props, len(chunk))
-                yield template % chunk
-
-    def get_line_properties(self, items):
-        """
-        Return a `LineProperties`-instance with a configuration based on given
-        `items`.
-        """
-        return self.calculator.get_line_properties(items)
-
-    @staticmethod
-    def make_line_chunks(items, props):
-        """
-        Return an iterable of tuples that represent the elements of `items` for
-        each line meant to be used in a formatted string. Note that the result
-        depends on the value of `props.num_lines` where `props` should be a
-        `LineProperties`-instance.
-        """
-        return [
-            tuple(items[i::props.num_lines]) for i in range(props.num_lines)
-        ]
-
-    def make_line_template(self, props, num_columns=None):
-        """
-        Return a string meant to be used as a formatting template for *one* line
-        of columnized output. The template will be suitable for old-style string
-        formatting ('%s' % my_string). 
-
-        `props` is expected to be a `LineProperties`-instance as it is defined
-        in this module. Appropriated format specifiers are generated based on
-        the information of `props.column_widths`. In the resulting template the
-        specifiers are joined by using a separator with a `props.spacing` number
-        of blank characters.
-
-        `num_columns` defines the number of columns that the resulting template
-        should cover. If `None` is used then all items of `props.columns_widths`
-        are taken into account. Otherwise, the resulting format string will only
-        hold specifiers for the first `num_columns`.
-        """
-        widths = props.column_widths[:num_columns]
-        if not widths:
-            return ''
-        parts = [self.get_padded_template(width) for width in widths[:-1]]
-        parts.append(self.get_unpadded_template(widths[-1]))
-        return (props.spacing * ' ').join(parts)
-
-    @staticmethod
-    def get_padded_template(width):
-        """
-        Return a column template suitable for string formatting with exactly
-        one string argument (e.g. template % mystring).
-
-        The template is guaranteed to produce results which are always exactly
-        `width` characters long. If a string smaller than the given `width` is
-        passed to the template then the result will be padded on its right side
-        with as much blank characters as necessary to reach the required
-        `width`. In contrast, if the string is wider than `width` then all
-        characters on the right side of the string which are "too much" are
-        truncated.
-        """
-        return '%%-%d.%ds' % (width, width)
-
-    @staticmethod
-    def get_unpadded_template(width):
-        """
-        Same as `get_padded_template()` but does not pad blank characters if
-        the string passed to the template is shorter than the given `width`.
-        """
-        return '%%.%ds' % width
-
-
-class MappingFormatter(IterableFormatter):
-    """
-    A class to do columnized formatting on a given mapping of strings.
-    """
-    @staticmethod
-    def get_sorted(mapping):
-        """
-        Return a sorted version of `mapping`.
-        """
-        return helpers.get_dict(
-            (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
-        )
-
-    def get_decoded(self, mapping):
-        """
-        Return a decoded version of `mapping`.
-        """
-        keys = helpers.get_decoded(mapping.keys(), self.encoding)
-        values = helpers.get_decoded(mapping.values(), self.encoding)
-        return helpers.get_dict(zip(keys, values))
-
-    def get_line_properties(self, mapping):
-        """
-        Return a `LineProperties`-instance with a configuration based on the
-        strings in the keys and values of `mapping`.
-        """
-        items = itertools.chain(mapping.keys(), mapping.values())
-        return self.calculator.get_line_properties(items)
-
-    @staticmethod
-    def make_line_chunks(mapping, props):
-        """
-        Return an iterable of tuples that represent the elements of `mapping`
-        for each line meant to be used in a formatted string. Note that the
-        result depends on the value of `props.num_lines` where `props` should
-        be a `LineProperties`-instance.
-        """
-        return list(mapping.items())[:props.num_lines]
-
-
-def build_formatter(
-    items_type, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-    sort_items=config.SORT_ITEMS, calculator_class=ColumnWidthCalculator
-):
-    """
-    Return a new formatter instance based on the given parameters.
-
-    `items_type` defines the container type of the items that are meant to
-    be formatted (list, dict, tuple, ...). In its current implementation only
-    mapping types are special-cased by this function. All other types are just
-    treated as iterables.
-
-    `spacing` defines the number of blank characters between two columns.
-
-    `line_width` is the maximal amount of characters that fits in one line.
-    If this is set to `None` then the terminal's width is used. Note that
-    setting a numeric value to this parameter guarantees that the given
-    line width is never exceeded when rendered with columnized items. A
-    `ValueError` is thrown in cases where this guarantee can't be fulfilled
-    (e.g. at least one item is wider than the allowed line width). In
-    contrast, setting that parameter to `None` will not give that guarantee.
-    The underlying calculator is then free do decide whether throwing an
-    exception is reasonable.
-
-    `sort_items` defines whether items should be sorted.
-
-    `calculator_class` defines the class to use for column width calculation.
-    It should implement a `get_line_properties`-method and it should provide an
-    `__init__`-method with the same signature as `ColumnWidthCalculator` does.
-    """
-    if issubclass(items_type, collections.Mapping):
-        formatter_class = MappingFormatter
-        calculator = calculator_class(
-            spacing, line_width, num_columns=2, allow_exceeding=False
-        )
-    else:
-        formatter_class = IterableFormatter
-        calculator = calculator_class(
-            spacing, line_width, allow_exceeding=(line_width is None)
-        )
-    return formatter_class(calculator, sort_items=sort_items)

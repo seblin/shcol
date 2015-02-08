@@ -203,9 +203,9 @@ class IterableFormatterTest(unittest.TestCase):
             self.assertEqual(self.formatter.format(items), self.join(items))
 
     def test_sort_items(self):
-        self.formatter.sort_items = True
         self.assertEqual(
-            self.formatter.format(self.items), self.join(self.sorted_items)
+            self.formatter.format(self.items, sort_items=True),
+            self.join(self.sorted_items)
         )
 
     def make_lines(self, items):
