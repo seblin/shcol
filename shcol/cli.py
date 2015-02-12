@@ -37,11 +37,13 @@ class ArgumentParser(argparse.ArgumentParser):
         argparse.ArgumentParser.__init__(
             self, prog=prog_name, formatter_class=argparse.RawTextHelpFormatter,
             description='Generate columnized output for given string items.\n\n'
-            'Examples (on a Debian system):\n'
-            '\n'
-            '%(prog)s -S foo bar baz\n'
+            'Columize and sort:\n'
+            '%(prog)s -S foo bar baz\n\n'
+            'Columnize command output on Linux (Debian):\n'
             '%(prog)s -S -c0 < /proc/modules\n'
-            'dpkg --get-selections \'python3*\' | %(prog)s -c0 -s4'
+            'dpkg --get-selections \'python3*\' | %(prog)s -c0 -s4\n\n'
+            'Columnize process names on Windows PowerShell:\n'
+            'ps | foreach {$_.name} | select -unique | %(prog)s -w80'
         )
         self.stdin = stdin
         self.stdout = stdout
