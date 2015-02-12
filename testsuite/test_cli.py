@@ -84,6 +84,10 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
             '--column', '-c', items=[], stdin_content=stdin_content
         )
 
+    def test_column_with_item_args(self):
+        result = self.fetch_output(['-c0', 'spam'], 'stderr')
+        self.assertIn('can\'t use --column', result)
+
     def test_second_column(self):
         self.set_stdin_content('xxx spam\nzzz ham\n~~~ eggs\n')
         args = self.parser.parse_args(['-c' '1'])
