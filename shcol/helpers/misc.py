@@ -150,30 +150,42 @@ def num(value, allow_none=True):
         raise ValueError('value must be non-negative')
     return number
 
-def get_lines(source):
+def get_lines(source, chars=None, skip_emtpy=True):
     """
-    Return an iterator that yields all lines from `source`. Note that the
-    resulting lines will not contain any trailing "\\n"-characters.
-    """
-    return (line.rstrip('\n') for line in source)
+    Return an iterator that yields all lines from `source`.
 
-def get_column(column_index, source):
-    """
-    Return the content of a specific column linewise by using `column_index`.
-    A column is defined as a sequence of non-whitespace characters. The column
-    seperator is whitespace. `source` is expected to yield the lines to be
-    processed.
+    `chars` defines the characters to be stripped from the end of each line.
+    If `None` is used then all trailing whitespace characters are stripped.
 
-    Note that `column_index` must be a non-negative integer. If the iterator
-    encounters a line that has not enough columns for the desired `column_index`
-    then `IndexError` will be thrown. Lines with no columns are ignored.
+    Setting `skip_empty` to `True` means that all lines, that have no content
+    after stripping was done (=empty strings), are *not* yielded.
+    """
+    for line in source:
+        line = line.rstrip(chars)
+        if line or not skip_emtpy:
+            yield line
+
+def get_column(column_index, source, sep=None):
+    """
+    Return the content of a specific column.
+
+    `column_index` defines the index of the column to be extracted. It must be
+    an integer >= 0.
+
+    `source` is expected to be an iterator yielding the lines to be processed.
+    The resulting column will be based on these lines.
+
+    `sep` should be a string that defines the separator between each column. If
+    `None` is used instead then the separator is whitespace.
+
+    If this function encounters a line having not enough columns to fulfill the
+    given column index then it will fail by throwing `IndexError`.
     """
     column_index = num(column_index)
-    for num_line, line in enumerate(source, 1):
-        columns = line.split()
-        if not columns:
-            continue
+    maxsplit = column_index + 1
+    for num_line, line in enumerate(source):
+        columns = line.split(sep, maxsplit)
         if column_index >= len(columns):
-            msg = 'no data for column index {} at line #{}'
+            msg = 'no data for column index {} at line index {}'
             raise IndexError(msg.format(column_index, num_line))
         yield columns[column_index]
