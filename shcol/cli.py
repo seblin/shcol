@@ -43,7 +43,7 @@ class ArgumentParser(argparse.ArgumentParser):
             '%(prog)s -S -c0 < /proc/modules\n'
             'dpkg --get-selections \'python3*\' | %(prog)s -c0 -s4\n\n'
             'Columnize process names on Windows PowerShell:\n'
-            'ps | foreach {$_.name} | select -unique | %(prog)s -w80'
+            'ps | foreach {$_.name} | %(prog)s -U'
         )
         self.stdin = stdin
         self.stdout = stdout
@@ -105,6 +105,11 @@ class ArgumentParser(argparse.ArgumentParser):
             help='sort the items'
         )
         self.add_argument(
+            '-U', '--unique', action='store_true', default=False,
+            help='process only the first occurrence of an item\n'
+                 '(i.e. doublets are eliminated)'
+        )
+        self.add_argument(
             '-c', '--column', metavar='N', type=helpers.num, dest='column',
             help='choose a specific column per line via an index value\n'
                  '(indices start at 0, column seperator is whitespace)\n'
@@ -135,7 +140,9 @@ class ArgumentParser(argparse.ArgumentParser):
             args.items = helpers.get_lines(self.stdin)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
-            args.items = list(args.items)
+        if args.unique:
+            args.items = helpers.make_unique(args.items)
+        args.items = list(args.items)
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):

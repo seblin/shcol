@@ -20,8 +20,8 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'StringIO', 'get_decoded', 'get_sorted', 'get_filenames', 'filter_names',
-    'get_dict', 'num', 'get_lines', 'get_column'
+    'StringIO', 'get_decoded', 'get_sorted', 'make_unique', 'get_filenames',
+    'filter_names', 'get_dict', 'num', 'get_lines', 'get_column'
 ]
 
 def get_decoded(items, encoding=config.ENCODING):
@@ -81,6 +81,20 @@ def get_sorted(items, locale_name='', strict=False):
             # this would fail otherwise
             locale.setlocale(locale.LC_COLLATE, old_locale)
     return result
+
+def make_unique(items):
+    """
+    Return an iterator based on `items` that only yields the first occurrence of
+    an item. Any further occurrences of an item are ignored.
+
+    Note that in contrast to a `set()` this function will preserve the original
+    order of the given items.
+    """
+    seen = set()
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            yield item
 
 def get_filenames(path='.', hide_dotted=False):
     """
