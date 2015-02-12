@@ -15,19 +15,26 @@ class CLITestMixin(object):
             self.parser.parse_args(args)
         return pseudo_stream.getvalue().rstrip('\n')
 
-    def check_num_option(self, long_option, short_option, items=['spam']):
+    def check_num_option(
+        self, long_option, short_option, items=['spam'], stdin_content=None
+    ):
         option_name = long_option.lstrip('-')
         for option_string in (long_option, short_option):
             for value in ('0', '2', '80', '100'):
+                self.set_stdin_content(stdin_content)
                 args = self.parser.parse_args([option_string, value] + items)
                 self.assertEqual(getattr(args, option_name), int(value))
             for invalid in ('-42', '-1', '1.0', 'x'):
+                self.set_stdin_content(stdin_content)
                 args = [option_string, invalid] + items
                 error = self.fetch_output(args, 'stderr')
                 self.assertIn('invalid num value', error)
 
-    def set_parser_input(self, data):
-        pseudo_stream = shcol.helpers.StringIO(data)
+    def set_stdin_content(self, data):
+        pseudo_stream = shcol.helpers.StringIO()
+        if data is not None:
+            pseudo_stream.write(data)
+            pseudo_stream.seek(0)
         self.parser.stdin = pseudo_stream
 
 
@@ -57,7 +64,7 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
         self.assertEqual(items, args.items)
 
     def test_stdin_input(self):
-        self.set_parser_input('spam\nham\neggs\n')
+        self.set_stdin_content('spam\nham\neggs\n')
         args = self.parser.parse_args([])
         self.assertEqual(['spam', 'ham', 'eggs'], args.items)
 
@@ -72,14 +79,17 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
         self.assertTrue(args.sort)
 
     def test_column_option(self):
-        self.check_num_option('--column', '-c', items=['spam ' * 1000])
+        stdin_content = 'spam ' * 1000
+        self.check_num_option(
+            '--column', '-c', items=[], stdin_content=stdin_content
+        )
 
     def test_second_column(self):
-        self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
+        self.set_stdin_content('xxx spam\nzzz ham\n~~~ eggs\n')
         args = self.parser.parse_args(['-c' '1'])
         self.assertEqual(['spam', 'ham', 'eggs'], args.items)
 
     def test_nonexistent_column(self):
-        self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
+        self.set_stdin_content('xxx spam\nzzz ham\n~~~ eggs\n')
         with self.assertRaises(IndexError):
             self.parser.parse_args(['-c', '42'])

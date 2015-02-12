@@ -107,7 +107,8 @@ class ArgumentParser(argparse.ArgumentParser):
         self.add_argument(
             '-c', '--column', metavar='N', type=helpers.num, dest='column',
             help='choose a specific column per line via an index value\n'
-                 '(indices start at 0, column seperator is whitespace)'
+                 '(indices start at 0, column seperator is whitespace)\n'
+                 'will only work when items are supplied via stdin'
         )
         self.add_argument(
             '-v', '--version', action='version', version=self.version_string
@@ -128,12 +129,13 @@ class ArgumentParser(argparse.ArgumentParser):
         this is a redefined method of `argparse.ArgumentParser`.
         """
         args = argparse.ArgumentParser.parse_args(self, args, namespace)
+        if args.items and args.column is not None:
+            self.error('can\'t use --column when items are given as arguments')
         if not args.items:
             args.items = helpers.get_lines(self.stdin)
-        if args.column is not None:
-            args.items = helpers.get_column(args.column, args.items)
-        # Raise possible errors early by walking through the iterator
-        args.items = list(args.items)
+            if args.column is not None:
+                args.items = helpers.get_column(args.column, args.items)
+            args.items = list(args.items)
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):
