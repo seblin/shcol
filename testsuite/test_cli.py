@@ -81,5 +81,5 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
 
     def test_nonexistent_column(self):
         self.set_parser_input('xxx spam\nzzz ham\n~~~ eggs\n')
-        error = self.fetch_output(['-c', '42'], 'stderr')
-        self.assertIn('no data for column index', error)
+        with self.assertRaises(IndexError):
+            self.parser.parse_args(['-c', '42'])

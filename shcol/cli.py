@@ -130,14 +130,8 @@ class ArgumentParser(argparse.ArgumentParser):
             args.items = helpers.get_lines(self.stdin)
         if args.column is not None:
             args.items = helpers.get_column(args.column, args.items)
-        try:
-            # Walk through the iterator
-            args.items = list(args.items)
-        except IndexError as e:
-            message = e.args[0]
-            self.error(message)
-        except KeyboardInterrupt:
-            self.exit(1, '\n')
+        # Raise possible errors early by walking through the iterator
+        args.items = list(args.items)
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):
@@ -151,13 +145,19 @@ def main(args=None, prog_name='shcol', version=__version__):
     `prog_name` defines the program name to use for the help text.
 
     `version` should be a string containing the program's version.
+
+    If an exception occurs during running this function then its message (if
+    any) will be written to standard error and the interpreter is requested to
+    shut down (i.e. it exits with an error code if `SystemExit` is not caught).
     """
     parser = ArgumentParser(prog_name, version)
-    args = parser.parse_args(args)
     try:
+        args = parser.parse_args(args)
         highlevel.print_columnized(
             args.items, spacing=args.spacing,
             line_width=args.width, sort_items=args.sort
         )
-    except UnicodeEncodeError:
-        parser.error('failed to encode input')
+    except KeyboardInterrupt:
+        parser.exit(1)
+    except Exception as exc:
+        parser.error(exc)
