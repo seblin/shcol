@@ -101,11 +101,11 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(use terminal width by default)'
         )
         self.add_argument(
-            '-S', '--sort', action='store_true', default=False,
+            '-S', '--sort', action='store_true', default=config.SORT_ITEMS,
             help='sort the items'
         )
         self.add_argument(
-            '-U', '--unique', action='store_true', default=False,
+            '-U', '--unique', action='store_true', default=config.MAKE_UNIQUE,
             help='process only the first occurrence of an item\n'
                  '(i.e. doublets are eliminated)'
         )
@@ -140,9 +140,7 @@ class ArgumentParser(argparse.ArgumentParser):
             args.items = helpers.get_lines(self.stdin)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
-        if args.unique:
-            args.items = helpers.make_unique(args.items)
-        args.items = list(args.items)
+            args.items = list(args.items)
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):
@@ -165,8 +163,8 @@ def main(args=None, prog_name='shcol', version=__version__):
     try:
         args = parser.parse_args(args)
         highlevel.print_columnized(
-            args.items, spacing=args.spacing,
-            line_width=args.width, sort_items=args.sort
+            args.items, spacing=args.spacing, line_width=args.width,
+            make_unique=args.unique, sort_items=args.sort
         )
     except KeyboardInterrupt:
         parser.exit(1)

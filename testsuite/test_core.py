@@ -13,7 +13,9 @@ class ColumnizeTest(unittest.TestCase):
 
     @staticmethod
     def columnize(items, spacing=2, line_width=80, sort_items=False):
-        return shcol.columnize(items, spacing, line_width, sort_items)
+        return shcol.columnize(
+            items, spacing=spacing, line_width=line_width, sort_items=sort_items
+        )
 
     @staticmethod
     def join(items, spacing=2):

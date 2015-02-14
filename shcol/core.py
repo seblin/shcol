@@ -22,7 +22,8 @@ LineProperties = collections.namedtuple(
 
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-    sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
+    make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
+    decode=config.NEEDS_DECODING
 ):
     """
     Return a columnized string based on `items`. The result is similar to
@@ -34,6 +35,9 @@ def columnize(
     `line_width` should be a non-negative integer defining the maximal amount
     of characters that fit in one line. If this is `None` then the terminal's
     width is used.
+
+    If `make_unique` is `True` then only the first occurrence of an item is
+    processed and any other occurrences of that item are ignored.
 
     If `sort_items` is `True`, then a locale-aware sorted version of `items`
     is used to generate the columnized output. Note that enabling sorting is not
@@ -47,7 +51,7 @@ def columnize(
      while it is set to `True` when running on Python 2.x.
     """
     formatter = get_formatter_class(items).for_line_config(spacing, line_width)
-    return formatter.format(items, sort_items, decode)
+    return formatter.format(items, make_unique, sort_items, decode)
 
 def get_formatter_class(items):
     """
@@ -103,10 +107,14 @@ class IterableFormatter(object):
         return cls(calculator)
 
     def format(
-        self, items, sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
+        self, items, make_unique=config.MAKE_UNIQUE,
+        sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
     ):
         """
         Return a columnized string based on `items`.
+
+        If `make_unique` is `True` then only the first occurrence of an item is
+        processed and any other occurrences of that item are ignored.
 
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
@@ -121,6 +129,8 @@ class IterableFormatter(object):
         is likely to return unexpected results. Unicode items in Python 2.x are
         *not* affected by this.
         """
+        if make_unique:
+            items = helpers.make_unique(items)
         if sort_items:
             items = self.get_sorted(items)
         if decode:
@@ -139,7 +149,7 @@ class IterableFormatter(object):
         """
         Return a decoded version of `items`.
         """
-        return list(helpers.get_decoded(items, self.encoding))
+        return helpers.get_decoded(items, self.encoding)
 
     def make_lines(self, items):
         """
@@ -147,6 +157,7 @@ class IterableFormatter(object):
         this method does not append extra newline characters to the end of the
         resulting lines.
         """
+        items = list(items)
         props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
         template = self.make_line_template(props)

@@ -19,6 +19,7 @@ INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
 LINE_WIDTH_FALLBACK = 80
 LINESEP = '\n'
+MAKE_UNIQUE = False
 NEEDS_DECODING = (sys.version_info < (3, 0))
 ON_WINDOWS = sys.platform.startswith('win')
 OUTPUT_STREAM = sys.stdout
