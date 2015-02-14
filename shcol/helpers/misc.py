@@ -21,7 +21,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'make_unique', 'get_filenames',
-    'filter_names', 'get_dict', 'num', 'get_lines', 'get_column'
+    'filter_names', 'is_mapping', 'get_dict', 'num', 'get_lines', 'get_column'
 ]
 
 def get_decoded(items, encoding=config.ENCODING):
@@ -130,6 +130,14 @@ def filter_names(source, pattern):
         if match is not None:
             yield match.group(0)
 
+def is_mapping(obj):
+    """
+    Return `True` if `obj` is considered to be a mapping. Return `False`
+    otherwise. Note that this function does a "duck-type" check. It only
+    checks the presence of a `keys`- and a `values`-attribute.
+    """
+    return hasattr(obj, 'keys') and hasattr(obj, 'values')
+
 def get_dict(mapping):
     """
     Return `mapping` as a dictionary. If `mapping` is already a mapping-type
@@ -139,7 +147,7 @@ def get_dict(mapping):
     this function is just a shorthand for ``collections.OrderedDict(mapping)``
     but with the pre-check mentioned above.
     """
-    if not isinstance(mapping, collections.Mapping):
+    if not is_mapping(mapping):
         mapping = collections.OrderedDict(mapping)
     return mapping
 

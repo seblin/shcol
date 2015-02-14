@@ -67,7 +67,7 @@ def get_formatter_class(items):
     Note that these heuristics are based on rough assumptions. There is no
     guarantee that formatting with the returned class will not fail.
     """
-    if hasattr(items, 'keys') and hasattr(items, 'values'):
+    if helpers.is_mapping(items):
         return MappingFormatter
     return IterableFormatter
 
