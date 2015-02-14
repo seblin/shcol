@@ -17,16 +17,16 @@ __all__ = [
     'print_filenames'
 ]
 
-def print_columnized(items, output_stream=config.OUTPUT_STREAM, **kwargs):
+def print_columnized(items, output_stream=config.OUTPUT_STREAM, **options):
     """
     Shorthand for writing columnized `items` to `output_stream`. Additional
-    keyword-arguments are passed as is to the underlying `columnize()`-function
-    and are interpreted there.
+    options are passed as is to the underlying `columnize()`-function and are
+    interpreted there.
     """
-    result = core.columnize(items, **kwargs)
+    result = core.columnize(items, **options)
     print(result, file=output_stream)
 
-def print_columnized_mapping(items, **kwargs):
+def print_columnized_mapping(items, **options):
     """
     Like `print_columnized()` but expects `items` to be given as a mapping.
     
@@ -38,9 +38,9 @@ def print_columnized_mapping(items, **kwargs):
     and one for the values) is returned. Note that an exception will occur
     if the result would exceed the allowed line width.
     """
-    print_columnized(helpers.get_dict(items), **kwargs)
+    print_columnized(helpers.get_dict(items), **options)
 
-def print_attr_names(obj, pattern=None, **kwargs):
+def print_attr_names(obj, pattern=None, **options):
     """
     Like `print_columnized()` but columnizes the attribute names of `obj`.
 
@@ -52,9 +52,9 @@ def print_attr_names(obj, pattern=None, **kwargs):
     names = dir(obj)
     if pattern is not None:
         names = helpers.filter_names(names, pattern)
-    print_columnized(names, sort_items=True, **kwargs)
+    print_columnized(names, sort_items=True, **options)
 
-def print_filenames(path='.', hide_dotted=False, **kwargs):
+def print_filenames(path='.', hide_dotted=False, **options):
     """
     Like `print_columnized()` but columnizes the filenames living in given
     `path`. If `hide_dotted` is `True` then all filenames starting with a "."
@@ -62,4 +62,4 @@ def print_filenames(path='.', hide_dotted=False, **kwargs):
     expansion of symbols such as "*", "?" or even "~" (user's home).
     """
     filenames = helpers.get_filenames(path, hide_dotted)
-    print_columnized(filenames, sort_items=True, **kwargs)
+    print_columnized(filenames, sort_items=True, **options)
