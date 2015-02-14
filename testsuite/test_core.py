@@ -55,6 +55,12 @@ class ColumnizeTest(unittest.TestCase):
         expected = self.join(['eggs', 'ham', 'spam'])
         self.assertEqual(result, expected)
 
+    def test_decode(self):
+        items = [b'spam', b'ham', b'eggs']
+        result = self.columnize(items, decode=True)
+        expected = self.join(['spam', 'ham', 'eggs'])
+        self.assertEqual(result, expected)
+
     def test_invalid_values(self):
         with self.assertRaises(TypeError):
             self.columnize([42])
