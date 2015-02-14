@@ -12,10 +12,8 @@ import unittest
 class ColumnizeTest(unittest.TestCase):
 
     @staticmethod
-    def columnize(items, **options):
-        if 'line_width' not in options:
-            options['line_width'] = 80
-        return shcol.columnize(items, **options)
+    def columnize(items, line_width=80, **options):
+        return shcol.columnize(items, line_width=line_width, **options)
 
     @staticmethod
     def join(items, spacing=2):
