@@ -37,7 +37,9 @@ def columnize(
     width is used.
 
     If `make_unique` is `True` then only the first occurrence of an item is
-    processed and any other occurrences of that item are ignored.
+    processed and any other occurrences of that item are ignored. This option
+    converts whatever is iterated by `items` to a list. You probably don't want
+    to use this option when `items` are a mapping.
 
     If `sort_items` is `True`, then a locale-aware sorted version of `items`
     is used to generate the columnized output. Note that enabling sorting is not
@@ -50,8 +52,10 @@ def columnize(
      value for `decode` is `False` when running on a Python 3.x interpreter
      while it is set to `True` when running on Python 2.x.
     """
+    if make_unique:
+        items = list(helpers.make_unique(items))
     formatter = get_formatter_class(items).for_line_config(spacing, line_width)
-    return formatter.format(items, make_unique, sort_items, decode)
+    return formatter.format(items, sort_items, decode)
 
 def get_formatter_class(items):
     """
@@ -107,14 +111,10 @@ class IterableFormatter(object):
         return cls(calculator)
 
     def format(
-        self, items, make_unique=config.MAKE_UNIQUE,
-        sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
+        self, items, sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
     ):
         """
         Return a columnized string based on `items`.
-
-        If `make_unique` is `True` then only the first occurrence of an item is
-        processed and any other occurrences of that item are ignored.
 
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
@@ -129,8 +129,6 @@ class IterableFormatter(object):
         is likely to return unexpected results. Unicode items in Python 2.x are
         *not* affected by this.
         """
-        if make_unique:
-            items = helpers.make_unique(items)
         if sort_items:
             items = self.get_sorted(items)
         if decode:
