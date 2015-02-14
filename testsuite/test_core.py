@@ -12,10 +12,10 @@ import unittest
 class ColumnizeTest(unittest.TestCase):
 
     @staticmethod
-    def columnize(items, spacing=2, line_width=80, sort_items=False):
-        return shcol.columnize(
-            items, spacing=spacing, line_width=line_width, sort_items=sort_items
-        )
+    def columnize(items, **options):
+        if 'line_width' not in options:
+            options['line_width'] = 80
+        return shcol.columnize(items, **options)
 
     @staticmethod
     def join(items, spacing=2):
@@ -44,6 +44,12 @@ class ColumnizeTest(unittest.TestCase):
         self.assertEqual(
             self.columnize(items, line_width=45), '\n'.join(items)
         )
+
+    def test_make_unique(self):
+        items = ['spam', 'spam', 'ham', 'ham', 'ham', 'eggs']
+        result = self.columnize(items, make_unique=True)
+        expected = self.join(['spam', 'ham', 'eggs'])
+        self.assertEqual(result, expected)
 
     def test_sort_items(self):
         items = ['spam', 'ham', 'eggs']

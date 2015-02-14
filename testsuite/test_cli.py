@@ -74,6 +74,10 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
     def test_line_width_option(self):
         self.check_num_option('--width', '-w')
 
+    def test_unique_option(self):
+        args = self.parser.parse_args(['--unique', 'spam'])
+        self.assertTrue(args.unique)
+
     def test_sort_option(self):
         args = self.parser.parse_args(['--sort', 'spam'])
         self.assertTrue(args.sort)
