@@ -149,7 +149,7 @@ class IterableFormatter(object):
         """
         Return a decoded version of `items`.
         """
-        return helpers.get_decoded(items, self.encoding)
+        return list(helpers.get_decoded(items, self.encoding))
 
     def make_lines(self, items):
         """
@@ -157,7 +157,6 @@ class IterableFormatter(object):
         this method does not append extra newline characters to the end of the
         resulting lines.
         """
-        items = list(items)
         props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
         template = self.make_line_template(props)
