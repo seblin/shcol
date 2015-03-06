@@ -86,12 +86,18 @@ else:
         )
         return WinSize.from_buffer_copy(result).ws_col
 
-def get_terminal_width(fd=config.TERMINAL_FD, get_width=terminal_width_impl):
+
+def get_terminal_width(
+    fd=config.TERMINAL_FD, fallback_width=config.LINE_WIDTH_FALLBACK
+):
     """
     Return the current width of the (pseudo-)terminal connected to the file
     descriptor `fd`.
 
-    `get_width` should be a callable that provides a concrete implementation for
-    getting the terminal's width. It is assumed to take `fd` as a parameter.
+    `fallback_width` is returned when getting the terminal width failed with
+    `IOError` or `OSError`.
     """
-    return get_width(fd)
+    try:
+        return terminal_width_impl(fd)
+    except (IOError, OSError):
+        return fallback_width

@@ -332,10 +332,7 @@ class ColumnWidthCalculator(object):
         Return the line width used by this calculator.
         """
         if self._line_width is None:
-            try:
-                return helpers.get_terminal_width()
-            except (IOError, OSError):
-                return config.LINE_WIDTH_FALLBACK
+            return helpers.get_terminal_width()
         return self._line_width
 
     @line_width.setter
