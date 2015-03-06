@@ -322,8 +322,8 @@ class ColumnWidthCalculator(object):
         a `ValueError` will be raised instead.
         """
         self.spacing = helpers.num(spacing)
-        self._line_width = helpers.num(line_width)
-        self.num_columns = helpers.num(num_columns)
+        self._line_width = helpers.num(line_width, allow_none=True)
+        self.num_columns = helpers.num(num_columns, allow_none=True)
         self.allow_exceeding = allow_exceeding
 
     @property
@@ -477,7 +477,7 @@ class ColumnWidthCalculator(object):
         result.
         """
         num_items = len(item_widths)
-        max_columns = helpers.num(max_columns, allow_none=False)
+        max_columns = helpers.num(max_columns)
         num_lines = num_items // max_columns + bool(num_items % max_columns)
         column_widths = [
             max(item_widths[i : i + num_lines])

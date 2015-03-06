@@ -151,7 +151,7 @@ def get_dict(mapping):
         mapping = collections.OrderedDict(mapping)
     return mapping
 
-def num(value, allow_none=True):
+def num(value, allow_none=False):
     """
     Return `value` converted to an `int`-object. `value` should represent an
     integer >= 0. It may be any kind of object that supports conversion when
