@@ -368,20 +368,47 @@ class ColumnWidthCalculator(object):
         """
         if not item_widths:
             return [], 0
-        if self.num_columns is None:
-            max_columns = self.calculate_max_columns(item_widths)
-            candidates = self.get_column_configs(item_widths, max_columns)
-            for column_widths, num_lines in candidates:
-                if self.fits_in_line(column_widths):
-                    return column_widths, num_lines
-            column_widths, num_lines = [max(item_widths)], len(item_widths)
+        if self.num_columns is not None:
+            column_config = self.make_column_config(item_widths)
         else:
-            column_widths, num_lines = self.get_widths_and_lines(
-                item_widths, self.num_columns
-            )
-        if not self.allow_exceeding and not self.fits_in_line(column_widths):
+            column_config = self.find_fitting_config(item_widths)
+            if column_config is None and self.allow_exceeding:
+                column_config = [max(item_widths)], len(item_widths)
+        if column_config is None:
             raise ValueError('items do not fit in line')
-        return column_widths, num_lines
+        return column_config
+
+    def make_column_config(self, item_widths):
+        """
+        Return a column configuration based on `item_widths`.
+
+        Note that the number of columns to use is retrieved from this instance's
+        `.num_columns`-attribute. If the attribute was set to `None` then this
+        method will fail with an error.
+
+        The result might be `None` if the resulting column configuration does
+        not fit with the maximal line width of this instance.
+        """
+        column_widths, num_lines = (
+            self.get_widths_and_lines(item_widths, self.num_columns)
+        )
+        if self.fits_in_line(column_widths):
+            return column_widths, num_lines
+
+    def find_fitting_config(self, item_widths):
+        """
+        Return a column configuration that fits with the maximal line width of
+        this instance.
+
+        Note that this method internally uses `.iter_column_configs()` in order
+        to retrieve some candidates and then returns the first fitting one. If
+        no fitting candidate was found then `None` will be returned.
+        """
+        max_columns = self.calculate_max_columns(item_widths)
+        candidates = self.iter_column_configs(item_widths, max_columns)
+        for column_widths, num_lines in candidates:
+            if self.fits_in_line(column_widths):
+                return column_widths, num_lines
 
     def calculate_max_columns(self, item_widths):
         """
@@ -404,7 +431,7 @@ class ColumnWidthCalculator(object):
         possible_columns = 1 + remaining_width // min_width
         return min(num_items, possible_columns)
 
-    def get_column_configs(self, item_widths, max_columns):
+    def iter_column_configs(self, item_widths, max_columns):
         """
         Return an iterator that yields a sequence of "column configurations" for
         `item_widths`. A configuration is a 2-element tuple consisting of a list
@@ -433,7 +460,7 @@ class ColumnWidthCalculator(object):
     @staticmethod
     def get_widths_and_lines(item_widths, max_columns):
         """
-        Calulate column widths based on `item_widths` for an amount of at most
+        Calculate column widths based on `item_widths` for an amount of at most
         `max_columns` per line. The resulting column widths are represented
         as a list of non-negative integers. This list and the number of lines
         needed to display all items is returned as a 2-element tuple.
@@ -450,7 +477,7 @@ class ColumnWidthCalculator(object):
         result.
         """
         num_items = len(item_widths)
-        max_columns = helpers.num(max_columns)  # ensure non-negative integer
+        max_columns = helpers.num(max_columns, allow_none=False)
         num_lines = num_items // max_columns + bool(num_items % max_columns)
         column_widths = [
             max(item_widths[i : i + num_lines])

@@ -162,7 +162,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             ([347, 345], 3),
             ([347], 6),
         ]
-        result = self.calculator.get_column_configs(
+        result = self.calculator.iter_column_configs(
             item_widths, len(item_widths)
         )
         self.assertEqual(list(result), expected)
