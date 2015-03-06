@@ -423,12 +423,12 @@ class ColumnWidthCalculator(object):
         be shorter than the other columns. This might result in ommiting some
         configurations. See `.get_widths_and_lines()` for details.
         """
-        cached_config = ()
-        for num_columns in range(max_columns, 0, -1):
-            config = self.get_widths_and_lines(item_widths, num_columns)
-            if config != cached_config:
-                yield config
-            cached_config = config
+        while max_columns > 0:
+            column_widths, num_lines = self.get_widths_and_lines(
+                item_widths, max_columns
+            )
+            max_columns = len(column_widths) - 1
+            yield column_widths, num_lines
 
     @staticmethod
     def get_widths_and_lines(item_widths, max_columns):
