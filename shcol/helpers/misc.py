@@ -156,9 +156,9 @@ def num(value, allow_none=False):
     Return `value` converted to an `int`-object.
 
     `value` should represent an integer >= 0. It may be any kind of object that
-    supports conversion when passed to the built-in `int()`-function. If the
-    conversion failed then `TypeError` is thrown. If the result after conversion
-    is a negative number then `ValueError` is thrown.
+    supports conversion when passed to the built-in `int()`-function. An error
+    is thrown if the conversion failed or if the result of the conversion is a
+    negative number.
 
     Note that no conversion is made if `value` is `None` and `allow_none` is
     `True`. In that case the function just returns `None`.
