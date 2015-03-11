@@ -179,7 +179,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         ]
         column_range = range(len(expected_results), 0, -1)
         for num_columns, expected in zip(column_range, expected_results):
-            result = self.calculator.get_widths_and_lines(
+            result = self.calculator.get_unchecked_column_config(
                 item_widths, num_columns
             )
             self.assertEqual(result, expected)

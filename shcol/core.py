@@ -20,6 +20,10 @@ LineProperties = collections.namedtuple(
     'LineProperties', 'column_widths, spacing, num_lines'
 )
 
+ColumnConfig = collections.namedtuple(
+    'ColumnConfig', 'column_widths, num_lines'
+)
+
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
     make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
@@ -350,8 +354,8 @@ class ColumnWidthCalculator(object):
         The members of the tuple are: `column_widths`, `spacing`, `num_lines`.
         """
         item_widths = [len(item) for item in items]
-        column_widths, num_lines = self.calculate_columns(item_widths)
-        return LineProperties(column_widths, self.spacing, num_lines)
+        cfg = self.calculate_columns(item_widths)
+        return LineProperties(cfg.column_widths, self.spacing, cfg.num_lines)
 
     def calculate_columns(self, item_widths):
         """
@@ -367,18 +371,18 @@ class ColumnWidthCalculator(object):
         of the resulting tuple will *not* include that spacing.
         """
         if not item_widths:
-            return [], 0
+            return ColumnConfig([], 0)
         if self.num_columns is not None:
-            column_config = self.make_column_config(item_widths)
+            cfg = self.get_column_config(item_widths)
         else:
-            column_config = self.find_fitting_config(item_widths)
-            if column_config is None and self.allow_exceeding:
-                column_config = [max(item_widths)], len(item_widths)
-        if column_config is None:
+            cfg = self.find_fitting_config(item_widths)
+            if cfg is None and self.allow_exceeding:
+                cfg = ColumnConfig([max(item_widths)], len(item_widths))
+        if cfg is None:
             raise ValueError('items do not fit in line')
-        return column_config
+        return cfg
 
-    def make_column_config(self, item_widths):
+    def get_column_config(self, item_widths):
         """
         Return a column configuration based on `item_widths`.
 
@@ -389,11 +393,9 @@ class ColumnWidthCalculator(object):
         The result might be `None` if the resulting column configuration does
         not fit with the maximal line width of this instance.
         """
-        column_widths, num_lines = (
-            self.get_widths_and_lines(item_widths, self.num_columns)
-        )
-        if self.fits_in_line(column_widths):
-            return column_widths, num_lines
+        cfg = self.get_unchecked_column_config(item_widths, self.num_columns)
+        if self.fits_in_line(cfg.column_widths):
+            return cfg
 
     def find_fitting_config(self, item_widths):
         """
@@ -405,10 +407,9 @@ class ColumnWidthCalculator(object):
         no fitting candidate was found then `None` will be returned.
         """
         max_columns = self.calculate_max_columns(item_widths)
-        candidates = self.iter_column_configs(item_widths, max_columns)
-        for column_widths, num_lines in candidates:
-            if self.fits_in_line(column_widths):
-                return column_widths, num_lines
+        for cfg in self.iter_column_configs(item_widths, max_columns):
+            if self.fits_in_line(cfg.column_widths):
+                return cfg
 
     def calculate_max_columns(self, item_widths):
         """
@@ -451,14 +452,12 @@ class ColumnWidthCalculator(object):
         configurations. See `.get_widths_and_lines()` for details.
         """
         while max_columns > 0:
-            column_widths, num_lines = self.get_widths_and_lines(
-                item_widths, max_columns
-            )
-            max_columns = len(column_widths) - 1
-            yield column_widths, num_lines
+            cfg = self.get_unchecked_column_config(item_widths, max_columns)
+            max_columns = len(cfg.column_widths) - 1
+            yield cfg
 
     @staticmethod
-    def get_widths_and_lines(item_widths, max_columns):
+    def get_unchecked_column_config(item_widths, max_columns):
         """
         Calculate column widths based on `item_widths` for an amount of at most
         `max_columns` per line. The resulting column widths are represented
@@ -483,7 +482,7 @@ class ColumnWidthCalculator(object):
             max(item_widths[i : i + num_lines])
             for i in range(0, num_items, num_lines)
         ]
-        return column_widths, num_lines
+        return ColumnConfig(column_widths, num_lines)
 
     def fits_in_line(self, column_widths):
         """
