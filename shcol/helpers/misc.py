@@ -153,23 +153,25 @@ def get_dict(mapping):
 
 def num(value, allow_none=False):
     """
-    Return `value` converted to an `int`-object. `value` should represent an
-    integer >= 0. It may be any kind of object that supports conversion when
-    passed to the built-in `int()`-function. An exception will be raised if the
-    conversion failed or if the result of the conversion is a negative number.
+    Return `value` converted to an `int`-object.
 
-    Note that `value` may be `None` if `allow_none` is `True`. In that case no
-    conversion is made and the function just returns `None`. Otherwise, passing
-    `None` as the `value`-parameter will raise a `TypeError`.
+    `value` should represent an integer >= 0. It may be any kind of object that
+    supports conversion when passed to the built-in `int()`-function. If the
+    conversion failed then `TypeError` is thrown. If the result after conversion
+    is a negative number then `ValueError` is thrown.
+
+    Note that no conversion is made if `value` is `None` and `allow_none` is
+    `True`. In that case the function just returns `None`.
     """
     if allow_none and value is None:
         return None
+    value_error = False
     try:
         number = int(value)
-    except (TypeError, ValueError):
-        raise TypeError('value should represent an integer')
-    if number < 0:
-        raise ValueError('value must be non-negative')
+    except ValueError:
+        value_error = True
+    if value_error or number < 0:
+        raise ValueError('value must be a non-negative integer')
     return number
 
 def get_lines(source, chars=None, skip_emtpy=True):
