@@ -161,15 +161,7 @@ class IterableFormatter(object):
         """
         props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
-        template = self.make_line_template(props)
-        for chunk in line_chunks:
-            try:
-                yield template % chunk
-            except TypeError:
-                # cached template does not match current chunk length
-                # -> regenerate and try again
-                template = self.make_line_template(props, len(chunk))
-                yield template % chunk
+        return self.iter_formatted_lines(line_chunks, props)
 
     def get_line_properties(self, items):
         """
@@ -189,6 +181,47 @@ class IterableFormatter(object):
         return [
             tuple(items[i::props.num_lines]) for i in range(props.num_lines)
         ]
+
+    def iter_formatted_lines(self, line_chunks, props):
+        """
+        Return formatted lines as an iterator.
+
+        `line_chunks` should be an iterator providing chunks of line items. In
+        other words: Each chunk should represent the items to be used for one
+        line of output.
+
+        `props` is expected to be a `LineProperties`-instance. It is used to
+        define the exact formatting of the resulting lines.
+
+        Note that this method is able to detect items that are wider than the
+        corresponding column width of `props`. Exceeding parts of these items
+        are arranged over multiple lines when displayed in a terminal. They are
+        guaranteed to always appear in the "right" column.
+        """
+        template = self.make_line_template(props)
+        for chunk in line_chunks:
+            line = []
+            num_wraps = max(
+                len(item) // width - int(len(item) % width == 0)
+                for item, width in zip(chunk, props.column_widths)
+            )
+            for i in range(num_wraps + 1):
+                wrapped_chunk = tuple(
+                    item[pos * i : pos * (i + 1)] for item, pos
+                    in zip(chunk, props.column_widths)
+                )
+                try:
+                    line.append(template % wrapped_chunk)
+                except TypeError:
+                    # cached template does not match current chunk length
+                    # -> regenerate and try again
+                    template = (
+                        self.make_line_template(props, len(wrapped_chunk))
+                    )
+                    line.append(template % wrapped_chunk)
+            # Exploit line wrapping mechanism of terminal
+            # rather than inserting "real" line breaks
+            yield ''.join(line)
 
     def make_line_template(self, props, num_columns=None):
         """
@@ -245,7 +278,8 @@ class MappingFormatter(IterableFormatter):
     """
     @classmethod
     def for_line_config(
-        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH
+        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+        min_shrink_width=5
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
@@ -253,7 +287,8 @@ class MappingFormatter(IterableFormatter):
         `line_width` parameters.
         """
         calculator = ColumnWidthCalculator(
-            spacing, line_width, num_columns=2, allow_exceeding=False
+            spacing, line_width, num_columns=2, allow_exceeding=False,
+            min_shrink_width=min_shrink_width
         )
         return cls(calculator)
 
@@ -300,7 +335,7 @@ class ColumnWidthCalculator(object):
     """
     def __init__(
         self, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-        num_columns=None, allow_exceeding=True
+        num_columns=None, allow_exceeding=True, min_shrink_width=None
     ):
         """
         Initialize the calculator.
@@ -329,6 +364,7 @@ class ColumnWidthCalculator(object):
         self._line_width = helpers.num(line_width, allow_none=True)
         self.num_columns = helpers.num(num_columns, allow_none=True)
         self.allow_exceeding = allow_exceeding
+        self.min_shrink_width = min_shrink_width
 
     @property
     def line_width(self):
@@ -394,6 +430,9 @@ class ColumnWidthCalculator(object):
         not fit with the maximal line width of this instance.
         """
         cfg = self.get_unchecked_column_config(item_widths, self.num_columns)
+        if self.min_shrink_width is not None:
+            column_widths = self.shrink_column_widths(cfg.column_widths)
+            cfg = ColumnConfig(column_widths, cfg.num_lines)
         if self.fits_in_line(cfg.column_widths):
             return cfg
 
@@ -477,19 +516,48 @@ class ColumnWidthCalculator(object):
         """
         num_items = len(item_widths)
         max_columns = helpers.num(max_columns)
-        num_lines = num_items // max_columns + bool(num_items % max_columns)
+        num_lines = num_items // max_columns + int(num_items % max_columns != 0)
         column_widths = [
             max(item_widths[i : i + num_lines])
             for i in range(0, num_items, num_lines)
         ]
         return ColumnConfig(column_widths, num_lines)
 
+    def shrink_column_widths(self, column_widths):
+        """
+        Return a shrinked version of `column_widths` so that the result will fit
+        with this instance's allowed line width. Note that if this method was
+        unable to calculate a fitting result then `ValueError` is raised.
+        """
+        offset = self.get_used_line_width(column_widths) - self.line_width
+        shrinked = []
+        for width in reversed(column_widths):
+            if offset <= 0:
+                break
+            if width <= self.min_shrink_width:
+                shrinked.append(width)
+            else:
+                new_width = width - offset
+                if new_width < self.min_shrink_width:
+                    new_width = self.min_shrink_width
+                offset -= width - new_width
+                shrinked.append(new_width)
+        if offset > 0:
+            raise ValueError('could not find a fitting configuration')
+        if not shrinked:
+            return column_widths[:]
+        return column_widths[:-len(shrinked)] + shrinked[::-1]
+
     def fits_in_line(self, column_widths):
         """
-        Summarize the values of given `column_widths`, add `.spacing` between
-        each column and then check whether it exceeds `.line_width`. Return
-        `True` if the result does *not* exceed the allowed line width. Return
-        `False` otherwise.
+        Return whether columnizing based on `column_widths` would fit with the
+        allowed line width of this instance.
         """
-        total = sum(column_widths) + (len(column_widths) - 1) * self.spacing
-        return total <= self.line_width
+        return self.get_used_line_width(column_widths) <= self.line_width
+
+    def get_used_line_width(self, column_widths):
+        """
+        Return the line width that would be used if columnizing was based on
+        given `column_widths`.
+        """
+        return sum(column_widths) + (len(column_widths) - 1) * self.spacing
