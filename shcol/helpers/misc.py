@@ -116,19 +116,16 @@ def get_filenames(path='.', hide_dotted=False):
 
 def filter_names(source, pattern):
     """
-    Yield all names that match the given pattern.
+    Return all names that match the given pattern.
 
-    `source` is expected to yield the names to be processed.
+    `source` should be an iterator with the names to be processed.
 
     `pattern` is meant to be an expression that is free to make use of
     shell-like file matching mechanisms (e.g. "x*" to match all names
     starting with "x").
     """
     pattern = re.compile(fnmatch.translate(pattern))
-    for name in source:
-        match = pattern.match(name)
-        if match is not None:
-            yield match.group(0)
+    return (name for name in source if name.match(pattern))
 
 def is_mapping(obj):
     """
