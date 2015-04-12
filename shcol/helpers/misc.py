@@ -125,7 +125,7 @@ def filter_names(source, pattern):
     starting with "x").
     """
     pattern = re.compile(fnmatch.translate(pattern))
-    return (name for name in source if name.match(pattern))
+    return (name for name in source if pattern.match(name))
 
 def is_mapping(obj):
     """
