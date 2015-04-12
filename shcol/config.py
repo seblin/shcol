@@ -13,7 +13,7 @@ read during initialization of the `shcol`-package.
 import os
 import sys
 
-ENCODING = 'utf-8'
+ENCODING = sys.stdout.encoding or 'utf-8'
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
