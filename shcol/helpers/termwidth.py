@@ -47,8 +47,10 @@ elif config.ON_WINDOWS:
     ]
 
     def get_std_handle(fd):
+        if not isinstance(fd, int):
+            raise TypeError('an integer is required')
         if not 0 <= fd <= 2:
-            raise ValueError('unable to handle given fd')
+            raise ValueError('bad file descriptor')
         num_handle = (-10, -11, -12)[fd]
         return GetStdHandle(num_handle)
 
