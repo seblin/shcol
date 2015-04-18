@@ -279,12 +279,16 @@ class MappingFormatter(IterableFormatter):
     @classmethod
     def for_line_config(
         cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-        min_shrink_width=5
+        min_shrink_width=config.MIN_SHRINK_WIDTH
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
         `line_width` parameters.
+
+        Use `min_shrink_width` to define the minimal width that a column may be
+        shrinked to. Defining this as `None` means that columns are not allowed
+        to be shrinked.
         """
         calculator = ColumnWidthCalculator(
             spacing, line_width, num_columns=2, allow_exceeding=False,
@@ -359,12 +363,16 @@ class ColumnWidthCalculator(object):
         result will then consist of only one column and that column's width will
         equal to the widest item's width. Note that in all other constellations
         a `ValueError` will be raised instead.
+
+        Use `min_shrink_width` to define the minimal width that a column may be
+        shrinked to. Defining this as `None` means that columns are not allowed
+        to be shrinked.
         """
         self.spacing = helpers.num(spacing)
         self._line_width = helpers.num(line_width, allow_none=True)
         self.num_columns = helpers.num(num_columns, allow_none=True)
         self.allow_exceeding = allow_exceeding
-        self.min_shrink_width = min_shrink_width
+        self.min_shrink_width = helpers.num(min_shrink_width, allow_none=True)
 
     @property
     def line_width(self):

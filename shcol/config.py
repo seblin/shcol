@@ -20,6 +20,7 @@ LINE_WIDTH = None
 LINE_WIDTH_FALLBACK = 80
 LINESEP = '\n'
 MAKE_UNIQUE = False
+MIN_SHRINK_WIDTH = 5
 NEEDS_DECODING = (sys.version_info < (3, 0))
 ON_WINDOWS = sys.platform.startswith('win')
 OUTPUT_STREAM = sys.stdout
