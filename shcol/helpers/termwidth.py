@@ -46,11 +46,20 @@ elif config.ON_WINDOWS:
         ctypes.POINTER(ConsoleScreenBufferInfo),
     ]
 
-    def terminal_width_impl(fd):
+    def get_std_handle(fd):
+        if not 0 <= fd <= 2:
+            raise ValueError('unable to handle given fd')
         num_handle = (-10, -11, -12)[fd]
-        handle = GetStdHandle(num_handle)
+        return GetStdHandle(num_handle)
+
+    def get_console_screen_buffer_info(handle):
         csbi = ctypes.pointer(ConsoleScreenBufferInfo())
         GetConsoleScreenBufferInfo(handle, csbi)
+        return csbi
+
+    def terminal_width_impl(fd):
+        handle = get_std_handle(fd)
+        csbi = get_console_screen_buffer_info(handle)
         window = csbi.contents.srWindow
         return window.Right - window.Left + 1
 
@@ -88,16 +97,15 @@ else:
 
 
 def get_terminal_width(
-    fd=config.TERMINAL_FD, fallback_width=config.LINE_WIDTH_FALLBACK
+    stream=config.OUTPUT_STREAM, fallback_width=config.LINE_WIDTH_FALLBACK
 ):
     """
-    Return the current width of the (pseudo-)terminal connected to the file
-    descriptor `fd`.
+    Return the current width of the (pseudo-)terminal connected to `stream`.
 
     `fallback_width` is returned when getting the terminal width failed with
     `IOError` or `OSError`.
     """
     try:
-        return terminal_width_impl(fd)
+        return terminal_width_impl(stream.fileno())
     except (IOError, OSError):
         return fallback_width
