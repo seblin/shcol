@@ -28,4 +28,3 @@ PY_VERSION = sys.version_info
 SORT_ITEMS = False
 SPACING = 2
 STARTER = os.path.join('bin', 'shcol' + ('.bat' if ON_WINDOWS else ''))
-TERMINAL_FD = sys.__stdout__.fileno()
