@@ -100,6 +100,10 @@ class IterableFormatter(object):
         self.linesep = linesep
         self.encoding = encoding
 
+    def __repr__(self):
+        attrs = ['calculator', 'linesep', 'encoding']
+        return helpers.make_object_repr(self, attrs)
+
     @classmethod
     def for_line_config(
         cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
@@ -373,6 +377,13 @@ class ColumnWidthCalculator(object):
         self.num_columns = helpers.num(num_columns, allow_none=True)
         self.allow_exceeding = allow_exceeding
         self.min_shrink_width = helpers.num(min_shrink_width, allow_none=True)
+
+    def __repr__(self):
+        attrs = [
+            'spacing', 'line_width', 'num_columns', 'allow_exceeding',
+            'min_shrink_width'
+        ]
+        return helpers.make_object_repr(self, attrs)
 
     @property
     def line_width(self):

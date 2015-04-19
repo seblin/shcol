@@ -21,7 +21,8 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'make_unique', 'get_filenames',
-    'filter_names', 'is_mapping', 'get_dict', 'num', 'get_lines', 'get_column'
+    'filter_names', 'is_mapping', 'get_dict', 'num', 'get_lines', 'get_column',
+    'make_object_repr'
 ]
 
 def get_decoded(items, encoding=config.ENCODING):
@@ -210,3 +211,14 @@ def get_column(column_index, source, sep=None):
             msg = 'no data for column index {} at line index {}'
             raise IndexError(msg.format(column_index, num_line))
         yield columns[column_index]
+
+def make_object_repr(obj, attr_names):
+    """
+    Return a string that contains the type of `obj` and a selection of its
+    attribute names with their corresponding values based on given `attr_names`.
+    The result may be used as an object's `__repr__()`-string.
+    """
+    attr_string = ', '.join(
+        '%s=%r' % (name, getattr(obj, name)) for name in attr_names
+    )
+    return '%s(%s)' % (type(obj).__name__, attr_string)
