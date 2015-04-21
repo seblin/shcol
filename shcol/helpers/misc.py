@@ -221,4 +221,4 @@ def make_object_repr(obj, attr_names):
     attr_string = ', '.join(
         '%s=%r' % (name, getattr(obj, name)) for name in attr_names
     )
-    return '%s(%s)' % (type(obj).__name__, attr_string)
+    return '<%s(%s)>' % (type(obj).__name__, attr_string)
