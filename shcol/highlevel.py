@@ -14,13 +14,9 @@ from . import config, core, helpers
 
 __all__ = ['print_columnized', 'print_attr_names', 'print_filenames']
 
-def print_columnized(
-    items, output_stream=config.OUTPUT_STREAM, make_dict=False, **options
-):
+def print_columnized(items, output_stream=config.OUTPUT_STREAM, **options):
     """
-    Shorthand for writing columnized `items` to `output_stream`. Additional
-    `options` are passed as-is to the underlying `columnize()`-function and are
-    interpreted there.
+    Shorthand for writing columnized `items` to `output_stream`.
 
     `items` can be a sequence or a dictionary. In case of being a dictionary
     the result will be a string with two columns (i.e. one for the keys and one
@@ -30,13 +26,9 @@ def print_columnized(
     `output_stream` should be a file-like object that provides at least a
     `.write()`-method.
 
-    If `make_dict` is `True` then `items` is passed to the constructor of a
-    dictionary. `items` is then expected to be a sequence of 2-element tuples
-    in order to be converted successfully. Of course, columnizing is then done
-    by applying the "dictionary-rules" as mentioned above.
+    Additional `options` are passed as-is to the `columnize()`-function and are
+    interpreted there. See `core.columnize()`-documentation for details.
     """
-    if make_dict:
-        items = helpers.get_dict(items)
     result = core.columnize(items, **options)
     print(result, file=output_stream)
 
