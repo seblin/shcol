@@ -27,7 +27,7 @@ def print_columnized(items, output_stream=config.OUTPUT_STREAM, **options):
     `.write()`-method.
 
     Additional `options` are passed as-is to the `columnize()`-function and are
-    interpreted there. See `core.columnize()`-documentation for details.
+    interpreted there. See `columnize()`-documentation for details.
     """
     result = core.columnize(items, **options)
     print(result, file=output_stream)
