@@ -33,14 +33,7 @@ def make_width_info(window_width, is_line_width=True):
     return TerminalWidthInfo(window_width, is_line_width)
 
 
-if hasattr(os, 'get_terminal_size'):
-    def terminal_width_impl(fd):
-        # New in Python >= 3.3
-        window_width = os.get_terminal_size(fd).columns
-        return make_width_info(window_width)
-
-
-elif config.ON_WINDOWS:
+if config.ON_WINDOWS:
     import ctypes.wintypes
 
     class ConsoleScreenBufferInfo(ctypes.Structure):
@@ -84,6 +77,13 @@ elif config.ON_WINDOWS:
         window_width = window.Right - window.Left + 1
         line_width = csbi.contents.dwMaximumWindowSize.X
         return make_width_info(window_width, window_width == line_width)
+
+
+elif hasattr(os, 'get_terminal_size'):
+    def terminal_width_impl(fd):
+        # New in Python >= 3.3
+        window_width = os.get_terminal_size(fd).columns
+        return make_width_info(window_width)
 
 else:
     try:
