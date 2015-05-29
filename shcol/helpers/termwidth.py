@@ -9,16 +9,36 @@ Detect terminal width on different platforms.
 """
 
 import ctypes
+import collections
 import os
 
 from .. import config
 
-__all__ = ['get_terminal_width']
+__all__ = ['get_terminal_width', 'get_terminal_width_info']
+
+TerminalWidthInfo = collections.namedtuple(
+    'TerminalWidthInfo', 'window_width, is_line_width'
+)
+
+def make_width_info(window_width, is_line_width=True):
+    """
+    Return a new `TerminalWidthInfo`-object.
+
+    `window_width` must be an integer defining the width of the terminal window.
+
+    `is_line_width` defines whether the window width matches the terminal's line
+    width. At least on Windows it might happen that the terminal window is
+    smaller than the terminal's line width.
+    """
+    return TerminalWidthInfo(window_width, is_line_width)
+
 
 if hasattr(os, 'get_terminal_size'):
     def terminal_width_impl(fd):
         # New in Python >= 3.3
-        return os.get_terminal_size(fd).columns
+        window_width = os.get_terminal_size(fd).columns
+        return make_width_info(window_width)
+
 
 elif config.ON_WINDOWS:
     import ctypes.wintypes
@@ -47,8 +67,6 @@ elif config.ON_WINDOWS:
     ]
 
     def get_std_handle(fd):
-        if not isinstance(fd, int):
-            raise TypeError('an integer is required')
         if not 0 <= fd <= 2:
             raise ValueError('bad file descriptor')
         num_handle = (-10, -11, -12)[fd]
@@ -63,7 +81,9 @@ elif config.ON_WINDOWS:
         handle = get_std_handle(fd)
         csbi = get_console_screen_buffer_info(handle)
         window = csbi.contents.srWindow
-        return window.Right - window.Left + 1
+        window_width = window.Right - window.Left + 1
+        line_width = csbi.contents.dwMaximumWindowSize.X
+        return make_width_info(window_width, window_width == line_width)
 
 else:
     try:
@@ -84,30 +104,30 @@ else:
 
     def terminal_width_impl(fd):
         if not all([
-            # some modules might not be available on all non-Windows systems
-            import_ok,
-            # `TIOCGWINSZ` must be defined
-            hasattr(termios, 'TIOCGWINSZ'),
+            import_ok, hasattr(termios, 'TIOCGWINSZ'),
+
             # Python-2.7-compatible `pypy`-interpreter lacks this
             hasattr(ctypes.Structure, 'from_buffer_copy')
         ]):
             raise OSError('unsupported platform')
+
         result = fcntl.ioctl(
             fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
         )
-        return WinSize.from_buffer_copy(result).ws_col
+        window_width = WinSize.from_buffer_copy(result).ws_col
+        return make_width_info(window_width)
 
 
-def get_terminal_width(
-    stream=config.OUTPUT_STREAM, fallback_width=config.LINE_WIDTH_FALLBACK
-):
+def get_terminal_width_info(stream=config.OUTPUT_STREAM):
     """
-    Return the current width of the (pseudo-)terminal connected to `stream`.
-
-    `fallback_width` is returned when getting the terminal width failed with
-    `IOError` or `OSError`.
+    Return the current width of the (pseudo-)terminal connected to `stream` as
+    a `TerminalWidthInfo`-object.
     """
-    try:
-        return terminal_width_impl(stream.fileno())
-    except (IOError, OSError):
-        return fallback_width
+    fd = stream.fileno()
+    if not os.isatty(fd):
+        raise ValueError('stream must be connected to a terminal')
+    return terminal_width_impl(fd)
+
+def get_terminal_width(stream=config.OUTPUT_STREAM):
+    # TODO: Update `core`-code to not use this function anymore
+    return get_terminal_width_info(stream).window_width
