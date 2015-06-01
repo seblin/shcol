@@ -29,22 +29,14 @@ def print_columnized(items, output_stream=config.TERMINAL_STREAM, **options):
     Additional `options` are passed as-is to the `columnize()`-function and are
     interpreted there. See `columnize()`-documentation for details.
     """
-    result = core.columnize(items, **options)
+    result = core.columnize(items, output_stream=output_stream, **options)
     print(result, file=output_stream)
 
-def print_attr_names(obj, pattern=None, **options):
+def print_attr_names(obj, **options):
     """
     Like `print_columnized()` but columnizes the attribute names of `obj`.
-
-    If `pattern` is not `None` then the resulting names are filtered by using
-    the expression defined by `pattern`. This works like matching filenames in
-    a shell (e.g. using "get_*" will only columnize attribute names starting
-    with "get_").
     """
-    names = dir(obj)
-    if pattern is not None:
-        names = helpers.filter_names(names, pattern)
-    print_columnized(names, sort_items=True, **options)
+    print_columnized(dir(obj), sort_items=True, **options)
 
 def print_filenames(path='.', hide_dotted=False, **options):
     """

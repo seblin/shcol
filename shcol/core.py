@@ -30,7 +30,7 @@ ColumnConfig = collections.namedtuple(
 
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-    make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
+    pattern=None, make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
     decode=config.NEEDS_DECODING, output_stream=config.TERMINAL_STREAM
 ):
     """
@@ -47,6 +47,10 @@ def columnize(
     `line_width` should be a non-negative integer defining the maximal amount
     of characters that fit in one line. If this is `None` then the function
     tries to detect the width automatically.
+
+    If `pattern` is not `None` then it is meant to be an expression that is
+    free to make use of shell-like file matching mechanisms for matching a
+    subset of `items` (e.g. "x*" to match all items starting with "x").
 
     If `make_unique` is `True` then only the first occurrence of an item is
     processed and any other occurrences of that item are ignored.
@@ -74,7 +78,9 @@ def columnize(
             raise ValueError('unable to detect line width')
     else:
         formatter = formatter_class.for_line_config(spacing, line_width)
-    return formatter.format(items, sort_items, decode)
+    return formatter.format(
+        items, pattern=pattern, sort_items=sort_items, decode=decode
+    )
 
 def get_formatter_class(items):
     """
@@ -155,10 +161,15 @@ class IterableFormatter(object):
         return cls(calculator, autowrap=width_info.is_line_width)
 
     def format(
-        self, items, sort_items=config.SORT_ITEMS, decode=config.NEEDS_DECODING
+        self, items, pattern=None, sort_items=config.SORT_ITEMS,
+        decode=config.NEEDS_DECODING
     ):
         """
         Return a columnized string based on `items`.
+
+        If `pattern` is not `None` then it is meant to be an expression that is
+        free to make use of shell-like file matching mechanisms for matching a
+        subset of `items` (e.g. "x*" to match all items starting with "x").
 
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
@@ -173,12 +184,26 @@ class IterableFormatter(object):
         is likely to return unexpected results. Unicode items in Python 2.x are
         *not* affected by this.
         """
+        if pattern is not None:
+            items = self.filter_names(items, pattern)
         if sort_items:
             items = self.get_sorted(items)
         if decode:
             items = self.get_decoded(items)
         lines = self.make_lines(items)
         return self.linesep.join(lines)
+
+    @staticmethod
+    def filter_names(items, pattern):
+        """
+        Return a filtered version of `items` that only includes elements which
+        match the given `pattern`.
+
+        `pattern` is meant to be an expression that is free to make use of
+        shell-like file matching mechanisms (e.g. "x*" to match all items
+        starting with "x").
+        """
+        return helpers.filter_names(items, pattern)
 
     @staticmethod
     def get_sorted(items):
@@ -319,12 +344,16 @@ class MappingFormatter(IterableFormatter):
     @classmethod
     def for_line_config(
         cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-        min_shrink_width=5
+        min_shrink_width=10
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
         `line_width` parameters.
+
+        Use `min_shrink_width` to define the minimal width that a column may be
+        shrinked to. Defining this as `None` means that columns are not allowed
+        to be shrinked.
         """
         calculator = ColumnWidthCalculator(
             spacing, line_width, num_columns=2,
@@ -335,7 +364,7 @@ class MappingFormatter(IterableFormatter):
     @classmethod
     def for_terminal(
         cls, terminal_stream=config.TERMINAL_STREAM, spacing=config.SPACING,
-        min_shrink_width=5
+        min_shrink_width=10
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
@@ -344,6 +373,10 @@ class MappingFormatter(IterableFormatter):
 
         Note that this method will throw an `IOError` or `OSError` if getting
         the line width from `terminal_stream` failed.
+
+        Use `min_shrink_width` to define the minimal width that a column may be
+        shrinked to. Defining this as `None` means that columns are not allowed
+        to be shrinked.
         """
         width_info = helpers.get_terminal_width_info(terminal_stream)
         calculator = ColumnWidthCalculator(
@@ -353,12 +386,26 @@ class MappingFormatter(IterableFormatter):
         return cls(calculator, autowrap=width_info.is_line_width)
 
     @staticmethod
+    def filter_names(mapping, pattern):
+        """
+        Return a filtered version of `mapping` that only includes items whose
+        keys match the given `pattern`.
+
+        `pattern` is meant to be an expression that is free to make use of
+        shell-like file matching mechanisms (e.g. "x*" to match all keys
+        starting with "x").
+        """
+        return collections.OrderedDict(
+            (k, mapping[k]) for k in helpers.filter_names(mapping, pattern)
+        )
+
+    @staticmethod
     def get_sorted(mapping):
         """
         Return a sorted version of `mapping`.
         """
         return collections.OrderedDict(
-            (key, mapping[key]) for key in helpers.get_sorted(mapping.keys())
+            (key, mapping[key]) for key in helpers.get_sorted(mapping)
         )
 
     def get_decoded(self, mapping):
