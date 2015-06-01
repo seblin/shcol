@@ -33,7 +33,9 @@ def make_width_info(window_width, is_line_width=True):
     return TerminalWidthInfo(window_width, is_line_width)
 
 
-if config.ON_WINDOWS:
+if config.ON_WINDOWS and config.PY_VERSION == (2, 7):
+    # NOTE: Make this work on Python 3.x
+    # (ctypes throws an error when I run this this code on Python 3.4)
     import ctypes.wintypes
 
     class ConsoleScreenBufferInfo(ctypes.Structure):
@@ -66,22 +68,23 @@ if config.ON_WINDOWS:
         return GetStdHandle(num_handle)
 
     def get_console_screen_buffer_info(handle):
-        csbi = ctypes.pointer(ConsoleScreenBufferInfo())
-        GetConsoleScreenBufferInfo(handle, csbi)
+        csbi = ConsoleScreenBufferInfo()
+        GetConsoleScreenBufferInfo(handle, ctypes.pointer(csbi))
         return csbi
 
     def terminal_width_impl(fd):
         handle = get_std_handle(fd)
         csbi = get_console_screen_buffer_info(handle)
-        window = csbi.contents.srWindow
+        window = csbi.srWindow
         window_width = window.Right - window.Left + 1
-        line_width = csbi.contents.dwMaximumWindowSize.X
+        line_width = csbi.dwMaximumWindowSize.X
         return make_width_info(window_width, window_width == line_width)
 
 
 elif hasattr(os, 'get_terminal_size'):
     def terminal_width_impl(fd):
-        # New in Python >= 3.3
+        # Does not give correct results on Windows terminal
+        # (console screen buffer does not always match the window size)
         window_width = os.get_terminal_size(fd).columns
         return make_width_info(window_width)
 

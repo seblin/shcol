@@ -318,14 +318,19 @@ class MappingFormatter(IterableFormatter):
     """
     @classmethod
     def for_line_config(
-        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH
+        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+        min_shrink_width=5
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
         `line_width` parameters.
         """
-        return cls(ColumnWidthCalculator(spacing, line_width, num_columns=2))
+        calculator = ColumnWidthCalculator(
+            spacing, line_width, num_columns=2,
+            min_shrink_width=min_shrink_width
+        )
+        return cls(calculator)
 
     @classmethod
     def for_terminal(
