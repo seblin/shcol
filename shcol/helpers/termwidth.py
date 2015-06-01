@@ -33,9 +33,7 @@ def make_width_info(window_width, is_line_width=True):
     return TerminalWidthInfo(window_width, is_line_width)
 
 
-if config.ON_WINDOWS and config.PY_VERSION == (2, 7):
-    # NOTE: Make this work on Python 3.x
-    # (ctypes throws an error when I run this this code on Python 3.4)
+if config.ON_WINDOWS:
     import ctypes.wintypes
 
     class ConsoleScreenBufferInfo(ctypes.Structure):
@@ -46,7 +44,6 @@ if config.ON_WINDOWS and config.PY_VERSION == (2, 7):
             ('srWindow', ctypes.wintypes.SMALL_RECT),
             ('dwMaximumWindowSize', ctypes.wintypes._COORD)
         ]
-        _pack_ = 2
 
     GetStdHandle = ctypes.windll.kernel32.GetStdHandle
     GetStdHandle.restype = ctypes.wintypes.HANDLE
@@ -58,7 +55,7 @@ if config.ON_WINDOWS and config.PY_VERSION == (2, 7):
     GetConsoleScreenBufferInfo.restype = ctypes.wintypes.BOOL
     GetConsoleScreenBufferInfo.argtypes = [
         ctypes.wintypes.HANDLE,
-        ctypes.POINTER(ConsoleScreenBufferInfo),
+        ctypes.c_void_p,
     ]
 
     def get_std_handle(fd):
@@ -69,7 +66,7 @@ if config.ON_WINDOWS and config.PY_VERSION == (2, 7):
 
     def get_console_screen_buffer_info(handle):
         csbi = ConsoleScreenBufferInfo()
-        GetConsoleScreenBufferInfo(handle, ctypes.pointer(csbi))
+        GetConsoleScreenBufferInfo(handle, ctypes.byref(csbi))
         return csbi
 
     def terminal_width_impl(fd):
