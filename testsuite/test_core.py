@@ -81,21 +81,10 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
             ([''], ([0], 1)),
             ([' '], ([1], 1)),
             (['spam', 'ham', 'eggs'], ([4, 3, 4], 1)),
-            ([100 * 'spam', 100 * 'ham', 100 * 'eggs'], ([400], 3)),
             ([30 * 'x', 10 * 'y', 15 * 'ä'], ([30, 10, 15], 1)),
             ([50 * 'a', 40 * 'b', 30 * 'c'], ([50], 3)),
             ([50 * 'a', 40 * 'b', 28 * 'c'], ([50, 28], 2)),
         ]
-
-    def test_line_width_getter(self):
-        self.calculator.line_width = None
-        try:
-            expected = shcol.helpers.get_terminal_width()
-        except (IOError, OSError):
-            expected = shcol.config.LINE_WIDTH_FALLBACK
-        self.assertEqual(self.calculator.line_width, expected)
-        self.calculator.line_width = 40
-        self.assertEqual(self.calculator.line_width, 40)
 
     def make_line_properties(self, item_widths, num_lines, spacing=2):
         return shcol.core.LineProperties(item_widths, spacing, num_lines)
@@ -138,10 +127,10 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         )
 
     def test_allow_exceeding(self):
-        self.assertEqual(self.calculator.calculate_columns([81]), ([81], 1))
-        self.calculator.allow_exceeding = False
-        with self.assertRaises(ValueError):
+        with self.assertRaises(shcol.core.LineTooSmallError):
             self.calculator.calculate_columns([81])
+        self.calculator.allow_exceeding = True
+        self.assertEqual(self.calculator.calculate_columns([81]), ([81], 1))
 
     def test_calculate_max_columns(self):
         expected_results = [
@@ -230,11 +219,13 @@ class IterableFormatterTest(unittest.TestCase):
         self.assertEqual(self.make_lines(self.items), self.items)
         items = [60 * 'ä', 40 * 'ö']
         expected = [60 * 'ä', 40 * 'ö']
+
+        # Now test error handling
         self.formatter.calculator.line_width = 50
-        self.assertEqual(self.make_lines(items), expected)
-        self.formatter.calculator.allow_exceeding = False
-        with self.assertRaises(ValueError):
+        with self.assertRaises(shcol.core.LineTooSmallError):
             self.make_lines(items)
+        self.formatter.calculator.allow_exceeding = True
+        self.assertEqual(self.make_lines(items), expected)
 
     def make_template(self, column_widths, spacing=2):
         props = shcol.core.LineProperties(column_widths, spacing, None)

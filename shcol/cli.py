@@ -21,7 +21,7 @@ class ArgumentParser(argparse.ArgumentParser):
     """
     def __init__(
         self, prog_name, version, stdin=config.INPUT_STREAM,
-        stdout=config.OUTPUT_STREAM, stderr=config.ERROR_STREAM
+        stdout=config.TERMINAL_STREAM, stderr=config.ERROR_STREAM
     ):
         """
         Initialize the parser.

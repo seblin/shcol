@@ -14,7 +14,7 @@ from . import config, core, helpers
 
 __all__ = ['print_columnized', 'print_attr_names', 'print_filenames']
 
-def print_columnized(items, output_stream=config.OUTPUT_STREAM, **options):
+def print_columnized(items, output_stream=config.TERMINAL_STREAM, **options):
     """
     Shorthand for writing columnized `items` to `output_stream`.
 

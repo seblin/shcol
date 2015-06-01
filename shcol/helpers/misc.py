@@ -4,7 +4,6 @@
 # Released under the Simplified BSD license
 # (see LICENSE file for details).
 
-import collections
 import fnmatch
 import functools
 import glob
@@ -21,7 +20,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_decoded', 'get_sorted', 'make_unique', 'get_filenames',
-    'filter_names', 'is_mapping', 'get_dict', 'num', 'get_lines', 'get_column',
+    'filter_names', 'is_mapping', 'num', 'get_lines', 'get_column',
     'make_object_repr'
 ]
 
@@ -136,30 +135,18 @@ def is_mapping(obj):
     """
     return hasattr(obj, 'keys') and hasattr(obj, 'values')
 
-def get_dict(mapping):
-    """
-    Return `mapping` as a dictionary. If `mapping` is already a mapping-type
-    then it is returned unchanged. Otherwise it is converted to an `OrderedDict`
-    to preserve the ordering of its items. Typical candidates for this function
-    are sequences of 2-element tuples (defining the mapping's items). In fact,
-    this function is just a shorthand for ``collections.OrderedDict(mapping)``
-    but with the pre-check mentioned above.
-    """
-    if not is_mapping(mapping):
-        mapping = collections.OrderedDict(mapping)
-    return mapping
-
-def num(value, allow_none=False):
+def num(value, allow_none=False, allow_zero=False):
     """
     Return `value` converted to an `int`-object.
 
-    `value` should represent an integer >= 0. It may be any kind of object that
-    supports conversion when passed to the built-in `int()`-function. An error
-    is thrown if the conversion failed or if the result of the conversion is a
-    negative number.
+    `value` should represent a non-negative integer. It must be convertible for
+    the built-in `int()`-function. An error is thrown if the conversion failed
+    or if the result of the conversion is a negative number.
 
     Note that no conversion is made if `value` is `None` and `allow_none` is
     `True`. In that case the function just returns `None`.
+
+    If `value` is zero and `allow_zero` is `False` then the function will fail.
     """
     if allow_none and value is None:
         return None
@@ -170,6 +157,8 @@ def num(value, allow_none=False):
         value_error = True
     if value_error or number < 0:
         raise ValueError('value must be a non-negative integer')
+    if value == 0 and not allow_zero:
+        raise ValueError('value must be non-zero')
     return number
 
 def get_lines(source, chars=None, skip_emtpy=True):
@@ -203,7 +192,7 @@ def get_column(column_index, source, sep=None):
     If this function encounters a line having not enough columns to fulfill the
     given column index then it will fail by throwing `IndexError`.
     """
-    column_index = num(column_index)
+    column_index = num(column_index, allow_zero=True)
     maxsplit = column_index + 1
     for num_line, line in enumerate(source):
         columns = line.split(sep, maxsplit)

@@ -14,7 +14,7 @@ import os
 
 from .. import config
 
-__all__ = ['get_terminal_width', 'get_terminal_width_info']
+__all__ = ['get_terminal_width_info']
 
 TerminalWidthInfo = collections.namedtuple(
     'TerminalWidthInfo', 'window_width, is_line_width'
@@ -118,16 +118,25 @@ else:
         return make_width_info(window_width)
 
 
-def get_terminal_width_info(stream=config.OUTPUT_STREAM):
+def is_terminal(stream):
+    """
+    Return `True` if `stream` is connected to a terminal, otherwise `False`.
+
+    Note that detection is based on the file descriptor of `stream`. Therefore,
+    `stream` must implement a `.fileno()`-method which returns that file
+    descriptor. If `stream` lacks this method then it is assumed to *not* be
+    connected to a terminal.
+    """
+    if not hasattr(stream, 'fileno'):
+        return False
+    return os.isatty(stream.fileno())
+
+
+def get_terminal_width_info(stream=config.TERMINAL_STREAM):
     """
     Return the current width of the (pseudo-)terminal connected to `stream` as
     a `TerminalWidthInfo`-object.
     """
-    fd = stream.fileno()
-    if not os.isatty(fd):
-        raise ValueError('stream must be connected to a terminal')
-    return terminal_width_impl(fd)
-
-def get_terminal_width(stream=config.OUTPUT_STREAM):
-    # TODO: Update `core`-code to not use this function anymore
-    return get_terminal_width_info(stream).window_width
+    if not is_terminal(stream):
+        raise IOError('stream must be connected to a terminal')
+    return terminal_width_impl(stream.fileno())

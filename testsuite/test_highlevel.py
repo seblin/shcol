@@ -26,17 +26,17 @@ class PrintColumnizedTest(PrintFunctionTestCase):
     def test_items(self):
         items = ['spam', 'ham', 'eggs']
         expected = '  '.join(items)
-        self.print_columnized(items)
+        self.print_columnized(items, line_width=80)
         self.assertEqual(self.get_output(), expected)
 
     def test_no_items(self):
-        self.print_columnized([])
+        self.print_columnized([], line_width=80)
         self.assertEqual(self.get_output(), '')
 
 class PrintAttrNamesTest(PrintFunctionTestCase):
     def test_print_attr_names(self):
-        expected = shcol.columnize(dir(shcol), sort_items=True)
-        self.print_attr_names(shcol)
+        expected = shcol.columnize(dir(shcol), line_width=80, sort_items=True)
+        self.print_attr_names(shcol, line_width=80)
         self.assertEqual(self.get_output(), expected)
 
 class PrintFilenamesTest(PrintFunctionTestCase):
@@ -50,12 +50,12 @@ class PrintFilenamesTest(PrintFunctionTestCase):
 
     def test_print_filenames(self):
         filenames = os.listdir('.')
-        expected = shcol.columnize(filenames, sort_items=True)
-        self.print_filenames()
+        expected = shcol.columnize(filenames, line_width=80, sort_items=True)
+        self.print_filenames(line_width=80)
         self.assertEqual(self.get_output(), expected)
 
     def test_hide_dotted(self):
         filenames = [fn for fn in os.listdir('.') if not fn.startswith('.')]
-        expected = shcol.columnize(filenames, sort_items=True)
-        self.print_filenames(hide_dotted=True)
+        expected = shcol.columnize(filenames, line_width=80, sort_items=True)
+        self.print_filenames(hide_dotted=True, line_width=80)
         self.assertEqual(self.get_output(), expected)
