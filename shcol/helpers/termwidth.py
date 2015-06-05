@@ -8,8 +8,8 @@
 Detect terminal width on different platforms.
 """
 
-import ctypes
 import collections
+import ctypes
 import os
 
 from .. import config
