@@ -40,22 +40,23 @@ class PrintAttrNamesTest(PrintFunctionTestCase):
         self.assertEqual(self.get_output(), expected)
 
 class PrintFilenamesTest(PrintFunctionTestCase):
-    def test_get_files(self):
+    def test_get_filenames(self):
         expected = os.listdir('.')
-        result = shcol.helpers.get_filenames(path='.', hide_dotted=False)
-        self.assertEqual(list(result), expected)
-        expected = [fn for fn in expected if not fn.startswith('.')]
-        result = shcol.helpers.get_filenames(path='.', hide_dotted=True)
-        self.assertEqual(list(result), expected)
+        result = list(shcol.helpers.get_filenames())
+        self.assertEqual(result, expected)
+        module_path = os.path.abspath(os.path.dirname(__file__))
+        expected = os.listdir(module_path)
+        self.assertEqual(result, expected)
+        expected = [
+            os.path.join(module_path, filename)
+            for filename in expected if filename.endswith('.py')
+        ]
+        pattern = os.path.join(module_path, '*.py')
+        result = list(shcol.helpers.get_filenames(pattern))
+        self.assertEqual(expected, result)
 
     def test_print_filenames(self):
         filenames = os.listdir('.')
         expected = shcol.columnize(filenames, line_width=80, sort_items=True)
         self.print_filenames(line_width=80)
-        self.assertEqual(self.get_output(), expected)
-
-    def test_hide_dotted(self):
-        filenames = [fn for fn in os.listdir('.') if not fn.startswith('.')]
-        expected = shcol.columnize(filenames, line_width=80, sort_items=True)
-        self.print_filenames(hide_dotted=True, line_width=80)
-        self.assertEqual(self.get_output(), expected)
+        self.assertEqual(expected, self.get_output())

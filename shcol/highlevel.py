@@ -38,12 +38,10 @@ def print_attr_names(obj, **options):
     """
     print_columnized(dir(obj), sort_items=True, **options)
 
-def print_filenames(path='.', hide_dotted=False, **options):
+def print_filenames(path='.', **options):
     """
     Like `print_columnized()` but columnizes the filenames living in given
-    `path`. If `hide_dotted` is `True` then all filenames starting with a "."
-    are excluded from the result. Note that this function does shell-like
-    expansion of symbols such as "*", "?" or even "~" (user's home).
+    `path`.  Note that this function does shell-like expansion of symbols
+    such as "*", "?" or even "~" (user's home).
     """
-    filenames = helpers.get_filenames(path, hide_dotted)
-    print_columnized(filenames, sort_items=True, **options)
+    print_columnized(helpers.get_filenames(path), sort_items=True, **options)

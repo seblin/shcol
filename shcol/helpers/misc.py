@@ -96,22 +96,28 @@ def make_unique(items):
             seen.add(item)
             yield item
 
-def get_filenames(path='.', hide_dotted=False):
+def get_filenames(path='.'):
     """
-    Return an iterator of the filenames in `path`. Note that this function does
-    shell-like expansion of symbols such as "*", "?" or even "~" (user's home).
+    Return an iterator of the filenames in `path`. If this function could not
+    retrieve any filename due to access errors then the iterator will be empty
+    (i.e. yielding no items).
 
-    `hide_dotted` defines whether to exclude filenames starting with a ".".
+    Note that this function does shell-like expansion of symbols such as "*",
+    "?" or even "~" (user's home). When globbing symbols ("*" or "?") are used
+    and `path` refers to a directory name then `path` must end with the system's
+    path separator ("/" or "\") in order to retrieve the directory's content.
     """
     path = os.path.expanduser(os.path.expandvars(path))
+    if glob.has_magic(path):
+        if os.altsep is not None:
+            path = path.replace(os.altsep, os.sep)
+        if path.endswith(os.sep):
+            path = os.path.join(path, '*')
+        return glob.iglob(path)
     try:
         filenames = os.listdir(path)
-    except OSError as err:
-        filenames = glob.glob(path)
-        if not filenames:
-            raise err
-    if hide_dotted:
-        filenames = (fn for fn in filenames if not fn.startswith('.'))
+    except OSError:
+        filenames = []
     return iter(filenames)
 
 def filter_names(source, pattern):
