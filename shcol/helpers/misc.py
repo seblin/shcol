@@ -213,8 +213,8 @@ def make_object_repr(obj, attr_names):
     attribute names with their corresponding values based on given `attr_names`.
     The result may be used as an object's `__repr__()`-string.
     """
-    format_spec = '{}={!r}'
+    format = '{}={!r}'.format
     attr_string = ', '.join(
-        format_spec.format(name, getattr(obj, name)) for name in attr_names
+        format(name, getattr(obj, name)) for name in attr_names
     )
     return '<{}({})>'.format(type(obj).__name__, attr_string)
