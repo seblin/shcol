@@ -16,6 +16,8 @@ from .. import config
 
 __all__ = ['get_terminal_width_info']
 
+IS_SUPPORTED_PLATFORM = True
+
 TerminalWidthInfo = collections.namedtuple(
     'TerminalWidthInfo', 'window_width, is_line_width'
 )
@@ -80,8 +82,6 @@ if config.ON_WINDOWS:
 
 elif hasattr(os, 'get_terminal_size'):
     def terminal_width_impl(fd):
-        # Does not give correct results on Windows terminal
-        # (console screen buffer does not always match the window size)
         window_width = os.get_terminal_size(fd).columns
         return make_width_info(window_width)
 
@@ -90,9 +90,9 @@ else:
         import fcntl
         import termios
     except ImportError:
-        import_ok = False
+        IS_SUPPORTED_PLATFORM = False
     else:
-        import_ok = True
+        IS_SUPPORTED_PLATFORM = hasattr(termios, 'TIOCGWINSZ')
 
     class WinSize(ctypes.Structure):
         _fields_ = [
@@ -103,14 +103,8 @@ else:
         ]
 
     def terminal_width_impl(fd):
-        if not all([
-            import_ok, hasattr(termios, 'TIOCGWINSZ'),
-
-            # Python-2.7-compatible `pypy`-interpreter lacks this
-            hasattr(ctypes.Structure, 'from_buffer_copy')
-        ]):
+        if not IS_SUPPORTED_PLATFORM:
             raise OSError('unsupported platform')
-
         result = fcntl.ioctl(
             fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
         )
