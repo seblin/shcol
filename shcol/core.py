@@ -75,7 +75,7 @@ def columnize(
         try:
             formatter = formatter_class.for_terminal(output_stream, spacing)
         except (IOError, OSError):
-            raise ValueError('unable to detect line width')
+            raise OSError('unable to detect line width')
     else:
         formatter = formatter_class.for_line_config(spacing, line_width)
     return formatter.format(
