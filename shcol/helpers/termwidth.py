@@ -14,9 +14,16 @@ import os
 
 from .. import config
 
-__all__ = ['get_terminal_width_info']
+try:
+    import ctypes.wintypes
+    HAVE_WINTYPES = True
+except ImportError:
+    # Jython 2.5.0 lacks `wintypes`
+    HAVE_WINTYPES = False
 
 IS_SUPPORTED_PLATFORM = True
+
+__all__ = ['get_terminal_width_info']
 
 TerminalWidthInfo = collections.namedtuple(
     'TerminalWidthInfo', 'window_width, is_line_width'
@@ -35,9 +42,7 @@ def make_width_info(window_width, is_line_width=True):
     return TerminalWidthInfo(window_width, is_line_width)
 
 
-if config.ON_WINDOWS:
-    import ctypes.wintypes
-
+if config.ON_WINDOWS and HAVE_WINTYPES:
     class ConsoleScreenBufferInfo(ctypes.Structure):
         _fields_ = [
             ('dwSize', ctypes.wintypes._COORD),
