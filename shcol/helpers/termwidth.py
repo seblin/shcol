@@ -85,7 +85,7 @@ if config.ON_WINDOWS and HAVE_WINTYPES:
         return make_width_info(window_width, window_width == line_width)
 
 
-elif hasattr(os, 'get_terminal_size'):
+elif not config.ON_WINDOWS and hasattr(os, 'get_terminal_size'):
     def terminal_width_impl(fd):
         window_width = os.get_terminal_size(fd).columns
         return make_width_info(window_width)
