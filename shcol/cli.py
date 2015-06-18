@@ -101,6 +101,17 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(use terminal width by default)'
         )
         self.add_argument(
+            '-c', '--column', metavar='N', type=helpers.num, dest='column',
+            help='choose a specific column per line via an index value\n'
+                 '(indices start at 0, column separator is whitespace)\n'
+                 'will only work when items are supplied via stdin'
+        )
+        self.add_argument(
+            '-F', '--filter', metavar='P', dest='pattern',
+            help='only columnize items which match the pattern P\n'
+                 '(P should include wildcard symbols such as "?" or "*")'
+        )
+        self.add_argument(
             '-S', '--sort', action='store_true', default=config.SORT_ITEMS,
             help='sort the items'
         )
@@ -108,12 +119,6 @@ class ArgumentParser(argparse.ArgumentParser):
             '-U', '--unique', action='store_true', default=config.MAKE_UNIQUE,
             help='process only the first occurrence of an item\n'
                  '(i.e. doublets are eliminated)'
-        )
-        self.add_argument(
-            '-c', '--column', metavar='N', type=helpers.num, dest='column',
-            help='choose a specific column per line via an index value\n'
-                 '(indices start at 0, column separator is whitespace)\n'
-                 'will only work when items are supplied via stdin'
         )
         self.add_argument(
             '-v', '--version', action='version', version=self.version_string
@@ -164,7 +169,7 @@ def main(args=None, prog_name='shcol', version=__version__):
         args = parser.parse_args(args)
         highlevel.print_columnized(
             args.items, spacing=args.spacing, line_width=args.width,
-            make_unique=args.unique, sort_items=args.sort
+            pattern=args.pattern, make_unique=args.unique, sort_items=args.sort
         )
     except KeyboardInterrupt:
         parser.exit(1)
