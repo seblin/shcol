@@ -17,8 +17,7 @@ from .. import config
 try:
     import ctypes.wintypes
     HAVE_WINTYPES = True
-except ImportError:
-    # Jython 2.5.0 lacks `wintypes`
+except (ImportError, ValueError):
     HAVE_WINTYPES = False
 
 IS_SUPPORTED_PLATFORM = True
