@@ -55,20 +55,12 @@ class ColumnizeTest(unittest.TestCase):
         expected = self.join(['eggs', 'ham', 'spam'])
         self.assertEqual(result, expected)
 
-    def test_decode(self):
-        items = [b'spam', b'ham', b'eggs']
-        result = self.columnize(items, decode=True)
-        expected = self.join(['spam', 'ham', 'eggs'])
-        self.assertEqual(result, expected)
-
     def test_invalid_values(self):
-        with self.assertRaises(TypeError):
-            self.columnize([42])
-            self.columnize(['spam'], spacing='bogus')
-            self.columnize(['spam'], line_width='bogus')
         with self.assertRaises(ValueError):
-            self.columnize(['spam'], spacing=-42)
-            self.columnize(['spam'], line_width=-42)
+            items = ['spam']
+            for invalid in ('bogus', -42):
+                self.columnize(items, spacing=invalid)
+                self.columnize(items, line_width=invalid)
 
 
 class ColumnWidthCalculatorTest(unittest.TestCase):

@@ -19,28 +19,23 @@ except ImportError:
 from .. import config
 
 __all__ = [
-    'StringIO', 'get_decoded', 'get_sorted', 'make_unique', 'get_filenames',
+    'StringIO', 'get_strings', 'get_sorted', 'make_unique', 'get_filenames',
     'filter_names', 'is_mapping', 'num', 'get_lines', 'get_column',
     'make_object_repr'
 ]
 
-def get_decoded(items, encoding=config.ENCODING):
+def get_strings(items, encoding=config.ENCODING):
     """
-    Decode given `items` and return the result as an iterator.
+    Convert `items` to Unicode strings and return the result as an iterator.
 
-    `encoding` defines the name of the encoding to be used. It is passed to each
-    item's `.decode()`-method.
-
-    Note that if an item does not provide a `.decode()`-method or if decoding
-    throws a `UnicodeEncodeError` (as on Python 2.x) then the item is left
-    unchanged. Any other exception during decoding an item will cause an error.
+    `encoding` defines the name of the encoding to be used for decoding when
+    an item is a byte string.
     """
     for item in items:
-        try:
+        if isinstance(item, bytes):
             yield item.decode(encoding)
-        except (AttributeError, UnicodeEncodeError):
-            yield item
-
+        else:
+            yield config.UNICODE_TYPE(item)
 
 def get_sorted(items, locale_name='', strict=False):
     """

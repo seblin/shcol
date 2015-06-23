@@ -31,7 +31,7 @@ ColumnConfig = collections.namedtuple(
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
     pattern=None, make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
-    decode=config.NEEDS_DECODING, output_stream=config.TERMINAL_STREAM
+    output_stream=config.TERMINAL_STREAM
 ):
     """
     Return a columnized string based on `items`. Note that `items` can be a
@@ -60,12 +60,6 @@ def columnize(
     thread-safe because it temporarily changes the interpreter's global `locale`
     configuration.
 
-    `decode` defines whether non-Unicode items should be decoded to Unicode. If
-     running on Python 3.x then most of the time the "decoding step" is not
-     necessary and can be skipped to safe some time. This is why the default
-     value for `decode` is `False` when running on a Python 3.x interpreter
-     while it is set to `True` when running on Python 2.x.
-
      `output_stream` defines the stream where the result should be written to.
     """
     if make_unique and not helpers.is_mapping(items):
@@ -78,9 +72,7 @@ def columnize(
             raise OSError('unable to detect line width')
     else:
         formatter = formatter_class.for_line_config(spacing, line_width)
-    return formatter.format(
-        items, pattern=pattern, sort_items=sort_items, decode=decode
-    )
+    return formatter.format(items, pattern=pattern, sort_items=sort_items)
 
 def get_formatter_class(items):
     """
@@ -102,8 +94,8 @@ class IterableFormatter(object):
     A class to do columnized formatting on a given iterable of strings.
     """
     def __init__(
-        self, calculator, linesep=config.LINESEP, encoding=config.ENCODING,
-        autowrap=False
+        self, calculator, linesep=config.LINESEP,
+        encoding=config.ENCODING, autowrap=False
     ):
         """
         Initialize the formatter.
@@ -160,10 +152,7 @@ class IterableFormatter(object):
         )
         return cls(calculator, autowrap=width_info.is_line_width)
 
-    def format(
-        self, items, pattern=None, sort_items=config.SORT_ITEMS,
-        decode=config.NEEDS_DECODING
-    ):
+    def format(self, items, pattern=None, sort_items=config.SORT_ITEMS):
         """
         Return a columnized string based on `items`.
 
@@ -173,25 +162,20 @@ class IterableFormatter(object):
 
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
-
-        `decode` defines whether each item should be decoded in order to get
-        Unicode-strings. When passing items that already are Unicode then this
-        parameter may be set to `False` to skip the "decoding step" (which will
-        safe some time).
-
-        Please note that Python 2.x (byte-)strings with non-ascii characters in
-        it (e.g. German umlauts) should always be decoded. Otherwise, formatting
-        is likely to return unexpected results. Unicode items in Python 2.x are
-        *not* affected by this.
         """
+        items = self.get_strings(items)
         if pattern is not None:
             items = self.filter_names(items, pattern)
         if sort_items:
             items = self.get_sorted(items)
-        if decode:
-            items = self.get_decoded(items)
         lines = self.make_lines(items)
         return self.linesep.join(lines)
+
+    def get_strings(self, items):
+        """
+        Return a Unicode version of `items`.
+        """
+        return helpers.get_strings(items, self.encoding)
 
     @staticmethod
     def filter_names(items, pattern):
@@ -211,12 +195,6 @@ class IterableFormatter(object):
         Return a sorted version of `items`.
         """
         return helpers.get_sorted(items)
-
-    def get_decoded(self, items):
-        """
-        Return a decoded version of `items`.
-        """
-        return helpers.get_decoded(items, self.encoding)
 
     def make_lines(self, items):
         """
@@ -385,6 +363,14 @@ class MappingFormatter(IterableFormatter):
         )
         return cls(calculator, autowrap=width_info.is_line_width)
 
+    def get_strings(self, mapping):
+        """
+        Return a Unicode version of `mapping`.
+        """
+        keys = helpers.get_strings(mapping.keys(), self.encoding)
+        values = helpers.get_strings(mapping.values(), self.encoding)
+        return collections.OrderedDict(zip(keys, values))
+
     @staticmethod
     def filter_names(mapping, pattern):
         """
@@ -407,14 +393,6 @@ class MappingFormatter(IterableFormatter):
         return collections.OrderedDict(
             (key, mapping[key]) for key in helpers.get_sorted(mapping)
         )
-
-    def get_decoded(self, mapping):
-        """
-        Return a decoded version of `mapping`.
-        """
-        keys = helpers.get_decoded(mapping.keys(), self.encoding)
-        values = helpers.get_decoded(mapping.values(), self.encoding)
-        return collections.OrderedDict(zip(keys, values))
 
     def get_line_properties(self, mapping):
         """

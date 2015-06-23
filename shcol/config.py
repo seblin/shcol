@@ -13,16 +13,21 @@ read during initialization of the `shcol`-package.
 import os
 import sys
 
-ENCODING = sys.stdout.encoding or 'utf-8'
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
 LINESEP = '\n'
 MAKE_UNIQUE = False
-NEEDS_DECODING = (sys.version_info < (3, 0))
 ON_WINDOWS = 'windows' in os.getenv('os', '').lower()
 PY_VERSION = sys.version_info[:2]
 SORT_ITEMS = False
 SPACING = 2
 STARTER = os.path.join('bin', 'shcol' + ('.bat' if ON_WINDOWS else ''))
 TERMINAL_STREAM = sys.stdout
+
+if PY_VERSION >= (3, 0):
+    ENCODING = sys.getdefaultencoding()
+    UNICODE_TYPE = type('')
+else:
+    ENCODING = TERMINAL_STREAM.encoding or sys.getdefaultencoding()
+    UNICODE_TYPE = type(u'')
