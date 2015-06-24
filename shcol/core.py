@@ -62,7 +62,7 @@ def columnize(
 
      `output_stream` defines the stream where the result should be written to.
     """
-    if make_unique and not helpers.is_mapping(items):
+    if make_unique and not isinstance(items, collections.Mapping):
         items = helpers.make_unique(items)
     formatter_class = get_formatter_class(items)
     if line_width is None:
@@ -84,7 +84,7 @@ def get_formatter_class(items):
     Note that these heuristics are based on rough assumptions. There is no
     guarantee that formatting with the returned class will not fail.
     """
-    if helpers.is_mapping(items):
+    if isinstance(items, collections.Mapping):
         return MappingFormatter
     return IterableFormatter
 

@@ -20,8 +20,7 @@ from .. import config
 
 __all__ = [
     'StringIO', 'get_strings', 'get_sorted', 'make_unique', 'get_filenames',
-    'filter_names', 'is_mapping', 'num', 'get_lines', 'get_column',
-    'make_object_repr'
+    'filter_names', 'num', 'get_lines', 'get_column', 'make_object_repr'
 ]
 
 def get_strings(items, encoding=config.ENCODING):
@@ -127,14 +126,6 @@ def filter_names(source, pattern):
     """
     pattern = re.compile(fnmatch.translate(pattern))
     return (name for name in source if pattern.match(name))
-
-def is_mapping(obj):
-    """
-    Return `True` if `obj` is considered to be a mapping. Return `False`
-    otherwise. Note that this function does a "duck-type" check. It only
-    checks the presence of a `keys`- and a `values`-attribute.
-    """
-    return hasattr(obj, 'keys') and hasattr(obj, 'values')
 
 def num(value, allow_none=False, allow_zero=False):
     """
