@@ -76,6 +76,7 @@ if config.ON_WINDOWS and HAVE_WINTYPES:
         return csbi
 
     def terminal_width_impl(fd):
+        config.LOGGER.debug('running `terminal_width_impl()` on Windows')
         handle = get_std_handle(fd)
         csbi = get_console_screen_buffer_info(handle)
         window = csbi.srWindow
@@ -86,6 +87,9 @@ if config.ON_WINDOWS and HAVE_WINTYPES:
 
 elif not config.ON_WINDOWS and hasattr(os, 'get_terminal_size'):
     def terminal_width_impl(fd):
+        config.LOGGER.debug(
+            'running `os.get_terminal_size()`-based `terminal_width_impl()`'
+        )
         window_width = os.get_terminal_size(fd).columns
         return make_width_info(window_width)
 
@@ -107,6 +111,9 @@ else:
         ]
 
     def terminal_width_impl(fd):
+        config.LOGGER.debug(
+            'running `terminal_width_impl()`-fallback on a non-Windows system'
+        )
         if not IS_SUPPORTED_PLATFORM:
             raise OSError('unsupported platform')
         result = fcntl.ioctl(

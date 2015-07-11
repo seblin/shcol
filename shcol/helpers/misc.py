@@ -69,6 +69,9 @@ def get_sorted(items, locale_name='', strict=False):
     except locale.Error:
         if strict:
             raise
+        config.LOGGER.warning(
+            'failed to set locale; falling back to locale-independent sorting'
+        )
         result = sorted(items)
     finally:
         if locale_name_was_set:
