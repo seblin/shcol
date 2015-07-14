@@ -10,6 +10,7 @@ Detect terminal width on different platforms.
 
 import collections
 import ctypes
+import ctypes.util
 import os
 
 from .. import config
@@ -114,13 +115,13 @@ else:
         config.LOGGER.debug(
             'running `terminal_width_impl()`-fallback on a non-Windows system'
         )
-        if not IS_SUPPORTED_PLATFORM:
+        libc_path = ctypes.util.find_library('c')
+        if libc_path is None or not IS_SUPPORTED_PLATFORM:
             raise OSError('unsupported platform')
-        result = fcntl.ioctl(
-            fd, termios.TIOCGWINSZ, ctypes.sizeof(WinSize) * '\0'
-        )
-        window_width = WinSize.from_buffer_copy(result).ws_col
-        return make_width_info(window_width)
+        libc = ctypes.CDLL(libc_path)
+        win_size = WinSize()
+        libc.ioctl(fd, termios.TIOCGWINSZ, ctypes.byref(win_size))
+        return make_width_info(win_size.ws_col)
 
 
 def is_terminal(stream):
