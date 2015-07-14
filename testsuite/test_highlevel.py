@@ -45,6 +45,7 @@ class PrintFilenamesTest(PrintFunctionTestCase):
         result = list(shcol.helpers.get_filenames())
         self.assertEqual(result, expected)
         module_path = os.path.abspath(os.path.dirname(__file__))
+        result = list(shcol.helpers.get_filenames(module_path))
         expected = os.listdir(module_path)
         self.assertEqual(result, expected)
         expected = [
