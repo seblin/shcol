@@ -21,8 +21,6 @@ try:
 except (ImportError, ValueError):
     HAVE_WINTYPES = False
 
-IS_SUPPORTED_PLATFORM = True
-
 __all__ = ['get_terminal_width_info']
 
 TerminalWidthInfo = collections.namedtuple(
@@ -96,12 +94,9 @@ elif not config.ON_WINDOWS and hasattr(os, 'get_terminal_size'):
 
 else:
     try:
-        import fcntl
         import termios
     except ImportError:
-        IS_SUPPORTED_PLATFORM = False
-    else:
-        IS_SUPPORTED_PLATFORM = hasattr(termios, 'TIOCGWINSZ')
+        termios = None
 
     class WinSize(ctypes.Structure):
         _fields_ = [
@@ -116,7 +111,7 @@ else:
             'running `terminal_width_impl()`-fallback on a non-Windows system'
         )
         libc_path = ctypes.util.find_library('c')
-        if libc_path is None or not IS_SUPPORTED_PLATFORM:
+        if libc_path is None or not hasattr(termios, 'TIOCGWINSZ'):
             raise OSError('unsupported platform')
         libc = ctypes.CDLL(libc_path)
         win_size = WinSize()
