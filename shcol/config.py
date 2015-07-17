@@ -10,6 +10,8 @@ needed) only *before* running `shcol`, since most of these constants are only
 read during initialization of the `shcol`-package.
 """
 
+from __future__ import unicode_literals
+
 import logging
 import os
 import sys
