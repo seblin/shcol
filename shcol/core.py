@@ -168,8 +168,8 @@ class IterableFormatter(object):
             items = self.filter_names(items, pattern)
         if sort_items:
             items = self.get_sorted(items)
-        lines = self.make_lines(items)
-        return self.linesep.join(lines)
+        lines = self.make_lines(items, add_line_breaks=True)
+        return ''.join(lines).rstrip(self.linesep)
 
     def get_strings(self, items):
         """
@@ -196,17 +196,41 @@ class IterableFormatter(object):
         """
         return helpers.get_sorted(items)
 
-    def make_lines(self, items):
+    def make_lines(self, items, add_line_breaks=False):
         """
-        Return columnized lines for `items` yielded by an iterator. Note that
-        this method does not append extra newline characters to the end of the
-        resulting lines.
+        Return columnized lines for `items` yielded by an iterator.
+
+        If `add_line_breaks` is `True` then extra newline characters will be
+        appended to the end of the resulting lines.
         """
         if isinstance(items, collections.Iterator):
             items = list(items)
         props = self.get_line_properties(items)
         line_chunks = self.make_line_chunks(items, props)
-        return self.iter_formatted_lines(line_chunks, props)
+        lines = self.iter_formatted_lines(line_chunks, props)
+        if add_line_breaks:
+            lines = self.add_line_breaks(lines)
+        return lines
+
+    def add_line_breaks(self, lines):
+        """
+        Add line breaks to each line of given `lines`.
+
+        If the `.autowrap`-attribute of this formatter is set to `True` then
+        lines, which exactly match the formatter's line width, will *not* get
+        a line break. This avoids an undesired empty line after those lines.
+        """
+        template = 'adding line breaks (linesep: {!r}, wrapsep: {!r})'
+        config.LOGGER.debug(template.format(self.linesep, self.wrapsep))
+        for lineno, line in enumerate(lines, 1):
+            if len(line) == self.calculator.line_width:
+                msg = 'adding wrapsep to line {}'.format(lineno)
+                line += self.wrapsep
+            else:
+                msg = 'adding linesep to line {}'.format(lineno)
+                line += self.linesep
+            config.LOGGER.debug(msg)
+            yield line
 
     def get_line_properties(self, items):
         """
