@@ -122,7 +122,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         with self.assertRaises(shcol.core.LineTooSmallError):
             self.calculator.calculate_columns([81])
         self.calculator.allow_exceeding = True
-        self.assertEqual(self.calculator.calculate_columns([81]), ([81], 1))
+        self.assertEqual(self.calculator.calculate_columns([81]), ([80], 1))
 
     def test_calculate_max_columns(self):
         expected_results = [
@@ -209,11 +209,11 @@ class IterableFormatterTest(unittest.TestCase):
         self.assertEqual(lines, [self.join(self.items)])
         self.formatter.calculator.line_width = 4
         self.assertEqual(self.make_lines(self.items), self.items)
-        items = [60 * 'ä', 40 * 'ö']
-        expected = [60 * 'ä', 40 * 'ö']
 
         # Now test error handling
         self.formatter.calculator.line_width = 50
+        items = [60 * 'ä', 40 * 'ö']
+        expected = ['{}\n{}'.format(50 * 'ä', 10 * 'ä'), 40 * 'ö']
         with self.assertRaises(shcol.core.LineTooSmallError):
             self.make_lines(items)
         self.formatter.calculator.allow_exceeding = True

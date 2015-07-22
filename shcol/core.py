@@ -524,7 +524,7 @@ class ColumnWidthCalculator(object):
             return self.get_column_config(item_widths)
         except LineTooSmallError:
             if self.allow_exceeding and self.num_columns in (None, 1):
-                return ColumnConfig([max(item_widths)], len(item_widths))
+                return ColumnConfig([self.line_width], len(item_widths))
             else:
                 raise
 
