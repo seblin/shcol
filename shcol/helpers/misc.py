@@ -46,10 +46,10 @@ def get_sorted(items, locale_name='', strict=False):
     given as an empty string (the default) then the system's default locale will
     be used.
 
-    Use `strict` to decide what to do if setting the locale failed with a
-    `locale.Error`. `True` means that the function will fail by throwing the
-    error. `False` means that the error is ignored and sorting is done
-    locale-independent by simply calling `sorted(items)`.
+    Use `strict` to decide what to do if this function fails with an exception.
+    `True` means that the function will fail by throwing the exception. `False`
+    means that the error is just logged and sorting is done locale-independent
+    by simply calling `sorted(items)`.
 
     Note that this function temporary changes the interpreter's global locale
     configuration. It does this by storing the current locale and then setting
@@ -66,11 +66,13 @@ def get_sorted(items, locale_name='', strict=False):
         locale.setlocale(locale.LC_COLLATE, locale_name)
         locale_name_was_set = True
         result = sorted(items, key=sortkey)
-    except locale.Error:
+    except Exception as exc:
         if strict:
             raise
-        config.LOGGER.warning(
-            'failed to set locale; falling back to locale-independent sorting'
+        exc_message = '{}: {}'.format(type(exc).__name__, exc)
+        config.LOGGER.debug(
+            '`get_sorted()` failed with an exception ({!r}); '
+            'falling back to locale-independent sorting'.format(exc_message)
         )
         result = sorted(items)
     finally:
@@ -205,4 +207,4 @@ def make_object_repr(obj, attr_names):
     attr_string = ', '.join(
         '{}={!r}'.format(name, getattr(obj, name)) for name in attr_names
     )
-    return '<{}({})>'.format(type(obj).__name__, attr_string)
+    return '{}({})'.format(type(obj).__name__, attr_string)
