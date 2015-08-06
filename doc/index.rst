@@ -17,20 +17,22 @@ Some simple examples running ``shcol`` from the Windows PowerShell:
 
 .. code-block:: powershell
 
-   PS C:\> shcol foo bar baz
+   PS C:\> shcol foo bar baz  # Columnize a sequence of arguments
    foo  bar  baz
-   PS C:\> shcol --spacing=5 foo bar baz
+   PS C:\> shcol foo bar baz  --spacing=5  # Use more spacing
    foo     bar     baz
-   PS C:\> shcol --sort foo bar baz
+   PS C:\> shcol foo bar baz  --sort  # Sort the items
    bar  baz  foo
-   PS C:\> echo foo bar foo baz bar bar foo | shcol --sort --unique
-   bar  baz  foo
-   PS C:\> shcol --width=50 AAAAAAAA BBBBBBBBB CCCCCCCCCC DDDDDDDDDDDD EEEEEEEE
-   AAAAAAAA   CCCCCCCCCC    EEEEEEEE
-   BBBBBBBBB  DDDDDDDDDDDD
-   PS C:\> shcol -w50 -s5 AAAAAAAA BBBBBBBBB CCCCCCCCCC DDDDDDDDDDDD EEEEEEEE
-   AAAAAAAA      CCCCCCCCCC       EEEEEEEE
-   BBBBBBBBB     DDDDDDDDDDDD
+   PS C:\> echo foo bar baz | shcol  # Read items from a pipe
+   foo  bar  baz
+   PS C:\> cd Python34
+   PS C:\Python34> (ls).name | shcol  # Output like "ls" on Unix
+   DLLs  include  Lib  libs  Scripts  share  tcl  Tools  LICENSE.txt  NEWS.txt  python.exe  pythonw.exe  README.txt
+   PS C:\Python34> (ls).name | shcol --width=42  # Use less line width
+   DLLs     Scripts  LICENSE.txt  README.txt
+   include  share    NEWS.txt
+   Lib      tcl      python.exe
+   libs     Tools    pythonw.exe
 
 
 And here are some examples on how to use the Python API:
@@ -44,59 +46,26 @@ And here are some examples on how to use the Python API:
    foo     bar     baz
    >>> shcol.print_columnized(['foo', 'bar', 'baz'], sort_items=True)
    bar  baz  foo
-   >>> items = ['foo', 'bar', 'foo', 'baz', 'bar', 'bar', 'foo']
-   >>> shcol.print_columnized(items, sort_items=True, make_unique=True)
-   bar  baz  foo
-   >>> items = ['AAAAAAAA', 'BBBBBBBBB', 'CCCCCCCCCC', 'DDDDDDDDDDDD', 'EEEEEEEE']
-   >>> shcol.print_columnized(items, line_width=50)
-   AAAAAAAA   CCCCCCCCCC    EEEEEEEE
-   BBBBBBBBB  DDDDDDDDDDDD
-   >>> shcol.print_columnized(items, line_width=50, spacing=5)
-   AAAAAAAA      CCCCCCCCCC       EEEEEEEE
-   BBBBBBBBB     DDDDDDDDDDDD
-
-
-The given sequence is not restricted to consist of strings:
-
-.. code-block:: pycon
-
-   >>> import shcol
    >>> shcol.print_columnized(range(15), line_width=10)
    0  5  10
    1  6  11
    2  7  12
    3  8  13
    4  9  14
-
-
-``shcol`` is even able to render dictionaries:
-
-.. code-block:: pycon
-
-   >>> import os, shcol
+   >>> shcol.print_filenames(spacing=5, line_width=42)
+   DLLs            NEWS.txt        share
+   include         python.exe      tcl
+   Lib             pythonw.exe     Tools
+   libs            README.txt
+   LICENSE.txt     Scripts
+   >>> shcol.print_filenames('*.txt')
+   LICENSE.txt  NEWS.txt  README.txt
+   >>> import os
    >>> shcol.print_columnized(os.environ, pattern='PROG*', sort_items=True)
    PROGRAMDATA        C:\ProgramData
    PROGRAMFILES       C:\Program Files (x86)
    PROGRAMFILES(X86)  C:\Program Files (x86)
    PROGRAMW6432       C:\Program Files
-
-
-Globbing files is also supported:
-
-.. code-block:: pycon
-
-   >>> import os, shcol
-   >>> os.chdir(os.path.dirname(shcol.__file__))
-   >>> shcol.print_filenames('*.py', line_width=40)
-   __init__.py  cli.py     core.py
-   __main__.py  config.py  highlevel.py
-
-
-Want to have a neat look on an object's attributes? Then you can do this:
-
-.. code-block:: pycon
-
-   >>> import shcol
    >>> shcol.print_attr_names(shcol, line_width=60)
    __author__    __loader__   cli        print_attr_names
    __builtins__  __name__     columnize  print_columnized
