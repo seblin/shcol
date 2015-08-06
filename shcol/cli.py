@@ -43,7 +43,7 @@ class ArgumentParser(argparse.ArgumentParser):
             '%(prog)s -S -c0 < /proc/modules\n'
             'dpkg --get-selections \'python3*\' | %(prog)s -c0 -s4\n\n'
             'Columnize process names on Windows PowerShell:\n'
-            'ps | foreach {$_.name} | %(prog)s -U'
+            '(ps).name | %(prog)s -U'
         )
         self.stdin = stdin
         self.stdout = stdout
