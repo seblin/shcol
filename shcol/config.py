@@ -13,7 +13,6 @@ import logging
 import os
 import sys
 
-ENCODING = 'utf-8'
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
@@ -27,3 +26,5 @@ SPACING = 2
 STARTER = os.path.join('bin', 'shcol' + ('.bat' if ON_WINDOWS else ''))
 TERMINAL_STREAM = sys.stdout
 UNICODE_TYPE = type(u'')
+
+ENCODING = TERMINAL_STREAM.encoding or 'utf-8'
