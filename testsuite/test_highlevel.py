@@ -14,7 +14,7 @@ class PrintFunctionTestCase(unittest.TestCase):
         if name.startswith('print_') and hasattr(shcol, name):
             func = getattr(shcol, name)
             return functools.partial(func, output_stream=self.pseudo_stream)
-        return unittest.TestCase.__getattr__(self, name)
+        return unittest.TestCase.__getattribute__(self, name)
 
     def setUp(self):
         self.pseudo_stream = shcol.helpers.StringIO()
