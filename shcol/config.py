@@ -9,13 +9,11 @@ Constants that are used by `shcol` in many places. This is meant to modified (if
 needed) only *before* running `shcol`, since most of these constants are only
 read during initialization of the `shcol`-package.
 """
-
-from __future__ import unicode_literals
-
 import logging
 import os
 import sys
 
+ENCODING = 'utf-8'
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
@@ -28,10 +26,4 @@ SORT_ITEMS = False
 SPACING = 2
 STARTER = os.path.join('bin', 'shcol' + ('.bat' if ON_WINDOWS else ''))
 TERMINAL_STREAM = sys.stdout
-
-if PY_VERSION >= (3, 0):
-    ENCODING = sys.getdefaultencoding()
-    UNICODE_TYPE = type('')
-else:
-    ENCODING = TERMINAL_STREAM.encoding or sys.getdefaultencoding()
-    UNICODE_TYPE = type(u'')
+UNICODE_TYPE = type(u'')
