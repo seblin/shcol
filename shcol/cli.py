@@ -144,12 +144,12 @@ class ArgumentParser(argparse.ArgumentParser):
                 msg = 'can\'t use --column when items are given as arguments'
                 self.error(msg)
             encoding = sys.getfilesystemencoding()
-            args.items = helpers.get_strings(args.items, encoding)
         else:
             args.items = helpers.get_lines(self.stdin)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
-        args.items = list(args.items)
+            encoding = self.stdout.encoding
+        args.items = list(helpers.get_strings(args.items, encoding))
         return args
 
 def main(args=None, prog_name='shcol', version=__version__):
