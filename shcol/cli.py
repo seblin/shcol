@@ -11,6 +11,7 @@ The command-line interface for `shcol`.
 import argparse
 import io
 import sys
+import traceback
 
 from . import __version__, config, helpers, highlevel
 
@@ -149,7 +150,7 @@ class ArgumentParser(argparse.ArgumentParser):
             try:
                 # Force byte-stream
                 input_stream = io.open(self.stdin.fileno(), 'rb')
-            except io.UnsupportedOperation:
+            except (AttributeError, io.UnsupportedOperation):
                 # Assume fake file-object (StringIO, ...)
                 input_stream = self.stdin
             args.items = helpers.get_lines(input_stream)
@@ -185,4 +186,5 @@ def main(args=None, prog_name='shcol', version=__version__):
     except KeyboardInterrupt:
         parser.exit(1)
     except Exception as exc:
+        config.LOGGER.error(traceback.format_exc())
         parser.error(exc)
