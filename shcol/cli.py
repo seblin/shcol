@@ -9,6 +9,7 @@ The command-line interface for `shcol`.
 """
 
 import argparse
+import io
 import sys
 
 from . import __version__, config, helpers, highlevel
@@ -145,7 +146,13 @@ class ArgumentParser(argparse.ArgumentParser):
                 self.error(msg)
             encoding = sys.getfilesystemencoding()
         else:
-            args.items = helpers.get_lines(self.stdin)
+            try:
+                # Force byte-stream
+                input_stream = io.open(self.stdin.fileno(), 'rb')
+            except io.UnsupportedOperation:
+                # Assume fake file-object (StringIO, ...)
+                input_stream = self.stdin
+            args.items = helpers.get_lines(input_stream)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
             encoding = self.stdout.encoding
