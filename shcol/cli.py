@@ -156,7 +156,7 @@ class ArgumentParser(argparse.ArgumentParser):
             args.items = helpers.get_lines(input_stream)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
-            encoding = self.stdout.encoding
+            encoding = config.ENCODING
         args.items = list(helpers.get_strings(args.items, encoding))
         return args
 
