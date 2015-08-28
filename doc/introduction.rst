@@ -74,11 +74,19 @@ How to install
 --------------
 
 Use ``pip install shcol`` to get the latest stable release. This currently picks
-``shcol 0.2`` for you. Please note that a few features as shown above are *not*
-supported by that version.
+:program:`shcol 0.2` for you. Please note that a few features as shown above are
+not supported by that version.
 
 If you rather like to fetch the latest state of development then you may run
 ``pip install git+git://github.com/seblin/shcol.git`` instead.
+
+
+Compatible Python versions
+--------------------------
+
+:program:`shcol` is tested regularly against Python *2.7* and Python *3.4* and
+does work with both versions. It should also work with older Python *3.x*
+versions. Python versions older than *2.7* are not supported.
 
 
 License
