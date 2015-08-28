@@ -74,3 +74,23 @@ with German set as the default locale:
    bär  baz  foo
    PS C:\> shcol foo bär baz --sort
    bär  baz  foo
+
+
+Making items unique
+-------------------
+
+If your input contains duplicates and you don't want to have duplicates in your
+columnized output then the ``-U`` (long form: ``--unique``) option is a good way
+to deal with that.
+
+If this option is enabled then :program:`shcol` will ignore subsequent
+occurrences of an item that already has been processed.
+
+The effect when using that option is illustrated by the following example:
+
+.. code-block:: powershell
+
+   PS C:\> shcol foo bar foo baz bar baz foo -U
+   foo  bar  baz
+   PS C:\> shcol foo bar foo baz bar baz foo --unique
+   foo  bar  baz
