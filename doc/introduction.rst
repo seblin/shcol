@@ -26,7 +26,7 @@ Some simple examples running :program:`shcol` from the Windows PowerShell:
    PS C:\> echo foo bar baz | shcol  # Read items from a pipe
    foo  bar  baz
 
-Read the chapter :doc:`cli-api` to learn about more details.
+Read the chapter :doc:`cli` to learn about more details.
 
 The following examples shall give a first impression about using the Python API:
 

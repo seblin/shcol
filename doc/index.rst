@@ -7,4 +7,4 @@ Welcome to the documentation of :program:`shcol`.
    :maxdepth: 2
 
    introduction
-   cli-api
+   cli

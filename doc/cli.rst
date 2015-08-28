@@ -1,5 +1,5 @@
-Command-line interface API
-==========================
+Command-line interface
+======================
 
 Passing items
 -------------
