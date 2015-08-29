@@ -56,6 +56,30 @@ For changing the *line width* you make use of the ``-w`` (long form:
    winlogon  wlanext       WUDFHost
 
 
+Selecting a specific column
+---------------------------
+
+If your input consists of lines that represent multiple columns then you
+probably want to choose a specific column to be processed by :program:`shcol`.
+To achieve this you can use the ``-c`` (long form: ``--column``) option.
+
+:program:`shcol` interprets a column as a sequence of non-whitespace characters.
+Column counting starts with 0 like indices do in most programming languages.
+
+The following snipptet shows how to use this option:
+
+.. code-block:: powershell
+
+   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ"
+   foo     XXX
+   bar     YYY
+   baz     ZZZ
+   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ" | shcol -c0
+   foo  bar  baz
+   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ" | shcol --column=1
+   XXX  YYY  ZZZ
+
+
 Sorting the items
 -----------------
 
