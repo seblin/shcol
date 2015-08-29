@@ -70,14 +70,40 @@ The following snippet shows how to use this option:
 
 .. code-block:: powershell
 
-   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ"
+   PS C:\> echo foo`tXXX bar`tYYY baz`tZZZ
    foo     XXX
    bar     YYY
    baz     ZZZ
-   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ" | shcol -c0
+   PS C:\> echo foo`tXXX bar`tYYY baz`tZZZ | shcol -c0
    foo  bar  baz
-   PS C:\> echo "foo`tXXX`nbar`tYYY`nbaz`tZZZ" | shcol --column=1
+   PS C:\> echo foo`tXXX bar`tYYY baz`tZZZ | shcol --column=1
    XXX  YYY  ZZZ
+
+
+Using patterns
+--------------
+
+Sometimes you want to filter your input according to specific criteria. For
+this, :program:`shcol` supports filtering by wildcards (namely: ``?`` and
+``*``). You make use of filtering by passing a pattern to the ``-F`` (long form:
+``--filter``) option.
+
+Filtering can be done like this:
+
+.. code-block:: powershell
+
+   PS C:\> echo foo bar baz | shcol -F"f*"
+   foo
+   PS C:\> echo foo bar baz | shcol -F"b*"
+   bar  baz
+   PS C:\> echo foo bar baz | shcol -F"*a*"
+   bar  baz
+   PS C:\> echo foo bar baz | shcol -F"*r"
+   bar
+   PS C:\> echo foo bar baz | shcol -F"ba?"
+   bar  baz
+   PS C:\> echo foo bar baz | shcol --filter="?a?"
+   bar  baz
 
 
 Sorting the items
@@ -85,9 +111,8 @@ Sorting the items
 
 :program:`shcol` is able to sort the given items before columnizing them. This
 sorting will be locale-dependent on most systems. It is based on the system's
-default locale settings.
-
-To enable sorting you use the ``-S`` (long form: ``--sort``) option.
+default locale settings. To enable sorting you use the ``-S`` (long form:
+``--sort``) option.
 
 The following example shows sorting including an item with a German Umlaut and
 with German set as the default locale:
