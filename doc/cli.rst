@@ -66,7 +66,7 @@ To achieve this you can use the ``-c`` (long form: ``--column``) option.
 :program:`shcol` interprets a column as a sequence of non-whitespace characters.
 Column counting starts with 0 like indices do in most programming languages.
 
-The following snipptet shows how to use this option:
+The following snippet shows how to use this option:
 
 .. code-block:: powershell
 
