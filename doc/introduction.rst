@@ -81,12 +81,15 @@ If you rather like to fetch the latest state of development then you may run
 ``pip install git+git://github.com/seblin/shcol.git`` instead.
 
 
-Compatible Python versions
---------------------------
+Compatibility
+-------------
 
 :program:`shcol` is tested regularly against Python *2.7* and Python *3.4* and
 does work with both versions. It should also work with older Python *3.x*
 versions. Python versions older than *2.7* are not supported.
+
+You should be able to run :program:`shcol` on Windows as well as on Linux. There
+are no dependencies to 3rd party libraries beyond the Python standard library.
 
 
 License
