@@ -147,18 +147,14 @@ class ArgumentParser(argparse.ArgumentParser):
                 self.error(msg)
             encoding = sys.getfilesystemencoding()
         else:
-            try:
-                # Force byte-stream
-                input_stream = io.open(self.stdin.fileno(), 'rb')
-            except (AttributeError, io.UnsupportedOperation):
-                # Assume fake file-object (StringIO, ...)
-                input_stream = self.stdin
+            input_stream = getattr(self.stdin, 'buffer', self.stdin)
             args.items = helpers.get_lines(input_stream)
             if args.column is not None:
                 args.items = helpers.get_column(args.column, args.items)
             encoding = config.ENCODING
         args.items = list(helpers.get_strings(args.items, encoding))
         return args
+
 
 def main(args=None, prog_name='shcol', version=__version__):
     """
