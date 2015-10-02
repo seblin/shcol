@@ -28,7 +28,8 @@ Some simple examples running :program:`shcol` from the Windows PowerShell:
 
 Read the chapter :doc:`cli` to learn about more details.
 
-The following examples shall give a first impression about using the Python API:
+The next examples shall give a first impression about using the
+:doc:`python-api`:
 
 .. code-block:: pycon
 
@@ -73,12 +74,12 @@ The following examples shall give a first impression about using the Python API:
 How to install
 --------------
 
-Use ``pip install shcol`` to get the latest stable release. This currently picks
-:program:`shcol 0.2` for you. Please note that a few features as shown above are
-not supported by that version.
+Use :command:`pip install shcol` to get the latest stable release. This
+currently picks :program:`shcol 0.2` for you. Please note that a few features as
+shown above are not supported by that version.
 
 If you rather like to fetch the latest state of development then you may run
-``pip install git+git://github.com/seblin/shcol.git`` instead.
+:command:`pip install git+git://github.com/seblin/shcol.git` instead.
 
 
 Compatibility

@@ -8,3 +8,4 @@ Welcome to the documentation of :program:`shcol`.
 
    introduction
    cli
+   python-api
