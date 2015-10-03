@@ -78,3 +78,21 @@ This is how to pass different patterns as a filter:
     >>> shcol.print_columnized(items, pattern='?a?')
     bar  baz
 
+
+How to sort
+-----------
+
+:program:`shcol` will do locale-dependent sorting via the `sort_items` keyword.
+
+Sorting can be done like this:
+
+.. code-block:: pycon
+
+    >>> shcol.print_columnized(['spam', 'ham', 'eggs'], sort_items=True)
+    eggs  ham  spam
+    >>> shcol.print_columnized(['späm', 'häm', 'äggs'], sort_items=True)
+    äggs  häm  späm
+
+Please note that sorting items with non-ascii characters will only work as
+intended if your system's locale setting was set accordingly, i.e. in order to
+sort german Umlauts as shown above you should set a german locale.
