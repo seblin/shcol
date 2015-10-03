@@ -39,7 +39,7 @@ def get_strings(items, encoding=config.ENCODING):
 def get_sorted(items):
     """
     Sort `items` with respect to characters that are specific to the current
-    locale and return the result as a new list.
+    locale setting and return the result as a new list.
 
     Note that this function temporary changes the interpreter's global locale
     configuration if no specific locale was set before. This is done in order
