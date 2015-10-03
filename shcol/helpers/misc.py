@@ -36,50 +36,33 @@ def get_strings(items, encoding=config.ENCODING):
         else:
             yield config.UNICODE_TYPE(item)
 
-def get_sorted(items, locale_name='', strict=False):
+def get_sorted(items):
     """
-    Sort `items` with respect to characters that are specific to the given
-    locale. The result will be returned as a new list.
-
-    `locale_name` defines the locale to be used. It has the same meaning as if
-    it would have been passed to the stdlib's `locale.setlocale()`-function. If
-    given as an empty string (the default) then the system's default locale will
-    be used.
-
-    Use `strict` to decide what to do if this function fails with an exception.
-    `True` means that the function will fail by throwing the exception. `False`
-    means that the error is just logged and sorting is done locale-independent
-    by simply calling `sorted(items)`.
+    Sort `items` with respect to characters that are specific to the current
+    locale and return the result as a new list.
 
     Note that this function temporary changes the interpreter's global locale
-    configuration. It does this by storing the current locale and then setting
-    the given locale name. Then the items are sorted and after that it will set
-    the stored locale again. This function is not thread-safe.
+    configuration if no specific locale was set before. This is done in order
+    to achieve sorting based on the system's default locale as a fallback. The
+    "unset locale"-state will then be restored right after sorting was done.
     """
-    locale_name_was_set = False
+    unset_locale = (None, None)
     old_locale = locale.getlocale(locale.LC_COLLATE)
+    if old_locale == unset_locale:
+        try:
+            default_locale = locale.setlocale(locale.LC_COLLATE, '')
+        except locale.Error as err:
+            # Very unlikely to occur, but just to be safe.
+            msg = 'setting default locale failed with locale.Error: {}'
+            config.LOGGER.debug(msg.format(err))
+        else:
+            msg = 'temporary switched to default locale: {}'
+            config.LOGGER.debug(msg.format(default_locale))
     sortkey = functools.cmp_to_key(locale.strcoll)
-    try:
-        # `old_locale` might be invalid (at least on Windows)
-        # => try to set it before doing the "real" switch
-        locale.setlocale(locale.LC_COLLATE, old_locale)
-        locale.setlocale(locale.LC_COLLATE, locale_name)
-        locale_name_was_set = True
-        result = sorted(items, key=sortkey)
-    except Exception as exc:
-        if strict:
-            raise
-        exc_message = '{}: {}'.format(type(exc).__name__, exc)
-        config.LOGGER.debug(
-            '`get_sorted()` failed with an exception ({!r}); '
-            'falling back to locale-independent sorting'.format(exc_message)
-        )
-        result = sorted(items)
-    finally:
-        if locale_name_was_set:
-            # this would fail otherwise
-            locale.setlocale(locale.LC_COLLATE, old_locale)
-    return result
+    sorted_items = sorted(items, key=sortkey)
+    if old_locale == unset_locale:
+        locale.setlocale(locale.LC_COLLATE, unset_locale)
+    return sorted_items
 
 def make_unique(items):
     """
