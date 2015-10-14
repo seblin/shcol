@@ -117,5 +117,5 @@ The effect of using `make_unique` is illustrated by the following example:
    spam  ham  eggs
 
 Note that `make_unique` preserves the original order of the given items. This
-differs to calling the Python standard library's `set()`-constructor, which
+differs from calling the Python standard library's `set()`-constructor, which
 makes no guarantees about the order of its result.
