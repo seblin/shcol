@@ -96,3 +96,26 @@ Sorting can be done like this:
 Please note that sorting items with non-ascii characters will only work as
 intended if your system's locale setting was set accordingly, i.e. in order to
 sort german Umlauts as shown above you should set a german locale.
+
+
+Eliminating duplicates
+----------------------
+
+If your input contains duplicates and you don't want to have duplicates in your
+columnized output then the `make_unique` keyword is a good way to deal with
+that.
+
+When this feature is enabled then :program:`shcol` will ignore subsequent
+occurrences of an item that already has been processed.
+
+The effect of using `make_unique` is illustrated by the following example:
+
+.. code-block:: pycon
+
+   >>> items = ['spam', 'ham', 'spam', 'eggs', 'ham', 'eggs', 'spam']
+   >>> shcol.print_columnized(items, make_unique=True)
+   spam  ham  eggs
+
+Note that `make_unique` preserves the original order of the given items. This
+differs to calling the Python standard library's `set()`-constructor, which
+makes no guarantees about the order of its result.
