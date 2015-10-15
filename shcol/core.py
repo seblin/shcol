@@ -18,7 +18,18 @@ __all__ = ['columnize']
 
 
 class LineTooSmallError(Exception):
-    pass
+    """
+    Meant to be raised when a line is too small to include all items.
+    """
+    def __init__(self, msg='items do not fit in line'):
+        """
+        `msg` is used for the error message when this exception is thrown.
+        """
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
 
 LineProperties = collections.namedtuple(
     'LineProperties', 'column_widths, spacing, num_lines'
@@ -485,15 +496,6 @@ class ColumnWidthCalculator(object):
         ]
         return helpers.make_object_repr(self, attrs)
 
-    @staticmethod
-    def raise_line_too_small_error(msg='items do not fit in line'):
-        """
-        Raise an error saying that the allowed line width is too small.
-
-        Use `msg` to define the error message.
-        """
-        raise LineTooSmallError(msg)
-
     def get_line_properties(self, items):
         """
         Return a namedtuple containing meaningful properties that may be used
@@ -541,7 +543,7 @@ class ColumnWidthCalculator(object):
         cfg = self.get_unchecked_column_config(item_widths, self.num_columns)
         if not self.fits_in_line(cfg.column_widths):
             if self.min_shrink_width is None:
-                self.raise_line_too_small_error()
+                raise LineTooSmallError
             column_widths = self.shrink_column_widths(cfg.column_widths)
             return ColumnConfig(column_widths, cfg.num_lines)
         return cfg
@@ -560,7 +562,7 @@ class ColumnWidthCalculator(object):
             if self.fits_in_line(cfg.column_widths):
                 return cfg
         else:
-            self.raise_line_too_small_error()
+            raise LineTooSmallError
 
     def calculate_max_columns(self, item_widths):
         """
@@ -666,7 +668,7 @@ class ColumnWidthCalculator(object):
                 offset -= width - new_width
                 processed.append(new_width)
         if offset > 0:
-            self.raise_line_too_small_error()
+            raise LineTooSmallError
 
         # Now merge untouched widths with processed widths
         if not processed:
