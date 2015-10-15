@@ -65,7 +65,7 @@ class ColumnizeTest(unittest.TestCase):
 
 class ColumnWidthCalculatorTest(unittest.TestCase):
     def setUp(self):
-        self.calculator = shcol.core.ColumnWidthCalculator(
+        self.calculator = shcol.core.columncalc.ColumnWidthCalculator(
             spacing=2, line_width=80
         )
         self.expected_results = [
@@ -79,7 +79,9 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         ]
 
     def make_line_properties(self, item_widths, num_lines, spacing=2):
-        return shcol.core.LineProperties(item_widths, spacing, num_lines)
+        return shcol.core.columncalc.LineProperties(
+            item_widths, spacing, num_lines
+        )
 
     def test_get_line_properties(self):
         for items, props in self.expected_results:
@@ -119,7 +121,7 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
         )
 
     def test_allow_exceeding(self):
-        with self.assertRaises(shcol.core.LineTooSmallError):
+        with self.assertRaises(shcol.core.columncalc.LineTooSmallError):
             self.calculator.calculate_columns([81])
         self.calculator.allow_exceeding = True
         self.assertEqual(self.calculator.calculate_columns([81]), ([80], 1))
@@ -182,8 +184,10 @@ class ColumnWidthCalculatorTest(unittest.TestCase):
 
 class IterableFormatterTest(unittest.TestCase):
     def setUp(self):
-        calc = shcol.core.ColumnWidthCalculator(spacing=2, line_width=80)
-        self.formatter = shcol.core.IterableFormatter(calc)
+        calc = shcol.core.columncalc.ColumnWidthCalculator(
+            spacing=2, line_width=80
+        )
+        self.formatter = shcol.core.formatters.IterableFormatter(calc)
         self.items = ['spam', 'ham', 'eggs']
         self.sorted_items = ['eggs', 'ham', 'spam']
         self.non_ascii_items = ['späm', 'häm', 'äggs']
@@ -214,13 +218,15 @@ class IterableFormatterTest(unittest.TestCase):
         self.formatter.calculator.line_width = 50
         items = [60 * 'ä', 40 * 'ö']
         expected = ['{}\n{}'.format(50 * 'ä', 10 * 'ä'), 40 * 'ö']
-        with self.assertRaises(shcol.core.LineTooSmallError):
+        with self.assertRaises(shcol.core.columncalc.LineTooSmallError):
             self.make_lines(items)
         self.formatter.calculator.allow_exceeding = True
         self.assertEqual(self.make_lines(items), expected)
 
     def make_template(self, column_widths, spacing=2):
-        props = shcol.core.LineProperties(column_widths, spacing, None)
+        props = shcol.core.columncalc.LineProperties(
+            column_widths, spacing, None
+        )
         return self.formatter.make_line_template(props, spacing)
 
     def test_get_line_template(self):
