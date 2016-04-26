@@ -214,12 +214,12 @@ class IterableFormatterTest(unittest.TestCase):
         self.formatter.calculator.line_width = 4
         self.assertEqual(self.make_lines(self.items), self.items)
 
-        # Now test error handling
         self.formatter.calculator.line_width = 50
         items = [60 * 'ä', 40 * 'ö']
         expected = ['{}\n{}'.format(50 * 'ä', 10 * 'ä'), 40 * 'ö']
         with self.assertRaises(shcol.core.columncalc.LineTooSmallError):
             self.make_lines(items)
+
         self.formatter.calculator.allow_exceeding = True
         self.assertEqual(self.make_lines(items), expected)
 

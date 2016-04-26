@@ -32,7 +32,7 @@ class IterableFormatter(object):
     """
     def __init__(
         self, calculator, linesep=config.LINESEP,
-        encoding=config.ENCODING, autowrap=False
+        encoding=config.ENCODING, wrap_lines=True
     ):
         """
         Initialize the formatter.
@@ -47,14 +47,16 @@ class IterableFormatter(object):
         `encoding` should be a string defining the codec name to be used in
         cases where decoding of items is requested.
 
-        `autowrap` defines whether the resulting lines are wrapped automatically
-        when exceeding the line width. If this is `True` then the formatter will
-        *not* add newline characters to the "linebreaking" parts of these lines.
+        `wrap_lines` defines whether the lines that exceed the allowed width
+        are wrapped by the formatter by adding newline symbols. Since terminals
+        usually do line wrapping on their own, disabling this option is useful
+        if the formatter's output is directed to a terminal and if the
+        formatter's line width is equal to the terminal's width.
         """
         self.calculator = calculator
         self.linesep = linesep
         self.encoding = encoding
-        self.wrapsep = '' if autowrap else linesep
+        self.wrapsep = linesep if wrap_lines else ''
 
     def __repr__(self):
         attrs = ['calculator', 'linesep', 'encoding', 'wrapsep']
@@ -87,7 +89,7 @@ class IterableFormatter(object):
         calculator = columncalc.ColumnWidthCalculator(
             spacing, width_info.window_width, allow_exceeding=True
         )
-        return cls(calculator, autowrap=width_info.is_line_width)
+        return cls(calculator, wrap_lines=(not width_info.is_line_width))
 
     def format(self, items, pattern=None, sort_items=config.SORT_ITEMS):
         """
@@ -322,7 +324,7 @@ class MappingFormatter(IterableFormatter):
             spacing, width_info.window_width, num_columns=2,
             min_shrink_width=min_shrink_width
         )
-        return cls(calculator, autowrap=width_info.is_line_width)
+        return cls(calculator, wrap_lines=(not width_info.is_line_width))
 
     def get_strings(self, mapping):
         """
