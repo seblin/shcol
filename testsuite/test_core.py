@@ -211,16 +211,16 @@ class IterableFormatterTest(unittest.TestCase):
     def test_make_lines(self):
         lines = self.make_lines(self.items)
         self.assertEqual(lines, [self.join(self.items)])
-        self.formatter.calculator.line_width = 4
+        self.formatter.line_width = 4
         self.assertEqual(self.make_lines(self.items), self.items)
 
-        self.formatter.calculator.line_width = 50
+        self.formatter.line_width = 50
         items = [60 * 'ä', 40 * 'ö']
         expected = ['{}\n{}'.format(50 * 'ä', 10 * 'ä'), 40 * 'ö']
         with self.assertRaises(shcol.core.columncalc.LineTooSmallError):
             self.make_lines(items)
 
-        self.formatter.calculator.allow_exceeding = True
+        self.formatter.allow_exceeding = True
         self.assertEqual(self.make_lines(items), expected)
 
     def make_template(self, column_widths, spacing=2):

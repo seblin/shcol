@@ -91,6 +91,48 @@ class IterableFormatter(object):
         )
         return cls(calculator, wrap_lines=(not width_info.is_line_width))
 
+    @property
+    def spacing(self):
+        """
+        Get the spacing used by the underlying column width calculator.
+        """
+        return self.calculator.spacing
+
+    @spacing.setter
+    def spacing(self, spacing):
+        """
+        Set the spacing used by the underlying column width calculator.
+        """
+        self.calculator.spacing = spacing
+
+    @property
+    def line_width(self):
+        """
+        Get the line width used by the underlying column width calculator.
+        """
+        return self.calculator.line_width
+
+    @line_width.setter
+    def line_width(self, width):
+        """
+        Set the line width used by the underlying column width calculator.
+        """
+        self.calculator.line_width = width
+
+    @property
+    def allow_exceeding(self):
+        """
+        Get `allow_exceeding`-flag of underlying column width calculator.
+        """
+        return self.calculator.allow_exceeding
+
+    @allow_exceeding.setter
+    def allow_exceeding(self, flag):
+        """
+        Set `allow_exceeding`-flag of underlying column width calculator.
+        """
+        self.calculator.allow_exceeding = flag
+
     def format(self, items, pattern=None, sort_items=config.SORT_ITEMS):
         """
         Return a columnized string based on `items`.
