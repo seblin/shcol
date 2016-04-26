@@ -21,7 +21,7 @@ def print_columnized(items, output_stream=config.TERMINAL_STREAM, **options):
     `items` can be a sequence or a dictionary. In case of being a dictionary
     the result will be a string with two columns (i.e. one for the keys and one
     for the values). In case of a sequence the resulting number of columns is
-    calculated by the underlying algorithm.
+    calculated by the underlying `columnize()`-function.
 
     `output_stream` should be a file-like object that provides at least a
     `.write()`-method.
@@ -42,6 +42,6 @@ def print_filenames(path='.', **options):
     """
     Like `print_columnized()` but columnizes the filenames living in given
     `path`.  Note that this function does shell-like expansion of symbols
-    such as "*", "?" or even "~" (user's home).
+    such as "*", "?" or even "~" (user's home directory).
     """
     print_columnized(helpers.get_filenames(path), sort_items=True, **options)
