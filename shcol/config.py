@@ -16,6 +16,7 @@ import sys
 ERROR_STREAM = sys.stderr
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
+LINE_WIDTH_FALLBACK = 80
 LINESEP = '\n'
 LOGGER = logging.getLogger('shol')
 MAKE_UNIQUE = False

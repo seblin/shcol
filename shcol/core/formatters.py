@@ -10,7 +10,9 @@ import itertools
 from .. import config, helpers
 from . import columncalc
 
-__all__ = ['find_formatter', 'IterableFormatter', 'MappingFormatter']
+__all__ = [
+    'find_formatter', 'make_formatter', 'IterableFormatter', 'MappingFormatter'
+]
 
 def find_formatter(items):
     """
@@ -25,6 +27,15 @@ def find_formatter(items):
     if isinstance(items, collections.Mapping):
         return MappingFormatter
     return IterableFormatter
+
+def make_formatter(
+    items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK
+):
+    """
+    Return an appropriated formatter instance for `items` based on given
+    `spacing` and `line_width`.
+    """
+    return find_formatter(items).for_line_config(spacing, line_width)
 
 class IterableFormatter(object):
     """
@@ -63,9 +74,7 @@ class IterableFormatter(object):
         return helpers.make_object_repr(self, attrs)
 
     @classmethod
-    def for_line_config(
-        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH
-    ):
+    def for_line_config(cls, spacing, line_width):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
@@ -325,10 +334,7 @@ class MappingFormatter(IterableFormatter):
     A class to do columnized formatting on a given mapping of strings.
     """
     @classmethod
-    def for_line_config(
-        cls, spacing=config.SPACING, line_width=config.LINE_WIDTH,
-        min_shrink_width=10
-    ):
+    def for_line_config(cls, spacing, line_width, min_shrink_width=10):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
