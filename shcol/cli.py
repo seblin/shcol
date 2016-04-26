@@ -9,7 +9,6 @@ The command-line interface for `shcol`.
 """
 
 import argparse
-import io
 import sys
 import traceback
 
