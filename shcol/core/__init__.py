@@ -13,7 +13,7 @@ import collections
 from .. import config, helpers
 from . import formatters
 
-__all__ = ['columnize']
+__all__ = ['formatters', 'columnize']
 
 def columnize(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
