@@ -10,6 +10,8 @@ import itertools
 from .. import config, helpers
 from . import columncalc
 
+__all__ = ['get_formatter_class', 'IterableFormatter', 'MappingFormatter']
+
 def get_formatter_class(items):
     """
     Return an appropriated class based on the type of `items`.
@@ -370,4 +372,3 @@ class MappingFormatter(IterableFormatter):
         be a `LineProperties`-instance.
         """
         return list(mapping.items())[:props.num_lines]
-
