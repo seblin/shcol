@@ -51,7 +51,7 @@ def columnize(
     """
     if make_unique and not isinstance(items, collections.Mapping):
         items = helpers.make_unique(items)
-    formatter_class = formatters.get_formatter_class(items)
+    formatter_class = formatters.find_formatter(items)
     if line_width is None:
         try:
             formatter = formatter_class.for_terminal(output_stream, spacing)

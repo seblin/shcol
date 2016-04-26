@@ -10,11 +10,11 @@ import itertools
 from .. import config, helpers
 from . import columncalc
 
-__all__ = ['get_formatter_class', 'IterableFormatter', 'MappingFormatter']
+__all__ = ['find_formatter', 'IterableFormatter', 'MappingFormatter']
 
-def get_formatter_class(items):
+def find_formatter(items):
     """
-    Return an appropriated class based on the type of `items`.
+    Return an appropriated formatter class based on the type of `items`.
 
     If `items` is a dict-like object then `MappingFormatter` will be returned.
     Otherwise, `IterableFormatter` is returned.
