@@ -22,7 +22,7 @@ def main():
         author=shcol.__author__,
         author_email='Seb_Linke@arcor.de',
         url='https://github.com/seblin/shcol',
-        packages=['shcol', 'shcol.helpers'],
+        packages=['shcol', 'shcol.core', 'shcol.helpers'],
         scripts=[shcol.config.STARTER],
         license=shcol.__license__,
         platforms = 'any',
