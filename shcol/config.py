@@ -27,4 +27,4 @@ STARTER = os.path.join('bin', 'shcol' + ('.bat' if ON_WINDOWS else ''))
 TERMINAL_STREAM = sys.stdout
 UNICODE_TYPE = type(u'')
 
-ENCODING = TERMINAL_STREAM.encoding or 'utf-8'
+ENCODING = getattr(TERMINAL_STREAM, 'encoding', 'utf-8')
