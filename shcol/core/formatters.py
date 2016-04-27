@@ -19,14 +19,15 @@ def find_formatter(items):
     Return an appropriated formatter class based on the type of `items`.
 
     If `items` is a dict-like object then `MappingFormatter` will be returned.
-    Otherwise, `IterableFormatter` is returned.
-
-    Note that these heuristics are based on rough assumptions. There is no
-    guarantee that formatting with the returned class will not fail.
+    Otherwise, if `items` is an iterable then `IterableFormatter` is returned.
     """
     if isinstance(items, collections.Mapping):
         return MappingFormatter
-    return IterableFormatter
+    elif isinstance(items, collections.Iterable):
+        return IterableFormatter
+    else:
+        msg = 'cannnot find a formatter for {} object'
+        raise ValueError(msg.format(type(items).__name__))
 
 def make_formatter(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK
