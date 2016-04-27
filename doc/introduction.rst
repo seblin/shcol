@@ -23,10 +23,19 @@ Some simple examples running :program:`shcol` from the Windows PowerShell:
    foo     bar     baz
    PS C:\> shcol foo bar baz  --sort  # Sort the items
    bar  baz  foo
-   PS C:\> echo foo bar baz | shcol  # Read items from a pipe
-   foo  bar  baz
+   PS C:\> echo foo bar baz | shcol --spacing=5  # Read items from a pipe
+   foo     bar     baz
 
-Read the chapter :doc:`cli` to learn about more details.
+Note that the last example is PowerShell-specific because :program:`shcol` is
+interpreting input line-wise when reading from a pipe. To achieve that via
+:program:`cmd.exe` you would have to do this:
+
+.. code-block:: doscon
+
+   C:\>(echo foo & echo bar & echo baz) | shcol --spacing=5
+   foo     bar     baz
+
+Read the chapter :doc:`cli` if you want to learn about more details.
 
 The next examples shall give a first impression about using the
 :doc:`python-api`:
