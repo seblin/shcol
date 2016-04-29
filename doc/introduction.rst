@@ -61,6 +61,9 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    >>> shcol.print_attr_names(shcol, pattern='print*')
    print_attr_names  print_columnized  print_filenames
 
+Take a look at :doc:`cli` and :doc:`python-api` if you want to learn more about
+these commands.
+
 
 How to install
 --------------
