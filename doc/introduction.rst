@@ -13,60 +13,51 @@ these items. It has a command-line interface and a Python API.
 Quick overview
 --------------
 
-Some simple examples running :program:`shcol` from the Windows PowerShell:
+These examples show running :program:`shcol` from the Windows PowerShell:
 
-.. code-block:: console
+.. code-block:: powershell
 
-   PS C:\> shcol foo bar baz  # Columnize a sequence of arguments
-   foo  bar  baz
-   PS C:\> shcol foo bar baz  --spacing=5  # Use more spacing
+   PS C:\> shcol foo bar baz --spacing=5
    foo     bar     baz
-   PS C:\> shcol foo bar baz  --sort  # Sort the items
-   bar  baz  foo
-   PS C:\> (ps win*).name | shcol  # Read from a pipe
-   wininit  winlogon  winpty-agent
+   PS C:\> shcol foo foo bar bar baz --unique
+   foo  bar  baz
+   PS C:\> (ls Python27).name | shcol --sort --width=50
+   DLLs     libs         python.exe   tcl
+   Doc      LICENSE.txt  pythonw.exe  Tools
+   include  man          README.txt   w9xpopen.exe
+   Lib      NEWS.txt     Scripts
+   PS C:\> echo "foo`tbar`tbaz`nspam`tham`teggs" | shcol --column=0
+   foo  spam
 
-Read the chapter :doc:`cli` if you want to learn about more details.
 
-The next examples shall give a first impression about using the
-:doc:`python-api`:
+:program:`shcol` from a Python shell:
 
 .. code-block:: pycon
 
-   >>> import shcol
-   >>> shcol.print_columnized(['foo', 'bar', 'baz'])
-   foo  bar  baz
+   >>> import os, shcol
    >>> shcol.print_columnized(['foo', 'bar', 'baz'], spacing=5)
    foo     bar     baz
-   >>> shcol.print_columnized(['foo', 'bar', 'baz'], sort_items=True)
-   bar  baz  foo
+   >>> shcol.print_columnized(['foo', 'foo', 'bar', 'bar', 'baz'], make_unique=True)
+   foo  bar  baz
+   >>> shcol.print_filenames('Python27', line_width=50)
+   DLLs     libs         python.exe   tcl
+   Doc      LICENSE.txt  pythonw.exe  Tools
+   include  man          README.txt   w9xpopen.exe
+   Lib      NEWS.txt     Scripts
    >>> shcol.print_columnized(range(15), line_width=10)
    0  5  10
    1  6  11
    2  7  12
    3  8  13
    4  9  14
-   >>> shcol.print_filenames(spacing=5, line_width=42)
-   DLLs            NEWS.txt        share
-   include         python.exe      tcl
-   Lib             pythonw.exe     Tools
-   libs            README.txt
-   LICENSE.txt     Scripts
-   >>> shcol.print_filenames('*.txt')
-   LICENSE.txt  NEWS.txt  README.txt
-   >>> import os
-   >>> shcol.print_columnized(os.environ, pattern='PROG*', sort_items=True)
-   PROGRAMDATA        C:\ProgramData
-   PROGRAMFILES       C:\Program Files (x86)
-   PROGRAMFILES(X86)  C:\Program Files (x86)
-   PROGRAMW6432       C:\Program Files
-   >>> shcol.print_attr_names(shcol, line_width=60)
-   __author__    __loader__   cli        print_attr_names
-   __builtins__  __name__     columnize  print_columnized
-   __cached__    __package__  config     print_filenames
-   __doc__       __path__     core
-   __file__      __spec__     helpers
-   __license__   __version__  highlevel
+   >>> shcol.print_columnized(os.environ, pattern='*PROG*', sort_items=True)
+   COMMONPROGRAMFILES       C:\Program Files (x86)\Common Files
+   COMMONPROGRAMFILES(X86)  C:\Program Files (x86)\Common Files
+   COMMONPROGRAMW6432       C:\Program Files\Common Files
+   PROGRAMDATA              C:\ProgramData
+   PROGRAMFILES             C:\Program Files (x86)
+   PROGRAMFILES(X86)        C:\Program Files (x86)
+   PROGRAMW6432             C:\Program Files
    >>> shcol.print_attr_names(shcol, pattern='print*')
    print_attr_names  print_columnized  print_filenames
 
