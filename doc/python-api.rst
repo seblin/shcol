@@ -129,7 +129,7 @@ print the content of a given path.
 
 When called without arguments, it will print the filenames inside the current
 directory. For example, this is the result on the author's Windows system when
-the current directory is `C:\Python27`:
+the current directory is `C:\\Python27`:
 
 .. code-block:: pycon
 
@@ -137,7 +137,7 @@ the current directory is `C:\Python27`:
    DLLs  include  libs         man       python.exe   README.txt  tcl    w9xpopen.exe
    Doc   Lib      LICENSE.txt  NEWS.txt  pythonw.exe  Scripts     Tools
 
-The same effect can be achieved from `C:\` when passing the directory name:
+The same effect can be achieved from `C:\\` when passing the directory name:
 
 .. code-block:: pycon
 
