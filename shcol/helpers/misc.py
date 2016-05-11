@@ -78,29 +78,36 @@ def make_unique(items):
             seen.add(item)
             yield item
 
-def get_filenames(path='.'):
+def get_filenames(path=os.curdir):
     """
     Return an iterator of the filenames in `path`. If this function could not
     retrieve any filename due to access errors then the iterator will be empty
     (i.e. yielding no items).
 
-    Note that this function does shell-like expansion of symbols such as "*",
-    "?" or even "~" (user's home). When globbing symbols ("*" or "?") are used
-    and `path` refers to a directory name then `path` must end with the system's
-    path separator ("/" or "\") in order to retrieve the directory's content.
+    Note that shell-like globbing is performed if `path` contains wildcard
+    symbols such as "*" or "?". The function will then return all names that
+    match the given pattern instead of their directory contents. If you need the
+    contents then you should put the platform's path separator at the end of
+    your pattern. In other words (on Windows):
+
+    r'Python27'   => Content of "Python27"-folder
+    r'Py*'        => Names starting with "Py" (e.g. "Python27", "Python34", ...)
+    r'Py*\\'      => Contents of directories starting with "Py"
+    r'Py*\*.txt'  => E.g. all text files in all Python folders
+
+    To make life easier, you are free to use alternative path separators if
+    they are supported by your platform (e.g. "/" instead of "\" on Windows).
+    Additionally, the "~"-symbol will be expanded to the user's home directory.
     """
     path = os.path.expanduser(os.path.expandvars(path))
-    if glob.has_magic(path):
-        if os.altsep is not None:
-            path = path.replace(os.altsep, os.sep)
-        if path.endswith(os.sep):
-            path = os.path.join(path, '*')
-        return glob.iglob(path)
-    try:
-        filenames = os.listdir(path)
-    except OSError:
-        filenames = []
-    return iter(filenames)
+    if os.altsep is not None:
+        path = path.replace(os.altsep, os.sep)
+    if not glob.has_magic(path) or path.endswith(os.sep):
+        path = os.path.join(path, '*')
+    filenames = (fn.rstrip(os.sep) for fn in glob.iglob(path))
+    if not glob.has_magic(os.path.dirname(path)):
+        filenames = (os.path.basename(fn) for fn in filenames)
+    return filenames
 
 def filter_names(source, pattern):
     """

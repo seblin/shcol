@@ -48,10 +48,7 @@ class PrintFilenamesTest(PrintFunctionTestCase):
         result = list(shcol.helpers.get_filenames(module_path))
         expected = os.listdir(module_path)
         self.assertEqual(result, expected)
-        expected = [
-            os.path.join(module_path, filename)
-            for filename in expected if filename.endswith('.py')
-        ]
+        expected = [fn for fn in expected if fn.endswith('.py')]
         pattern = os.path.join(module_path, '*.py')
         result = list(shcol.helpers.get_filenames(pattern))
         self.assertEqual(expected, result)
