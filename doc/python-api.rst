@@ -119,3 +119,40 @@ The effect of using `make_unique` is illustrated by the following example:
 Note that `make_unique` preserves the original order of the given items. This
 differs from calling the Python standard library's `set()`-constructor, which
 makes no guarantees about the order of its result.
+
+
+Printing directory contents
+---------------------------
+
+:program:`shcol` includes a function called `print_filenames()` in order to
+print the content of a given path.
+
+When called without arguments, it will print the filenames inside the current
+directory. For example, this is the result on the author's Windows system when
+the current directory is `C:\Python27`:
+
+.. code-block:: pycon
+
+   >>> shcol.print_filenames()
+   DLLs  include  libs         man       python.exe   README.txt  tcl    w9xpopen.exe
+   Doc   Lib      LICENSE.txt  NEWS.txt  pythonw.exe  Scripts     Tools
+
+The same effect can be achieved from `C:\` when passing the directory name:
+
+.. code-block:: pycon
+
+   >>> shcol.print_filenames('Python27')
+   DLLs  include  libs         man       python.exe   README.txt  tcl    w9xpopen.exe
+   Doc   Lib      LICENSE.txt  NEWS.txt  pythonw.exe  Scripts     Tools
+
+You may also pass wildcard characters (`*` and `?`) in order to make use of
+shell globbing:
+
+.. code-block:: pycon
+
+   >>> shcol.print_filenames('Py*')
+   pypy26  Python27  Python34
+   >>> shcol.print_filenames('Py*2?')
+   pypy26  Python27
+   >>> shcol.print_filenames('Python27\*.txt')
+   LICENSE.txt  NEWS.txt  README.txt
