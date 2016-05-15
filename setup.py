@@ -10,7 +10,7 @@ import sys
 if sys.version_info < (2, 7):
     sys.exit('ERROR: Python interpreter\'s version must be 2.7 or higher\n')
 
-from distutils.core import setup
+from setuptools import setup
 import shcol
 
 def main():
