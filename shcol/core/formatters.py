@@ -30,20 +30,23 @@ def find_formatter(items):
         raise TypeError(msg.format(type(items).__name__))
 
 def make_formatter(
-    items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK
+    items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK,
+    colsep=None
 ):
     """
     Return an appropriated formatter instance for `items` based on given
     `spacing` and `line_width`.
     """
-    return find_formatter(items).for_line_config(spacing, line_width)
+    formatter =  find_formatter(items).for_line_config(spacing, line_width)
+    formatter.colsep = colsep
+    return formatter
 
 class IterableFormatter(object):
     """
     A class to do columnized formatting on a given iterable of strings.
     """
     def __init__(
-        self, calculator, linesep=config.LINESEP,
+        self, calculator, colsep=None, linesep=config.LINESEP,
         encoding=config.ENCODING, wrap_lines=True
     ):
         """
@@ -66,12 +69,13 @@ class IterableFormatter(object):
         formatter's line width is equal to the terminal's width.
         """
         self.calculator = calculator
+        self.colsep = colsep
         self.linesep = linesep
         self.encoding = encoding
         self.wrapsep = linesep if wrap_lines else ''
 
     def __repr__(self):
-        attrs = ['calculator', 'linesep', 'encoding', 'wrapsep']
+        attrs = ['calculator', 'colsep', 'linesep', 'encoding', 'wrapsep']
         return helpers.make_object_repr(self, attrs)
 
     @classmethod
@@ -154,12 +158,11 @@ class IterableFormatter(object):
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
         """
-        items = self.get_strings(items)
         if pattern is not None:
             items = self.filter_names(items, pattern)
         if sort_items:
             items = self.get_sorted(items)
-        lines = self.make_lines(items, add_line_breaks=True)
+        lines = self.make_lines(self.get_strings(items), add_line_breaks=True)
         return ''.join(lines).rstrip(self.linesep)
 
     def get_strings(self, items):
@@ -303,7 +306,12 @@ class IterableFormatter(object):
             return ''
         parts = [self.get_padded_template(width) for width in widths[:-1]]
         parts.append(self.get_unpadded_template(widths[-1]))
-        return (props.spacing * ' ').join(parts)
+        if self.colsep:
+            spacer = props.spacing // 2 * ' '
+            sep = '%s%s%s' % (spacer, self.colsep, spacer)
+        else:
+            sep = props.spacing * ' '
+        return sep.join(parts)
 
     @staticmethod
     def get_padded_template(width):

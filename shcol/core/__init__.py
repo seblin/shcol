@@ -16,7 +16,7 @@ from . import formatters
 __all__ = ['formatters', 'columnize']
 
 def columnize(
-    items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+    items, spacing=config.SPACING, line_width=config.LINE_WIDTH, colsep=None,
     pattern=None, make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
     output_stream=config.TERMINAL_STREAM
 ):
@@ -59,4 +59,5 @@ def columnize(
             raise OSError('unable to detect line width')
     else:
         formatter = formatter_class.for_line_config(spacing, line_width)
+    formatter.colsep = colsep
     return formatter.format(items, pattern=pattern, sort_items=sort_items)

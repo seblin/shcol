@@ -11,6 +11,8 @@ import locale
 import os
 import re
 
+import collections
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -46,6 +48,10 @@ def get_sorted(items):
     to achieve sorting based on the system's default locale as a fallback. The
     "unset locale"-state will then be restored right after sorting was done.
     """
+    if not isinstance(items, collections.Sequence):
+        items = list(items)
+    if len(items) <= 1:
+        return items
     unset_locale = (None, None)
     old_locale = locale.getlocale(locale.LC_COLLATE)
     if old_locale == unset_locale:
@@ -58,7 +64,10 @@ def get_sorted(items):
         else:
             msg = 'temporary switched to default locale: {}'
             config.LOGGER.debug(msg.format(default_locale))
-    sortkey = functools.cmp_to_key(locale.strcoll)
+    if isinstance(items[0], str):
+        sortkey = functools.cmp_to_key(locale.strcoll)
+    else:
+        sortkey = type(items[0])
     sorted_items = sorted(items, key=sortkey)
     if old_locale == unset_locale:
         locale.setlocale(locale.LC_COLLATE, unset_locale)
