@@ -85,7 +85,7 @@ Just give it a try if you like it and feel free to give some feedback. :-)
 """
 
 __author__ = 'Sebastian Linke'
-__version__ = '0.2+'
+__version__ = '0.2-post'
 __license__ = 'Simplified BSD'
 
 from . import cli
