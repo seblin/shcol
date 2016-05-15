@@ -18,8 +18,7 @@ build  Makefile  README.md    shcol
 test_cli.py   test_core.py   test_highlevel.py   test_script.py
 test_cli.pyc  test_core.pyc  test_highlevel.pyc  test_script.pyc
 >>> shcol.print_filenames('testsuite/*.py')  # only print `*.py`-files
-testsuite/test_cli.py   testsuite/test_highlevel.py
-testsuite/test_core.py  testsuite/test_script.py
+test_cli.py  test_core.py  test_highlevel.py  test_script.py
 >>> shcol.print_filenames('~/shcol', hide_dotted=False)  # like `ls -A ~/shcol`
 bin    .git     Makefile     README.md  shcol
 build  LICENSE  MANIFEST.in  setup.py   testsuite
@@ -45,13 +44,14 @@ You can also tell a `print_*`-function to use a specific line width for
 its output:
 
 >>> shcol.print_sorted(shcol, spacing=5, line_width=60)
-__author__       __file__        print_attrs
-__builtins__     helpers         print_columnized
-cli              highlevel       print_columnized_mapping
-columnize        __license__     print_filenames
-config           __name__        __version__
-core             __package__
-__doc__          __path__
+>>> shcol.print_sorted(dir(shcol), spacing=5, line_width=60)
+__author__       __path__        helpers
+__builtins__     __version__     highlevel
+__doc__          cli             print_columnized
+__file__         columnize       print_filenames
+__license__      config          print_sorted
+__name__         core
+__package__      formatters
 
 Note that by default the terminal's width is used as the line width.
 
@@ -85,12 +85,12 @@ Just give it a try if you like it and feel free to give some feedback. :-)
 """
 
 __author__ = 'Sebastian Linke'
-__version__ = '0.3'
+__version__ = '0.4a'
 __license__ = 'Simplified BSD'
 
 from . import cli
 from .core import *
 from .highlevel import *
 
-if __name__ == '__main':
+if __name__ == '__main__':
     cli.main()
