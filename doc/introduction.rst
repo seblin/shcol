@@ -50,7 +50,7 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    2  7  12
    3  8  13
    4  9  14
-   >>> shcol.print_columnized(os.environ, pattern='*PROG*', sort_items=True)
+   >>> shcol.print_sorted(os.environ, pattern='*PROG*')
    COMMONPROGRAMFILES       C:\Program Files (x86)\Common Files
    COMMONPROGRAMFILES(X86)  C:\Program Files (x86)\Common Files
    COMMONPROGRAMW6432       C:\Program Files\Common Files
@@ -58,8 +58,8 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    PROGRAMFILES             C:\Program Files (x86)
    PROGRAMFILES(X86)        C:\Program Files (x86)
    PROGRAMW6432             C:\Program Files
-   >>> shcol.print_attr_names(shcol, pattern='print*')
-   print_attr_names  print_columnized  print_filenames
+   >>> shcol.print_sorted(dir(shcol), pattern='print*')
+   print_columnized  print_filenames  print_sorted
 
 Take a look at :doc:`cli` and :doc:`python-api` if you want to learn more about
 these commands.
