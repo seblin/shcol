@@ -26,8 +26,8 @@ def find_formatter(items):
     elif isinstance(items, collections.Iterable):
         return IterableFormatter
     else:
-        msg = 'cannnot find a formatter for {} object'
-        raise ValueError(msg.format(type(items).__name__))
+        msg = 'cannot find a formatter for {} object'
+        raise TypeError(msg.format(type(items).__name__))
 
 def make_formatter(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK
