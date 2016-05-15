@@ -68,9 +68,8 @@ these commands.
 How to install
 --------------
 
-Use :command:`pip install shcol` to get the latest stable release. This
-currently picks :program:`shcol 0.2` for you. Please note that a few features as
-shown above are not supported by that version.
+Use :command:`pip install --upgrade shcol` to get the latest stable release.
+This currently picks :program:`shcol 0.3` for you.
 
 If you rather like to fetch the latest state of development then you may run
 :command:`pip install git+git://github.com/seblin/shcol.git` instead.
