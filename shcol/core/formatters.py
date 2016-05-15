@@ -154,11 +154,11 @@ class IterableFormatter(object):
         `sort_items` should be a boolean defining whether `items` should be
         sorted before they are columnized.
         """
-        if sort_items:
-            items = self.get_sorted(items)
         items = self.get_strings(items)
         if pattern is not None:
             items = self.filter_names(items, pattern)
+        if sort_items:
+            items = self.get_sorted(items)
         lines = self.make_lines(items, add_line_breaks=True)
         return ''.join(lines).rstrip(self.linesep)
 

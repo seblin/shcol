@@ -59,5 +59,4 @@ def columnize(
             raise OSError('unable to detect line width')
     else:
         formatter = formatter_class.for_line_config(spacing, line_width)
-    items = (str(item) for item in items)
     return formatter.format(items, pattern=pattern, sort_items=sort_items)
