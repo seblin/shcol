@@ -13,30 +13,41 @@ class PrintFunctionTestCase(unittest.TestCase):
     def __getattr__(self, name):
         if name.startswith('print_') and hasattr(shcol, name):
             func = getattr(shcol, name)
-            return functools.partial(func, output_stream=self.pseudo_stream)
+            return functools.partial(func, **self.options)
         return unittest.TestCase.__getattribute__(self, name)
 
     def setUp(self):
         self.pseudo_stream = shcol.helpers.StringIO()
+        self.options = {'line_width': 80, 'output_stream': self.pseudo_stream}
+        self.items = ['spam', 'ham', 'eggs']
+
+    def columnize(self, items, **options):
+        new_options = self.options.copy()
+        new_options.update(options)
+        return shcol.columnize(items, **new_options)
 
     def get_output(self):
         return self.pseudo_stream.getvalue().rstrip('\n')
 
 class PrintColumnizedTest(PrintFunctionTestCase):
     def test_items(self):
-        items = ['spam', 'ham', 'eggs']
-        expected = '  '.join(items)
-        self.print_columnized(items, line_width=80)
+        expected = '  '.join(self.items)
+        self.print_columnized(self.items)
         self.assertEqual(self.get_output(), expected)
 
     def test_no_items(self):
-        self.print_columnized([], line_width=80)
+        self.print_columnized([])
         self.assertEqual(self.get_output(), '')
 
-class PrintAttrNamesTest(PrintFunctionTestCase):
-    def test_print_attr_names(self):
-        expected = shcol.columnize(dir(shcol), line_width=80, sort_items=True)
-        self.print_attr_names(shcol, line_width=80)
+class PrintSortedTest(PrintFunctionTestCase):
+    def test_items(self):
+        expected = self.columnize(self.items, sort_items=True)
+        self.print_sorted(self.items)
+        self.assertEqual(self.get_output(), expected)
+
+    def test_spacing(self):
+        expected = self.columnize(self.items, spacing=5, sort_items=True)
+        self.print_sorted(self.items, spacing=5)
         self.assertEqual(self.get_output(), expected)
 
 class PrintFilenamesTest(PrintFunctionTestCase):
@@ -56,5 +67,5 @@ class PrintFilenamesTest(PrintFunctionTestCase):
     def test_print_filenames(self):
         filenames = os.listdir('.')
         expected = shcol.columnize(filenames, line_width=80, sort_items=True)
-        self.print_filenames(line_width=80)
+        self.print_filenames()
         self.assertEqual(expected, self.get_output())

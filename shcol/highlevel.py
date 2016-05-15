@@ -12,7 +12,7 @@ from __future__ import print_function
 
 from . import config, core, helpers
 
-__all__ = ['print_columnized', 'print_attr_names', 'print_filenames']
+__all__ = ['print_columnized', 'print_sorted', 'print_filenames']
 
 def print_columnized(items, output_stream=config.TERMINAL_STREAM, **options):
     """
@@ -32,11 +32,11 @@ def print_columnized(items, output_stream=config.TERMINAL_STREAM, **options):
     result = core.columnize(items, output_stream=output_stream, **options)
     print(result, file=output_stream)
 
-def print_attr_names(obj, **options):
+def print_sorted(items, **options):
     """
-    Like `print_columnized()` but columnizes the attribute names of `obj`.
+    Like `print_columnized()` but always sorts the columnized items.
     """
-    print_columnized(dir(obj), sort_items=True, **options)
+    print_columnized(items, sort_items=True, **options)
 
 def print_filenames(path='.', **options):
     """
@@ -44,4 +44,4 @@ def print_filenames(path='.', **options):
     `path`.  Note that this function does shell-like expansion of symbols
     such as "*", "?" or even "~" (user's home directory).
     """
-    print_columnized(helpers.get_filenames(path), sort_items=True, **options)
+    print_sorted(helpers.get_filenames(path), **options)
