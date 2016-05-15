@@ -172,7 +172,7 @@ are available as well:
 
 
 The `print_sorted()`-shortcut
-=============================
+-----------------------------
 
 For convenience, the idiom `print_columnized(items, sort_items=True)` can be
 replaced with `print_sorted(items)`. As known from `print_filenames()`, all
