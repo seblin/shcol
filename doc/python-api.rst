@@ -156,3 +156,49 @@ shell globbing:
    pypy26  Python27
    >>> shcol.print_filenames('Python27\*.txt')
    LICENSE.txt  NEWS.txt  README.txt
+
+Note that `print_columnized()` is used under the hood to do the actual
+columnizing, so all of its options (such as `spacing`, `line_width`, ...)
+are available as well:
+
+.. code-block:: pycon
+
+   >>> shcol.print_filenames('Python27', spacing=5, line_width=50)
+   DLLs        LICENSE.txt     README.txt
+   Doc         man             Scripts
+   include     NEWS.txt        tcl
+   Lib         python.exe      Tools
+   libs        pythonw.exe     w9xpopen.exe
+
+
+The `print_sorted()`-shortcut
+=============================
+
+For convenience, the idiom `print_columnized(items, sort_items=True)` can be
+replaced with `print_sorted(items)`. As known from `print_filenames()`, all
+additional options are passed to `print_columnized()` to be interpreted there.
+
+The following examples show some use cases where this function is used to
+inspect objects in a Python interpreter session:
+
+.. code-block:: pycon
+
+   >>> shcol.print_sorted(dir(shcol), line_width=50)
+   __author__    __path__     helpers
+   __builtins__  __version__  highlevel
+   __doc__       cli          print_columnized
+   __file__      columnize    print_filenames
+   __license__   config       print_sorted
+   __name__      core
+   __package__   formatters
+   >>> shcol.print_sorted(dir(shcol), pattern='print*')
+   print_columnized  print_filenames  print_sorted
+   >>> import os
+   >>> shcol.print_sorted(os.environ, pattern='*PROG*')
+   COMMONPROGRAMFILES       C:\Program Files (x86)\Common Files
+   COMMONPROGRAMFILES(X86)  C:\Program Files (x86)\Common Files
+   COMMONPROGRAMW6432       C:\Program Files\Common Files
+   PROGRAMDATA              C:\ProgramData
+   PROGRAMFILES             C:\Program Files (x86)
+   PROGRAMFILES(X86)        C:\Program Files (x86)
+   PROGRAMW6432             C:\Program Files
