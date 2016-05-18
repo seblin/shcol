@@ -31,22 +31,21 @@ def find_formatter(items):
 
 def make_formatter(
     items, spacing=config.SPACING, line_width=config.LINE_WIDTH_FALLBACK,
-    colsep=None
+    extra_sep=config.EXTRA_SEP
 ):
     """
     Return an appropriated formatter instance for `items` based on given
-    `spacing` and `line_width`.
+    `spacing`, `line_width` and `extra_sep`.
     """
-    formatter =  find_formatter(items).for_line_config(spacing, line_width)
-    formatter.colsep = colsep
-    return formatter
+    return find_formatter(items).for_line_config(spacing, line_width, extra_sep)
+
 
 class IterableFormatter(object):
     """
     A class to do columnized formatting on a given iterable of strings.
     """
     def __init__(
-        self, calculator, colsep=None, linesep=config.LINESEP,
+        self, calculator, extra_sep=config.EXTRA_SEP, linesep=config.LINESEP,
         encoding=config.ENCODING, wrap_lines=True
     ):
         """
@@ -56,6 +55,9 @@ class IterableFormatter(object):
         columnized string formatting is done. It should be a class instance
         that implements a `.get_properties()` method in a similar way as
         `ColumnWidthCalculator` does.
+
+        `extra_sep` defines an additional separator to be used between each
+        column. If this is `None` then no extra separator will be added.
 
         `linesep` defines the character(s) used to start a new line.
 
@@ -69,32 +71,36 @@ class IterableFormatter(object):
         formatter's line width is equal to the terminal's width.
         """
         self.calculator = calculator
-        self.colsep = colsep
+        self.extra_sep = extra_sep
         self.linesep = linesep
         self.encoding = encoding
         self.wrapsep = linesep if wrap_lines else ''
 
     def __repr__(self):
-        attrs = ['calculator', 'colsep', 'linesep', 'encoding', 'wrapsep']
+        attrs = ['calculator', 'extra_sep', 'linesep', 'encoding', 'wrapsep']
         return helpers.make_object_repr(self, attrs)
 
     @classmethod
-    def for_line_config(cls, spacing, line_width):
+    def for_line_config(cls, spacing, line_width, extra_sep=config.EXTRA_SEP):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
-        `line_width` parameters.
+        `line_width` parameters. `extra_sep` will be passed to the `__init__()`
+        method of this formatter.
         """
-        return cls(columncalc.ColumnWidthCalculator(spacing, line_width))
+        calculator = columncalc.ColumnWidthCalculator(spacing, line_width)
+        return cls(calculator, extra_sep=extra_sep)
 
     @classmethod
     def for_terminal(
-        cls, terminal_stream=config.TERMINAL_STREAM, spacing=config.SPACING
+        cls, terminal_stream=config.TERMINAL_STREAM, spacing=config.SPACING,
+        extra_sep=config.EXTRA_SEP
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on given `spacing` and on the
-        line width of `terminal_stream`.
+        line width of `terminal_stream`. `extra_sep` will be passed to the
+        `__init__()` method of this formatter.
 
         Note that this method will throw an `IOError` or `OSError` if getting
         the line width from `terminal_stream` failed.
@@ -103,7 +109,10 @@ class IterableFormatter(object):
         calculator = columncalc.ColumnWidthCalculator(
             spacing, width_info.window_width, allow_exceeding=True
         )
-        return cls(calculator, wrap_lines=(not width_info.is_line_width))
+        return cls(
+            calculator, wrap_lines=(not width_info.is_line_width),
+            extra_sep=extra_sep
+        )
 
     @property
     def spacing(self):
@@ -294,7 +303,9 @@ class IterableFormatter(object):
         in this module. Appropriated format specifiers are generated based on
         the information of `props.column_widths`. In the resulting template the
         specifiers are joined by using a separator with a `props.spacing` number
-        of blank characters.
+        of blank characters. If the `extra_sep`-attribute of this formatter has
+        been set to a value other than `None`, then the defined separator will
+        be put into the middle of the spacing areas.
 
         `num_columns` defines the number of columns that the resulting template
         should cover. If `None` is used then all items of `props.columns_widths`
@@ -306,9 +317,9 @@ class IterableFormatter(object):
             return ''
         parts = [self.get_padded_template(width) for width in widths[:-1]]
         parts.append(self.get_unpadded_template(widths[-1]))
-        if self.colsep:
+        if self.extra_sep is not None:
             spacer = props.spacing // 2 * ' '
-            sep = '%s%s%s' % (spacer, self.colsep, spacer)
+            sep = '%s%s%s' % (spacer, self.extra_sep, spacer)
         else:
             sep = props.spacing * ' '
         return sep.join(parts)
@@ -343,11 +354,15 @@ class MappingFormatter(IterableFormatter):
     A class to do columnized formatting on a given mapping of strings.
     """
     @classmethod
-    def for_line_config(cls, spacing, line_width, min_shrink_width=10):
+    def for_line_config(
+        cls, spacing, line_width, extra_sep=config.EXTRA_SEP,
+        min_shrink_width=10
+    ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on the given `spacing` and
-        `line_width` parameters.
+        `line_width` parameters. `extra_sep` will be passed to the `__init__()`
+        method of this formatter.
 
         Use `min_shrink_width` to define the minimal width that a column may be
         shrinked to. Defining this as `None` means that columns are not allowed
@@ -357,17 +372,18 @@ class MappingFormatter(IterableFormatter):
             spacing, line_width, num_columns=2,
             min_shrink_width=min_shrink_width
         )
-        return cls(calculator)
+        return cls(calculator, extra_sep=extra_sep)
 
     @classmethod
     def for_terminal(
         cls, terminal_stream=config.TERMINAL_STREAM, spacing=config.SPACING,
-        min_shrink_width=10
+        extra_sep=config.EXTRA_SEP, min_shrink_width=10
     ):
         """
         Return a new instance of this class with a pre-configured calculator.
         The calculator instance will be based on given `spacing` and on the
-        line width of `terminal_stream`.
+        line width of `terminal_stream`. `extra_sep` will be passed to the
+        `__init__()` method of this formatter.
 
         Note that this method will throw an `IOError` or `OSError` if getting
         the line width from `terminal_stream` failed.
@@ -381,7 +397,10 @@ class MappingFormatter(IterableFormatter):
             spacing, width_info.window_width, num_columns=2,
             min_shrink_width=min_shrink_width
         )
-        return cls(calculator, wrap_lines=(not width_info.is_line_width))
+        return cls(
+            calculator, wrap_lines=(not width_info.is_line_width),
+            extra_sep=extra_sep
+        )
 
     def get_strings(self, mapping):
         """

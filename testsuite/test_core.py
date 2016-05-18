@@ -43,6 +43,19 @@ class ColumnizeTest(unittest.TestCase):
             self.columnize(items, line_width=45), '\n'.join(items)
         )
 
+    def test_extra_sep(self):
+        items = ['spam', 'ham', 'eggs']
+        result = self.columnize(items, extra_sep='|')
+        expected = ' | '.join(items)
+        self.assertEqual(result, expected)
+        result = self.columnize(items, spacing=3, extra_sep='|')
+        self.assertEqual(result, expected)
+        result = self.columnize(items, spacing=4, extra_sep='|')
+        expected = '  |  '.join(items)
+        self.assertEqual(result, expected)
+        result = self.columnize(items, spacing=4, line_width=50, extra_sep='|')
+        self.assertEqual(result, expected)
+
     def test_make_unique(self):
         items = ['spam', 'spam', 'ham', 'ham', 'ham', 'eggs']
         result = self.columnize(items, make_unique=True)

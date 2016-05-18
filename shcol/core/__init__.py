@@ -16,9 +16,9 @@ from . import formatters
 __all__ = ['formatters', 'columnize']
 
 def columnize(
-    items, spacing=config.SPACING, line_width=config.LINE_WIDTH, colsep=None,
-    pattern=None, make_unique=config.MAKE_UNIQUE, sort_items=config.SORT_ITEMS,
-    output_stream=config.TERMINAL_STREAM
+    items, spacing=config.SPACING, line_width=config.LINE_WIDTH,
+    extra_sep=config.EXTRA_SEP, pattern=None, make_unique=config.MAKE_UNIQUE,
+    sort_items=config.SORT_ITEMS, output_stream=config.TERMINAL_STREAM
 ):
     """
     Return a columnized string based on `items`. Note that `items` can be a
@@ -34,6 +34,9 @@ def columnize(
     `line_width` should be a non-negative integer defining the maximal amount
     of characters that fit in one line. If this is `None` then the function
     tries to detect the width automatically.
+
+    `extra_sep` defines an additional separator to be used between each column.
+    If this is `None` then no extra separator will be added.
 
     If `pattern` is not `None` then it is meant to be an expression that is
     free to make use of shell-like file matching mechanisms for matching a
@@ -54,10 +57,13 @@ def columnize(
     formatter_class = formatters.find_formatter(items)
     if line_width is None:
         try:
-            formatter = formatter_class.for_terminal(output_stream, spacing)
+            formatter = formatter_class.for_terminal(
+                output_stream, spacing, extra_sep
+            )
         except (IOError, OSError):
             raise OSError('unable to detect line width')
     else:
-        formatter = formatter_class.for_line_config(spacing, line_width)
-    formatter.colsep = colsep
+        formatter = formatter_class.for_line_config(
+            spacing, line_width, extra_sep
+        )
     return formatter.format(items, pattern=pattern, sort_items=sort_items)

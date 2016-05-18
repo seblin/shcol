@@ -14,6 +14,7 @@ import os
 import sys
 
 ERROR_STREAM = sys.stderr
+EXTRA_SEP = None
 INPUT_STREAM = sys.stdin
 LINE_WIDTH = None
 LINE_WIDTH_FALLBACK = 80
