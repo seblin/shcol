@@ -71,7 +71,7 @@ class IterableFormatter(object):
         formatter's line width is equal to the terminal's width.
         """
         self.calculator = calculator
-        self.extra_sep = extra_sep
+        self._extra_sep = self.extra_sep = extra_sep
         self.linesep = linesep
         self.encoding = encoding
         self.wrapsep = linesep if wrap_lines else ''
@@ -113,6 +113,22 @@ class IterableFormatter(object):
             calculator, wrap_lines=(not width_info.is_line_width),
             extra_sep=extra_sep
         )
+
+    @property
+    def extra_sep(self):
+        """
+        Get the value of the `extra_sep`-attribute for this formatter.
+        """
+        return self._extra_sep
+
+    @extra_sep.setter
+    def extra_sep(self, extra_sep):
+        """
+        Set the value of the `extra_sep`-attribute for this formatter.
+        """
+        if extra_sep is not None and len(extra_sep) != 1:
+            raise ValueError('extra_sep must be a single character or None')
+        self._extra_sep = extra_sep
 
     @property
     def spacing(self):
