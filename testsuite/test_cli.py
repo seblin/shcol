@@ -55,6 +55,7 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
         args = self.parser.parse_args(['spam'])
         self.assertEqual(args.spacing, 2)
         self.assertIsNone(args.width)
+        self.assertIsNone(args.extra_sep)
         self.assertFalse(args.sort)
         self.assertIsNone(args.column)
 
@@ -73,6 +74,11 @@ class ArgumentParserTest(CLITestMixin, unittest.TestCase):
 
     def test_line_width_option(self):
         self.check_num_option('--width', '-w')
+
+    def test_extra_sep_option(self):
+        for option in ('-e', '--extra-sep'):
+            args = self.parser.parse_args(['foo', option, '|'])
+            self.assertEqual(args.extra_sep, '|')
 
     def test_unique_option(self):
         args = self.parser.parse_args(['--unique', 'spam'])

@@ -102,6 +102,12 @@ class ArgumentParser(argparse.ArgumentParser):
                  '(use terminal width by default)'
         )
         self.add_argument(
+            '-e', '--extra-sep', metavar='C', type=str,
+            default=config.EXTRA_SEP,
+            help='additional character between columns (default: {})'
+                 .format(config.EXTRA_SEP)
+        )
+        self.add_argument(
             '-c', '--column', metavar='N', type=helpers.num, dest='column',
             help='choose a specific column per line via an index value\n'
                  '(indices start at 0, column separator is whitespace)\n'
@@ -176,7 +182,8 @@ def main(args=None, prog_name='shcol', version=__version__):
         args = parser.parse_args(args)
         highlevel.print_columnized(
             args.items, spacing=args.spacing, line_width=args.width,
-            pattern=args.pattern, make_unique=args.unique, sort_items=args.sort
+            extra_sep=args.extra_sep, pattern=args.pattern,
+            make_unique=args.unique, sort_items=args.sort
         )
     except KeyboardInterrupt:
         parser.exit(1)
