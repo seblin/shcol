@@ -161,7 +161,10 @@ class ArgumentParser(argparse.ArgumentParser):
         return args
 
 
-def main(args=None, prog_name='shcol', version=__version__):
+def main(
+    args=None, prog_name='shcol', version=__version__,
+    output_stream=config.TERMINAL_STREAM
+):
     """
     Parse command-line arguments and invoke `highlevel.print_columnized()`
     with the result.
@@ -173,6 +176,9 @@ def main(args=None, prog_name='shcol', version=__version__):
 
     `version` should be a string containing the program's version.
 
+    `output_stream` should be a writable file-like object that is used to print
+    the result of columnizing.
+
     If an exception occurs during running this function then its message (if
     any) will be written to standard error and the interpreter is requested to
     shut down (i.e. it exits with an error code if `SystemExit` is not caught).
@@ -183,7 +189,8 @@ def main(args=None, prog_name='shcol', version=__version__):
         highlevel.print_columnized(
             args.items, spacing=args.spacing, line_width=args.width,
             extra_sep=args.extra_sep, pattern=args.pattern,
-            make_unique=args.unique, sort_items=args.sort
+            make_unique=args.unique, sort_items=args.sort,
+            output_stream=output_stream
         )
     except KeyboardInterrupt:
         parser.exit(1)
