@@ -256,7 +256,14 @@ class IterableFormatter(object):
         Return a `LineProperties`-instance with a configuration based on given
         `items`.
         """
-        return self.calculator.get_line_properties(items)
+        increased_spacing = False
+        if self.extra_sep is not None and self.calculator.spacing % 2 == 0:
+            self.calculator.spacing += 1
+            increased_spacing = True
+        props = self.calculator.get_line_properties(items)
+        if increased_spacing:
+            self.calculator.spacing -= 1
+        return props
 
     @staticmethod
     def make_line_chunks(items, props):
@@ -455,7 +462,7 @@ class MappingFormatter(IterableFormatter):
         strings in the keys and values of `mapping`.
         """
         items = itertools.chain(mapping.keys(), mapping.values())
-        return self.calculator.get_line_properties(items)
+        return super(type(self), self).get_line_properties(items)
 
     @staticmethod
     def make_line_chunks(mapping, props):
