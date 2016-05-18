@@ -79,7 +79,7 @@ class ArgumentParser(argparse.ArgumentParser):
             stream = self.stdout
         elif stream is sys.stderr:
             stream = self.stderr
-        argparse.ArgumentParser._print_message(self, message, file=stream)
+        super(type(self), self)._print_message(message, file=stream)
 
     def init_arguments(self):
         """
