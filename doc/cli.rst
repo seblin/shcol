@@ -57,6 +57,23 @@ characters:
    winlogon  wlanext       WUDFHost
 
 
+Using an extra separator
+------------------------
+
+If you need to add an additional separator between the columns then this can be
+done by using the :option:`-e` (long form: :option:`--extra-sep`) option:
+
+.. code-block:: powershell
+
+   PS C:\> (ps w*).name | shcol -e"-"
+   wininit - winlogon - winpty-agent - WUDFHost
+   PS C:\> (ps w*).name | shcol --extra-sep="-"
+   wininit - winlogon - winpty-agent - WUDFHost
+   PS C:\> (ps w*).name | shcol --extra-sep="-" --width=25
+   wininit  - winpty-agent
+   winlogon - WUDFHost
+
+
 Selecting a specific column
 ---------------------------
 

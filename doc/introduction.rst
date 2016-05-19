@@ -21,12 +21,14 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    foo     bar     baz
    PS C:\> shcol foo foo bar bar baz --unique
    foo  bar  baz
+   PS C:\> shcol foo bar baz --extra-sep="~"
+   foo ~ bar ~ baz
    PS C:\> (ls Python27).name | shcol --sort --width=50
    DLLs     libs         python.exe   tcl
    Doc      LICENSE.txt  pythonw.exe  Tools
    include  man          README.txt   w9xpopen.exe
    Lib      NEWS.txt     Scripts
-   PS C:\> echo "foo`tbar`tbaz`nspam`tham`teggs" | shcol --column=0
+   PS C:\> echo foo`tbar`tbaz spam`tham`teggs | shcol --column=0
    foo  spam
 
 
@@ -44,12 +46,18 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    Doc      LICENSE.txt  pythonw.exe  Tools
    include  man          README.txt   w9xpopen.exe
    Lib      NEWS.txt     Scripts
-   >>> shcol.print_columnized(range(15), line_width=10)
+   >>> shcol.print_columnized(range(15), line_width=10, extra_sep="|")
    0  5  10
    1  6  11
    2  7  12
    3  8  13
    4  9  14
+   >>> shcol.print_columnized(range(15), line_width=10, extra_sep='|')
+   0 | 5 | 10
+   1 | 6 | 11
+   2 | 7 | 12
+   3 | 8 | 13
+   4 | 9 | 14
    >>> shcol.print_sorted(os.environ, pattern='*PROG*')
    COMMONPROGRAMFILES       C:\Program Files (x86)\Common Files
    COMMONPROGRAMFILES(X86)  C:\Program Files (x86)\Common Files

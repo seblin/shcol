@@ -53,6 +53,23 @@ To do this, just use the appropriated keyword arguments:
     1  3  5  7  9
 
 
+How to use an additional separator
+----------------------------------
+
+You maybe want to add an extra separator between the columns in some situations.
+For this purpose, the :option:`extra_sep`-option was designed.
+
+It takes a single character and can be used like this:
+
+.. code-block:: pycon
+
+   >>> shcol.print_columnized(xrange(10), extra_sep='|')
+   0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+   >>> shcol.print_columnized(xrange(10), extra_sep='|', line_width=20)
+   0 | 2 | 4 | 6 | 8
+   1 | 3 | 5 | 7 | 9
+
+
 Filtering input
 ---------------
 
