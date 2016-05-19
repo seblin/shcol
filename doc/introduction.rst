@@ -46,7 +46,7 @@ These examples show running :program:`shcol` from the Windows PowerShell:
    Doc      LICENSE.txt  pythonw.exe  Tools
    include  man          README.txt   w9xpopen.exe
    Lib      NEWS.txt     Scripts
-   >>> shcol.print_columnized(range(15), line_width=10, extra_sep="|")
+   >>> shcol.print_columnized(range(15), line_width=10)
    0  5  10
    1  6  11
    2  7  12
