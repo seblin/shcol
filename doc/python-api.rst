@@ -101,7 +101,8 @@ This is how to pass different patterns as a filter:
 How to sort
 -----------
 
-:program:`shcol` will do locale-dependent sorting via the `sort_items` keyword.
+:program:`shcol` will do locale-dependent sorting via the :option:`sort_items`
+keyword.
 
 Sorting can be done like this:
 
@@ -112,22 +113,23 @@ Sorting can be done like this:
     >>> shcol.print_columnized(['späm', 'häm', 'äggs'], sort_items=True)
     äggs  häm  späm
 
-Please note that sorting items with non-ascii characters will only work as
+Please note that sorting items with non-ASCII characters will only work as
 intended if your system's locale setting was set accordingly, i.e. in order to
-sort german Umlauts as shown above you should set a german locale.
+sort German Umlauts as shown above you should set a german locale.
 
 
 Eliminating duplicates
 ----------------------
 
 If your input contains duplicates and you don't want to have duplicates in your
-columnized output then the `make_unique` keyword is a good way to deal with
-that.
+columnized output then the :option:`make_unique` keyword is a good way to deal
+with that.
 
 When this feature is enabled then :program:`shcol` will ignore subsequent
 occurrences of an item that already has been processed.
 
-The effect of using `make_unique` is illustrated by the following example:
+The effect of using :option:`make_unique` is illustrated by the following
+example:
 
 .. code-block:: pycon
 
@@ -135,9 +137,9 @@ The effect of using `make_unique` is illustrated by the following example:
    >>> shcol.print_columnized(items, make_unique=True)
    spam  ham  eggs
 
-Note that `make_unique` preserves the original order of the given items. This
-differs from calling the Python standard library's `set()`-constructor, which
-makes no guarantees about the order of its result.
+Note that :option:`make_unique` preserves the original order of the given items.
+This differs from calling the Python standard library's `set()`-constructor,
+which makes no guarantees about the order of its result.
 
 
 Printing directory contents
@@ -177,8 +179,8 @@ shell globbing:
    LICENSE.txt  NEWS.txt  README.txt
 
 Note that `print_columnized()` is used under the hood to do the actual
-columnizing, so all of its options (such as `spacing`, `line_width`, ...)
-are available as well:
+columnizing, so all of its options (such as :option:`spacing`,
+:option:`line_width`, ...) are available as well:
 
 .. code-block:: pycon
 
