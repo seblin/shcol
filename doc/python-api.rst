@@ -69,6 +69,8 @@ It takes a single character and can be used like this:
    0 | 2 | 4 | 6 | 8
    1 | 3 | 5 | 7 | 9
 
+*(New feature in development version - not yet released.)*
+
 
 Filtering input
 ---------------

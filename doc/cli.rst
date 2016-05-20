@@ -73,6 +73,8 @@ done by using the :option:`-e` (long form: :option:`--extra-sep`) option:
    wininit  - winpty-agent
    winlogon - WUDFHost
 
+*(New feature in development version - not yet released.)*
+
 
 Selecting a specific column
 ---------------------------
