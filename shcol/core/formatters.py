@@ -342,7 +342,7 @@ class IterableFormatter(object):
         parts.append(self.get_unpadded_template(widths[-1]))
         if self.extra_sep is not None:
             spacer = props.spacing // 2 * ' '
-            sep = '%s%s%s' % (spacer, self.extra_sep, spacer)
+            sep = spacer + self.extra_sep + spacer
         else:
             sep = props.spacing * ' '
         return sep.join(parts)
