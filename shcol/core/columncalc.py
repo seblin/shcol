@@ -131,19 +131,17 @@ class ColumnWidthCalculator(object):
 
     def find_fitting_config(self, item_widths):
         """
-        Return a column configuration that fits with the maximal line width of
-        this instance.
-
-        Note that this method internally uses `.iter_column_configs()` in order
-        to retrieve some candidates and then returns the first fitting one. If
-        no fitting candidate was found then this method will fail with an error.
+        Return a column configuration for given `item_widths` that fits into the
+        maximal line width of this instance. Raise `LineTooSmallError` if no
+        fitting configuration was found.
         """
         max_columns = self.calculate_max_columns(item_widths)
-        for cfg in self.iter_column_configs(item_widths, max_columns):
+        while max_columns > 0:
+            cfg = self.get_unchecked_column_config(item_widths, max_columns)
             if self.fits_in_line(cfg.column_widths):
                 return cfg
-        else:
-            raise LineTooSmallError
+            max_columns = len(cfg.column_widths) - 1
+        raise LineTooSmallError
 
     def calculate_max_columns(self, item_widths):
         """
@@ -165,30 +163,6 @@ class ColumnWidthCalculator(object):
         min_width = self.spacing + smallest_item
         possible_columns = 1 + remaining_width // min_width
         return min(num_items, possible_columns)
-
-    def iter_column_configs(self, item_widths, max_columns):
-        """
-        Return an iterator that yields a sequence of "column configurations" for
-        `item_widths`. A configuration is a 2-element tuple consisting of a list
-        of column widths and the number of lines that are needed to display all
-        items with that configuration. The maximum number of columns is defined
-        by `max_columns`.
-
-        Note that `max_columns` is also used to define the initial amount of
-        columns for the first configuration. Subsequent configurations are
-        calculated by decreasing that amount at each step until an amount of
-        zero columns is reached.
-
-        Depending on the underlying algorithm this method must not necessarily
-        return each possible configuration. In fact, the current implementation
-        prefers balanced column lengths where only the last column is allowed to
-        be shorter than the other columns. This might result in omitting some
-        configurations. See `.get_unchecked_column_config()` for details.
-        """
-        while max_columns > 0:
-            cfg = self.get_unchecked_column_config(item_widths, max_columns)
-            max_columns = len(cfg.column_widths) - 1
-            yield cfg
 
     @staticmethod
     def get_unchecked_column_config(item_widths, max_columns):
